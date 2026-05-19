@@ -177,7 +177,7 @@ def _create_classic_arm_pool(cluster_name: str, kubeconfig: str | None) -> int:
             "--instance-type", INSTANCE_TYPE_ARM,
             "--enable-autoscaling",
             "--min-replicas", "0",
-            "--max-replicas", "5",
+            "--max-replicas", "6",
             "--labels", "benchmark=true,pool-type=arm64",
             "--yes",
         ],

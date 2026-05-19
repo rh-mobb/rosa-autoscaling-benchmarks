@@ -965,7 +965,7 @@
       const [state, dispatch] = useReducer(reducer, null, () =>
         createInitial('classic', {
           reqsPerSec: 40,
-          balloonPodsEnabled: false,
+          balloonPodsEnabled: true,
           balloonPodCount: 3,
           centsPerSession: 5,
         })
@@ -1178,64 +1178,69 @@
                 </div>
               ) : null}
 
-              <label className="control">
-                <span className="label">
-                  <span>Preset peak traffic (req/s)</span>
-                  <span>{state.scenarioPeakReqs}</span>
-                </span>
-                <input
-                  type="range"
-                  min={100}
-                  max={TRAFFIC_SLIDER_MAX}
-                  step={50}
-                  value={state.scenarioPeakReqs}
-                  onChange={(e) => dispatch({ type: 'SET_SCENARIO_PEAK', value: Number(e.target.value) })}
-                />
-              </label>
+              {state.activeScenario !== 'manual' ? (
+                <label className="control">
+                  <span className="label">
+                    <span>Preset peak traffic (req/s)</span>
+                    <span>{state.scenarioPeakReqs}</span>
+                  </span>
+                  <input
+                    type="range"
+                    min={100}
+                    max={TRAFFIC_SLIDER_MAX}
+                    step={50}
+                    value={state.scenarioPeakReqs}
+                    onChange={(e) => dispatch({ type: 'SET_SCENARIO_PEAK', value: Number(e.target.value) })}
+                  />
+                </label>
+              ) : null}
 
-              <label className="control">
-                <span className="label">
-                  <span>Day length (sim s, daily only)</span>
-                  <span>{state.dayPeriodSimSec}</span>
-                </span>
-                <input
-                  type="range"
-                  min={600}
-                  max={7200}
-                  step={60}
-                  value={state.dayPeriodSimSec}
-                  disabled={state.activeScenario !== 'daily'}
-                  onChange={(e) => dispatch({ type: 'SET_DAY_PERIOD', value: Number(e.target.value) })}
-                />
-              </label>
+              {state.activeScenario === 'daily' ? (
+                <label className="control">
+                  <span className="label">
+                    <span>Day length (sim s)</span>
+                    <span>{state.dayPeriodSimSec}</span>
+                  </span>
+                  <input
+                    type="range"
+                    min={600}
+                    max={7200}
+                    step={60}
+                    value={state.dayPeriodSimSec}
+                    onChange={(e) => dispatch({ type: 'SET_DAY_PERIOD', value: Number(e.target.value) })}
+                  />
+                </label>
+              ) : null}
 
-              <details className="scenario-about">
-                <summary>About these traffic shapes</summary>
-                <ul>
-                  <li>
-                    <strong>Daily:</strong> Illustrative bumps (morning, lunch, evening peak, late leisure) with a quieter overnight — not literal ticket RPS; see{' '}
-                    <a href="https://blog.punchup.live/when-do-fans-actually-buy-tickets/" target="_blank" rel="noreferrer">
-                      Punchup
-                    </a>
-                    ,{' '}
-                    <a href="https://www.showpass.com/sell/when-do-people-actually-buy-tickets-showpass-ticket-sales-trend-report/" target="_blank" rel="noreferrer">
-                      Showpass
-                    </a>
-                    .
-                  </li>
-                  <li>
-                    <strong>On-sale:</strong> Sharp ramp at a fixed sim time, plateau, then decay — qualitatively like major on-sales; see{' '}
-                    <a href="https://business.ticketmaster.com/press-release/taylor-swift-the-eras-tour-onsale-explained/" target="_blank" rel="noreferrer">
-                      Ticketmaster (Eras tour)
-                    </a>
-                    .
-                  </li>
-                  <li>
-                    <strong>Viral:</strong> Slower ramp and longer plateau than on-sale (social-discovery style); absolute scale stays your peak setting.
-                  </li>
-                  <li>Charts use <strong>normalized shapes × peak req/s</strong> — relative timing matters for the demo, not real-world load numbers.</li>
-                </ul>
-              </details>
+              {state.activeScenario !== 'manual' ? (
+                <details className="scenario-about">
+                  <summary>About these traffic shapes</summary>
+                  <ul>
+                    <li>
+                      <strong>Daily:</strong> Illustrative bumps (morning, lunch, evening peak, late leisure) with a quieter overnight — not literal ticket RPS; see{' '}
+                      <a href="https://blog.punchup.live/when-do-fans-actually-buy-tickets/" target="_blank" rel="noreferrer">
+                        Punchup
+                      </a>
+                      ,{' '}
+                      <a href="https://www.showpass.com/sell/when-do-people-actually-buy-tickets-showpass-ticket-sales-trend-report/" target="_blank" rel="noreferrer">
+                        Showpass
+                      </a>
+                      .
+                    </li>
+                    <li>
+                      <strong>On-sale:</strong> Sharp ramp at a fixed sim time, plateau, then decay — qualitatively like major on-sales; see{' '}
+                      <a href="https://business.ticketmaster.com/press-release/taylor-swift-the-eras-tour-onsale-explained/" target="_blank" rel="noreferrer">
+                        Ticketmaster (Eras tour)
+                      </a>
+                      .
+                    </li>
+                    <li>
+                      <strong>Viral:</strong> Slower ramp and longer plateau than on-sale (social-discovery style); absolute scale stays your peak setting.
+                    </li>
+                    <li>Charts use <strong>normalized shapes × peak req/s</strong> — relative timing matters for the demo, not real-world load numbers.</li>
+                  </ul>
+                </details>
+              ) : null}
 
               <label className="control">
                 <span className="label">

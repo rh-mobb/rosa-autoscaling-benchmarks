@@ -215,9 +215,10 @@ The test creates a machine pool named `bench-spot` with:
 --use-spot-instances
 --enable-autoscaling
 --min-replicas 0
---max-replicas 5
+--max-replicas 6
 --labels benchmark=true,pool-type=spot
 ```
+(`max-replicas` is **6** so multi-AZ Classic clusters satisfy ROSA’s “multiple of 3” rule; single-AZ would accept smaller caps.)
 
 The pool starts at `min=0` so the benchmark captures the complete cold-start
 provisioning chain. The `bench-spot` pool is deleted at the end of the test.

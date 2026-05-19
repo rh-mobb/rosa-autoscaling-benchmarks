@@ -173,7 +173,8 @@ def _create_classic_spot_pool(
         "--use-spot-instances",
         "--enable-autoscaling",
         "--min-replicas", "0",
-        "--max-replicas", "5",
+        # Multi-AZ Classic clusters require pool replica bounds aligned to 3×AZ (ROSA rejects max=5).
+        "--max-replicas", "6",
         "--labels", "benchmark=true,pool-type=spot",
         "--yes",
     ]

@@ -36,18 +36,18 @@ Speaker note: We ran paired scripted benchmarks on ROSA Classic (CAS) and ROSA H
 
 # Agenda
 
-1. **Topology** — ROSA Classic vs HCP (CAS vs AutoNode placement)
-2. **Framing** — Fleet vs workload scaling (HPA / VPA); balloons bridging the latency gap
-3. **Roadmap** — Paired benchmark scenarios (Classic vs HCP + AutoNode)
-4. **Section 4** — Cluster lifecycle (install timelines, machine pools)
-5. **Section 5** — Node scaling benchmarks (methodology, progressive waves, bin‑pack, scale‑down, instance fit)
-6. **Workload & glue** — HPA (**Test 06**), cascade, overprovisioning *(slides after Section 5; no separate divider; VPA stays on taxonomy slide **6** only)*
-7. **Section 7** — Advanced labs (planned surge, sudden spike)
-8. **Section 8** — Head‑to‑head comparison
-9. **Section 9** — Findings, recommendations & close
+1. **Architecture** — Classic vs HCP topology; CAS vs AutoNode
+2. **Cost Structure** — Infrastructure savings, Spot + ARM levers, real-world burst
+3. **Autoscaling Taxonomy** — Fleet vs workload planes; HPA, VPA, balloon pods
+4. **Cluster Lifecycle** — Install timing; machine pool provisioning
+5. **Node Scaling Benchmarks** — Progressive waves, bin-pack, scale-down, instance fit
+6. **Workload Scaling** — HPA response; HPA→autoscaler cascade; overprovisioning
+7. **Advanced Autoscaling Patterns** — Planned surge; sudden spike
+8. **Head-to-Head Results** — Benchmark comparison table
+9. **Findings & Recommendations**
 
 <!--
-Speaker note: **Sections 4–9** match the numbered divider slides. **Slides 3–8** set topology, taxonomy, checklist; timed install work starts **Section 4**.
+Speaker note: Items 1–3 are taxonomy and framing; timed benchmark work starts at item 4. Item 6 (Workload Scaling) has no dedicated section divider — it follows directly after the node scaling slides.
 -->
 
 ---
@@ -393,13 +393,13 @@ layout: section
 class: section-header
 ---
 
-<!-- SLIDE 13 — Section 4: Cluster Install Timing -->
+<!-- SLIDE 13 — Cluster Lifecycle -->
 
-# Section 4
-## Cluster Install Timing
+# Cluster Lifecycle
+## Install timing · Machine pool provisioning
 
 <!--
-Speaker note: From zero to schedulable — Classic vs HCP + AutoNode. **Skipped in deck:** detailed AutoNode prereqs (IAM, subnet/SG discovery tags, `rosa edit cluster --autonode=enabled`); scripted in `clusters/classic-vs-hcp_autonode/create.sh`, typically &lt;2 min atop HCP Ready—see next timelines.
+Speaker note: From zero to schedulable — Classic vs HCP + AutoNode. Skipped in deck: detailed AutoNode prereqs (IAM, subnet/SG discovery tags, `rosa edit cluster --autonode=enabled`); scripted in `clusters/classic-vs-hcp_autonode/create.sh`, typically &lt;2 min atop HCP Ready — see next timelines.
 -->
 
 ---
@@ -509,10 +509,10 @@ layout: section
 class: section-header
 ---
 
-<!-- SLIDE 17 — Section 5: Benchmarks -->
+<!-- SLIDE 17 — Node Scaling Benchmarks -->
 
-# Section 5
-## Benchmarks — Classic vs HCP with AutoNode
+# Node Scaling Benchmarks
+## Classic vs HCP + AutoNode — live cluster results
 
 <!--
 Speaker note: Now the core of the talk: head-to-head benchmark results
@@ -1020,10 +1020,10 @@ layout: section
 class: section-header
 ---
 
-<!-- SLIDE 28 — Section 7: Advanced scenarios -->
+<!-- SLIDE 28 — Advanced Autoscaling Patterns -->
 
-# Section 7
-## Advanced Scenarios
+# Advanced Autoscaling Patterns
+## Planned surge · Sudden spike
 
 <!--
 Speaker note: Planned surge and sudden spike — patterns beyond raw scale‑up/down.
@@ -1114,10 +1114,10 @@ layout: section
 class: section-header
 ---
 
-<!-- SLIDE 31 — Section 8: Comparison -->
+<!-- SLIDE 31 — Head-to-Head Results -->
 
-# Section 8
-## AutoNode vs CAS — The Numbers
+# Head-to-Head Results
+## CAS vs AutoNode — the numbers
 
 <!--
 Speaker note: Let's put it all together. The head-to-head comparison
@@ -1191,7 +1191,7 @@ class: text-center
 </div>
 
 <!--
-Speaker note: Tiles = HCP infra + autoscaler behaviours + economics. The bottom-right tile covers three related levers — bin-packing (fewer nodes), right-sizing SKU (pick instance to fit workload), and Spot + ARM (pick cheapest purchasing option). All three flow from the same root capability: AutoNode chooses the optimal instance at scheduling time rather than being locked to a pre-declared pool. Spot + ARM via a single NodePool can reduce burst EC2 costs by ~73% vs on-demand x86; CAS needs a separate MachineSet per combination with a standing 3-node minimum per AZ. Footer bridges to Section 9: slack first when latency is measured at the pod — not at the provisioning API.
+Speaker note: Tiles = HCP infra + autoscaler behaviours + economics. The bottom-right tile covers three related levers — bin-packing (fewer nodes), right-sizing SKU (pick instance to fit workload), and Spot + ARM (pick cheapest purchasing option). All three flow from the same root capability: AutoNode chooses the optimal instance at scheduling time rather than being locked to a pre-declared pool. Spot + ARM via a single NodePool can reduce burst EC2 costs by ~73% vs on-demand x86; CAS needs a separate MachineSet per combination with a standing 3-node minimum per AZ. Footer bridges to Findings & Recommendations: slack first when latency is measured at the pod — not at the provisioning API.
 -->
 
 ---
@@ -1199,10 +1199,9 @@ layout: section
 class: section-header
 ---
 
-<!-- SLIDE 34 — Section 9: Findings & recommendations -->
+<!-- SLIDE 34 — Findings & Recommendations -->
 
-# Section 9
-## Findings and Recommendations
+# Findings & Recommendations
 
 <!--
 Speaker note: Let me close with what these numbers mean in practice.

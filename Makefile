@@ -79,6 +79,9 @@ help:
 	@echo "    make remove-pool NAME=<pool-name> CLUSTER=<name>"
 	@echo "      Deletes a named machine pool and terminates its nodes"
 	@echo ""
+	@echo "  Deck:"
+	@echo "    make deck                          Preview CAS vs AutoNode slide deck (http://localhost:3030)"
+	@echo ""
 	@echo "  Python environment:"
 	@echo "    make venv                          Create .venv and install all dependencies"
 	@echo ""
@@ -524,6 +527,12 @@ run-test-16:
 		--cluster-type "$(TYPE)" \
 		$(if $(RUN_ID),--run-id "$(RUN_ID)") \
 		$(if $(NODEPOOL_NAME),--nodepool-name "$(NODEPOOL_NAME)")
+
+# ── Slide deck ────────────────────────────────────────────────────────────────
+.PHONY: deck
+deck:
+	@echo "==> Starting CAS vs AutoNode slide deck at http://localhost:3030"
+	$(MAKE) -C reports/classic-vs-hcp_autonode dev
 
 # ── Python virtualenv ─────────────────────────────────────────────────────────
 .PHONY: venv

@@ -232,9 +232,10 @@ The test creates a machine pool named `bench-arm64` with:
 --instance-type m6g.xlarge
 --enable-autoscaling
 --min-replicas 0
---max-replicas 5
+--max-replicas 6
 --labels benchmark=true,pool-type=arm64
 ```
+(`max-replicas` is **6** so multi-AZ clusters satisfy ROSA’s “multiple of 3” requirement.)
 
 The pool starts at `min=0` so the benchmark captures the complete cold-start
 provisioning chain. The `bench-arm64` pool is deleted at the end of the test.
