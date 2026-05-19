@@ -68,7 +68,7 @@ Architecture, constants, tick order, and limitations: **`simulator/README.md`**.
 
 On every push to **`main`**, **Deploy GitHub Pages** (`.github/workflows/deploy-github-pages.yml`) builds the Slidev deck under **`reports/classic-vs-hcp_autonode/`** with the correct subpath base, copies **`simulator/index.html`** to **`/simulator/`**, renders **`pages/index.html`** as the site home page, and deploys the bundle to GitHub Pages. You can also run the workflow manually (**Actions → Deploy GitHub Pages → Run workflow**).
 
-**One-time setup:** in the GitHub repo, open **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions** (not “Deploy from a branch”). After the first successful run, the site URL is:
+**One-time setup:** in the GitHub repo, open **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions** (not “Deploy from a branch”). Until this is saved, **Deploy GitHub Pages** will fail at the deploy step with **404 Not Found** (“Creating Pages deployment failed”). After the first successful run, the site URL is:
 
 `https://<owner>.github.io/<repository>/`
 

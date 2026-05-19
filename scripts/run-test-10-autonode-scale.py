@@ -1025,7 +1025,7 @@ def main() -> None:
     if trigger_mode == "pause-pods" and not args.dry_run:
         check_cmd = ["oc", "get", "deployment", APP_DEPLOYMENT, "-n", NAMESPACE]
         if kubeconfig:
-            check_cmd = ["oc", "--kubeconfig", kubeconfig] + check_cmd[1:]
+            check_cmd = ["oc", "--kubeconfig", kubeconfig, *check_cmd[1:]]
         check = subprocess.run(check_cmd, capture_output=True)
         if check.returncode != 0:
             print(
