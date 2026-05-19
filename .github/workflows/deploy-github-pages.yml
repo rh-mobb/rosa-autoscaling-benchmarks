@@ -49,6 +49,9 @@ jobs:
           cp simulator/index.html _site/simulator/
           cp -r reports/classic-vs-hcp_autonode/dist/. _site/deck/
           sed "s#__GITHUB_REPO_URL__#https://github.com/${REPOSITORY}#g" pages/index.html > _site/index.html
+          # GitHub Pages only serves root 404.html for missing paths;
+          # copy deck SPA fallback so /deck/N deep-links load Vue Router.
+          cp _site/deck/404.html _site/404.html
           touch _site/.nojekyll
 
       - name: Upload Pages artifact
