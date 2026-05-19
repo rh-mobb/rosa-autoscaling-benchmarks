@@ -1,0 +1,15 @@
+# Runtime dependencies for rosa-autoscaling-performance-and-recommendations scripts.
+#
+# Install into the project virtualenv:
+#   python3 -m venv .venv
+#   source .venv/bin/activate
+#   pip install -r requirements.txt
+
+# YAML parsing for any scripts that manipulate Kubernetes manifests
+PyYAML==6.0.2
+
+# AWS SDK — used by scripts that call AWS APIs directly (e.g. EC2 instance type queries)
+boto3==1.38.8
+
+# botocore is a boto3 dependency; pinned here for reproducibility
+botocore==1.38.8

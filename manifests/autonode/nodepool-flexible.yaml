@@ -1,0 +1,49 @@
+---
+# manifests/autonode/nodepool-flexible.yaml
+#
+# Karpenter NodePool for test 05b (dynamic instance selection demo).
+#
+# Unlike nodepool.yaml (locked to m5.xlarge), this pool allows a range of
+# memory-optimised r5 instances so that Karpenter can select the right size
+# for a workload that CAS — bound to its fixed m5.xlarge machine pool — would
+# refuse to schedule with NotTriggerScaleUp.
+#
+# Workload target: large-workload-cas-unschedulable.yaml (28 CPU / 200 GiB)
+#   m5.xlarge   4 vCPU /  16 GiB  → does NOT fit
+#   r5.8xlarge  32 vCPU / 256 GiB  → fits
+#
+# Requires: AutoNode enabled on the cluster (rosa edit cluster --autonode=enabled)
+#           and ec2nodeclass/default READY=True.
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: autonode-flexible
+spec:
+  template:
+    metadata:
+      labels:
+        autonode-flexible: "true"
+    spec:
+      requirements:
+        - key: node.kubernetes.io/instance-type
+          operator: In
+          values:
+            # Allow r5 variants large enough to satisfy a 28 CPU / 200 GiB request.
+            # Karpenter will pick the smallest that fits (cost-optimal selection).
+            - r5.8xlarge   # 32 vCPU / 256 GiB — smallest r5 that satisfies the request
+            - r5.16xlarge  # 64 vCPU / 512 GiB
+            - r5.24xlarge  # 96 vCPU / 768 GiB
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values:
+            - on-demand
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: default
+  limits:
+    cpu: "96"
+    memory: 768Gi
+  disruption:
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidateAfter: 30s

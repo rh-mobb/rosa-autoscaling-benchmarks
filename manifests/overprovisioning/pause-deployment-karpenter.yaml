@@ -1,0 +1,57 @@
+---
+# manifests/overprovisioning/pause-deployment-karpenter.yaml
+#
+# Mirror of pause-deployment.yaml for ROSA HCP AutoNode (Karpenter) clusters.
+#
+# Same pause image, resource requests, and PriorityClass so the headroom
+# reservation and preemption behaviour is identical to the Classic run.
+#
+# The only addition is nodeAffinity pinning pods to the Karpenter-managed
+# NodePool (autonode-bench), so Karpenter provisions the headroom nodes and
+# also restores them after preemption — not the default HCP workers.
+#
+# Applied by: run-test-09b-karpenter-overprovisioning.py
+# Requires: priority-class.yaml to be applied first
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cluster-overprovisioner
+  namespace: benchmark
+  labels:
+    app: cluster-overprovisioner
+    benchmark: "true"
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: cluster-overprovisioner
+  template:
+    metadata:
+      labels:
+        app: cluster-overprovisioner
+        benchmark: "true"
+    spec:
+      priorityClassName: cluster-overprovisioner
+      terminationGracePeriodSeconds: 0
+      tolerations:
+        - operator: Exists
+          effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: karpenter.sh/nodepool
+                    operator: In
+                    values:
+                      - autonode-bench
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.9
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "2Gi"
+            limits:
+              cpu: "1000m"
+              memory: "2Gi"

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Benchmark 01 — 20260507T232337-classic — ROSA Classic cluster install</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --border: #2d3a4d;
+      --text: #e6edf3;
+      --muted: #8b9cb3;
+      --accent: #58a6ff;
+      --warning: #d4a72c;
+      --ok: #3fb950;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 15px;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 3rem;
+    }
+    header.doc {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin: 0 0 0.35rem;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin: 0;
+    }
+    dl.meta {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.35rem 1.25rem;
+      margin: 1.25rem 0 0;
+      font-size: 0.9rem;
+    }
+    dl.meta dt {
+      color: var(--muted);
+      font-weight: 500;
+    }
+    dl.meta dd { margin: 0; }
+
+    h2 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 2rem 0 0.75rem;
+      color: var(--accent);
+    }
+    section:first-of-type h2 { margin-top: 0; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+    }
+    .stat.warning {
+      border-color: var(--warning);
+      box-shadow: 0 0 0 1px rgba(212, 167, 44, 0.25);
+    }
+    .stat .label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+    .stat .value {
+      font-size: 1.35rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat .hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+    }
+
+    table.timeline {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    table.timeline th,
+    table.timeline td {
+      text-align: left;
+      padding: 0.55rem 0.65rem;
+      border-bottom: 1px solid var(--border);
+    }
+    table.timeline th {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    table.timeline tbody tr:hover td {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    td.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; }
+    td.source { color: var(--muted); font-size: 0.82rem; }
+
+    .callout {
+      background: var(--surface);
+      border-left: 3px solid var(--accent);
+      padding: 0.85rem 1rem;
+      border-radius: 0 8px 8px 0;
+      margin-top: 0.5rem;
+    }
+    .callout.warning {
+      border-left-color: var(--warning);
+    }
+    ul.findings {
+      margin: 0.5rem 0 0;
+      padding-left: 1.2rem;
+    }
+    ul.findings li { margin: 0.35rem 0; }
+
+    table.ref {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 0.5rem;
+    }
+    table.ref th,
+    table.ref td {
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.65rem;
+    }
+    table.ref th {
+      background: var(--surface);
+      color: var(--muted);
+      font-weight: 500;
+      text-align: left;
+    }
+
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    details.callout.warning summary {
+      cursor: pointer;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="doc">
+      <h1>Benchmark 01 — Cluster install (ROSA Classic)</h1>
+      <p class="subtitle">Test <code style="background:var(--surface);padding:0.12rem 0.35rem;border-radius:4px">01-cluster-install</code> — OCM ready, <code>oc login</code>, default worker pools, ClusterOperators Available. This run includes manual IAM recovery after an interrupted <code>rosa create cluster</code>; cumulative times from benchmark start are not representative of a clean install.</p>
+      <dl class="meta">
+        <dt>Run ID</dt>
+        <dd>20260507T232337-classic</dd>
+        <dt>Cluster name</dt>
+        <dd>classic-bench</dd>
+        <dt>Region</dt>
+        <dd>us-east-1</dd>
+        <dt>OpenShift / ROSA</dt>
+        <dd>4.21.12 (from metadata.json)</dd>
+        <dt>Report generated</dt>
+        <dd>2026-05-08T02:07:55Z <span style="color:var(--muted);font-size:0.85em">(UTC)</span></dd>
+      </dl>
+    </header>
+
+    <section aria-labelledby="summary-heading">
+      <h2 id="summary-heading">Summary</h2>
+      <p class="subtitle" style="margin:-0.25rem 0 0.75rem">Cumulative time from benchmark start (<code>metadata.json</code> <code>started_at_ms</code>) to each milestone.</p>
+      <div class="stats">
+        <div class="stat" id="stat-cluster-ready">
+          <div class="label">1 · OCM cluster ready</div>
+          <div class="value">140m59s</div>
+          <div class="hint"><code>classic.cluster_ready</code></div>
+        </div>
+        <div class="stat" id="stat-login">
+          <div class="label">2 · oc login OK</div>
+          <div class="value">162m55s</div>
+          <div class="hint"><code>classic.oc_login_ok</code> · cluster-admin</div>
+        </div>
+        <div class="stat warning" id="stat-pools">
+          <div class="label">3 · Machine pools (workers)</div>
+          <div class="value">162m58s</div>
+          <div class="hint"><code>classic.machine_pools_ready</code> · resume logged <code>oc wait</code> timeout; workers were Ready shortly after</div>
+        </div>
+        <div class="stat" id="stat-operators">
+          <div class="label">4 · All operators Available</div>
+          <div class="value">163m15s</div>
+          <div class="hint"><code>classic.operators_ready</code></div>
+        </div>
+        <div class="stat warning" id="stat-total">
+          <div class="label">Total (install script)</div>
+          <div class="value">163m15s</div>
+          <div class="hint"><code>classic.total</code> — inflated by ~90m OCM <code>waiting</code> gap + manual operator/OIDC steps</div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="segments-heading">
+      <h2 id="segments-heading">Phase durations</h2>
+      <p class="subtitle" style="margin:-0.25rem 0 0.5rem">From consecutive cumulative milestones (same as differences of <code>elapsed_ms</code> in <code>events.jsonl</code>).</p>
+      <table class="ref">
+        <thead>
+          <tr>
+            <th scope="col">Segment</th>
+            <th scope="col">Duration</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Benchmark start → OCM cluster ready</td>
+            <td>140m59s</td>
+          </tr>
+          <tr>
+            <td>OCM ready → successful <code>oc login</code></td>
+            <td>21m56s</td>
+          </tr>
+          <tr>
+            <td>Login → all worker nodes Ready (default pools)</td>
+            <td>0m3s</td>
+          </tr>
+          <tr>
+            <td>Pools ready → all ClusterOperators Available</td>
+            <td>0m16s</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="timeline-heading">
+      <h2 id="timeline-heading">Timeline</h2>
+      <p class="subtitle" style="margin:-0.25rem 0 0.75rem">Outcome milestones first; provisioning / recovery at bottom.</p>
+      <table class="timeline">
+        <thead>
+          <tr>
+            <th scope="col">Milestone</th>
+            <th scope="col">Elapsed from start</th>
+            <th scope="col">End (ISO UTC)</th>
+            <th scope="col">Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">classic.cluster_ready</td>
+            <td class="mono">140m59s</td>
+            <td class="mono">2026-05-08T01:44:37Z</td>
+            <td class="source">events.jsonl</td>
+          </tr>
+          <tr>
+            <td class="mono">classic.oc_login_ok</td>
+            <td class="mono">162m55s</td>
+            <td class="mono">2026-05-08T02:06:33Z</td>
+            <td class="source">events.jsonl</td>
+          </tr>
+          <tr>
+            <td class="mono">classic.machine_pools_ready</td>
+            <td class="mono">162m58s</td>
+            <td class="mono">2026-05-08T02:06:36Z</td>
+            <td class="source">events.jsonl · same instant as <code>classic.workers_ready</code></td>
+          </tr>
+          <tr>
+            <td class="mono">classic.operators_ready</td>
+            <td class="mono">163m15s</td>
+            <td class="mono">2026-05-08T02:06:52Z</td>
+            <td class="source">events.jsonl</td>
+          </tr>
+          <tr>
+            <td class="mono">classic.total</td>
+            <td class="mono">163m15s</td>
+            <td class="mono">2026-05-08T02:06:53Z</td>
+            <td class="source">events.jsonl</td>
+          </tr>
+          <tr>
+            <td class="mono">classic.create_submitted</td>
+            <td class="mono">1m8s</td>
+            <td class="mono">2026-05-07T23:24:45Z</td>
+            <td class="source">events.jsonl · seeded (interrupted create; see details)</td>
+          </tr>
+          <tr>
+            <td class="mono">classic.manual_operator_roles_and_oidc</td>
+            <td class="mono">95m32s</td>
+            <td class="mono">2026-05-08T00:59:10Z</td>
+            <td class="source">events.jsonl · <code>rosa create operator-roles</code> + <code>rosa create oidc-provider</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="events-heading">
+      <h2 id="events-heading">Events &amp; findings</h2>
+      <ul class="findings">
+        <li>First <code>make create-classic</code> submitted the cluster but the client was stopped mid-flight; operator IAM roles and OIDC provider were never created. OCM stayed in <code>waiting</code> with “Operator Role(s) not found”.</li>
+        <li>Recovery: <code>rosa create operator-roles --cluster=classic-bench --mode=auto --yes</code> then <code>rosa create oidc-provider --cluster=classic-bench --mode=auto --yes</code>. Cluster moved to <code>pending</code>, then <code>installing</code>, then <code>ready</code>.</li>
+        <li><code>clusters/classic/resume-install-wait.sh</code> (nohup) completed post-ready checks; <code>oc wait</code> for workers reported a timeout but all labeled worker nodes were Ready on re-check after fresh login.</li>
+        <li>Re-login from this host required <code>--insecure-skip-tls-verify=true</code> until local trust store matched the API cert; use a normal login once CA is trusted.</li>
+      </ul>
+      <details class="callout warning" id="partial-run-callout" open>
+        <summary>Interrupted create / seeded timing</summary>
+        <p style="margin:0.5rem 0 0"><code>classic.create_submitted</code> was written with <code>record-event.py</code> after the fact (68s from benchmark start, aligned to log timestamps) because <code>emit_timing</code> never ran before the signal. <code>classic.manual_operator_roles_and_oidc</code> captures wall time from benchmark start to the manual IAM step for narrative only — it overlaps the first failed wait window and is not a linear phase. For a apples-to-apples Classic install benchmark, destroy the cluster and rerun <code>make create-classic</code> under <code>nohup</code> or a session that will not send SIGTERM mid-create, and complete operator roles + OIDC immediately after <code>rosa create cluster</code> if your CLI ordering matches the ROSA docs.</p>
+      </details>
+    </section>
+
+    <section aria-labelledby="narrative-heading">
+      <h2 id="narrative-heading">Narrative</h2>
+      <div class="callout">
+        <p style="margin:0">Post-recovery segments match expectations: about 22 minutes from OCM <code>ready</code> to working <code>oc login</code>, then tens of seconds for workers and operators once the API was stable. The headline ~163m total is dominated by the initial stuck <code>waiting</code> state and manual recovery, not ROSA install performance. After recovery, multi-AZ workers (three workers plus infra) reported Ready.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="ref-heading">
+      <h2 id="ref-heading">Timing reference (expected)</h2>
+      <p class="subtitle" style="margin:-0.25rem 0 0.5rem">From benchmark-cluster-install skill — clean Classic path.</p>
+      <table class="ref">
+        <thead>
+          <tr>
+            <th scope="col">Phase</th>
+            <th scope="col">Expected (Classic)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Start → OCM cluster ready</td>
+            <td>Bulk of create (~35–55 min typical)</td>
+          </tr>
+          <tr>
+            <td>OCM ready → <code>oc login</code></td>
+            <td>~2–10 min</td>
+          </tr>
+          <tr>
+            <td>Login → all workers Ready (pools)</td>
+            <td>~5–15 min</td>
+          </tr>
+          <tr>
+            <td>Pools → all operators Available</td>
+            <td>~5–15 min</td>
+          </tr>
+          <tr>
+            <td><strong>Total (install)</strong></td>
+            <td><strong>45–65 min</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer>
+      <p>ROSA autoscaling benchmark · Test 01 · Classic · <code>reports/20260507T232337-classic-01-classic-cluster-install.html</code></p>
+    </footer>
+  </main>
+</body>
+</html>

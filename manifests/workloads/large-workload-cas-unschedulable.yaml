@@ -1,0 +1,62 @@
+---
+# manifests/workloads/large-workload-cas-unschedulable.yaml
+#
+# A workload intentionally sized to exceed m5.xlarge capacity (4 vCPU / 16 GiB)
+# but fit comfortably on an r5.8xlarge (32 vCPU / 256 GiB).
+#
+# Used by benchmark test 05b (dynamic-instance) to demonstrate the difference
+# between CAS (bound to a fixed machine pool instance type, refuses to schedule)
+# and Karpenter (selects the right instance type from the flexible NodePool and
+# provisions it successfully).
+#
+# CAS result:    FailedScheduling → NotTriggerScaleUp  (no machine pool can satisfy)
+# Karpenter result: FailedScheduling → NodeClaim on r5.8xlarge → pod Running
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: benchmark
+  labels:
+    benchmark: "true"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: large-workload
+  namespace: benchmark
+  labels:
+    app: large-workload
+    benchmark: "true"
+    test: 05b
+  annotations:
+    description: "Sized to exceed m5.xlarge but fit r5.8xlarge — used by test 05b"
+spec:
+  # Target the flexible Karpenter NodePool on AutoNode clusters.
+  # On CAS clusters this selector is not applied; the pod lands in the default
+  # scheduler queue and CAS evaluates whether any machine pool can satisfy it.
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: autonode-flexible
+                operator: In
+                values:
+                  - "true"
+  tolerations:
+    - key: "node.kubernetes.io/not-ready"
+      operator: "Exists"
+      effect: "NoExecute"
+      tolerationSeconds: 300
+  containers:
+    - name: large-workload
+      image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+      command: ["sleep", "infinity"]
+      resources:
+        requests:
+          cpu: "28"
+          memory: "200Gi"
+        limits:
+          cpu: "28"
+          memory: "200Gi"
+  restartPolicy: Never

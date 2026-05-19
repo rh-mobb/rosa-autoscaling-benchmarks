@@ -1,0 +1,25 @@
+---
+# manifests/overprovisioning/priority-class.yaml
+#
+# A low-priority PriorityClass used for placeholder (pause) pods that reserve
+# cluster capacity as headroom for real workloads.
+#
+# Priority value -1 means these pods are the first to be evicted when the
+# scheduler needs to place higher-priority pods. The default PriorityClass
+# has value 0, so any regular pod outranks these.
+#
+# Applied by: benchmark-overprovisioning (test 09)
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: cluster-overprovisioner
+  labels:
+    benchmark: "true"
+value: -1
+globalDefault: false
+preemptionPolicy: Never
+description: >
+  Low-priority class for placeholder pods that reserve cluster headroom.
+  These pods are evicted immediately when higher-priority workloads need scheduling,
+  enabling HPA to place pods without waiting for Cluster Autoscaler to provision
+  new nodes.

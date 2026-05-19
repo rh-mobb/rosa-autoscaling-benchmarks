@@ -1,0 +1,3 @@
+import{o as a,b as n,w as i,j as m,g as e,v as p,x as l,z as o}from"./modules/vue-Dt4EMbRN.js";import{_ as u}from"./slidev/section-B6YsIuHi.js";import{u as f,f as c}from"./slidev/context-DzYYacDb.js";import"./index-CSJ_gwlv.js";import"./modules/shiki-yO8jEN9Y.js";const w={__name:"slides.md__slidev_3",setup(d){const{$clicksContext:r,$frontmatter:s}=f();return r.setup(),(_,t)=>(a(),n(u,p(l(o(c)(o(s),2))),{default:i(()=>[m(` ============================================================
+  SLIDE 3 — Section: The Setup
+============================================================ `),t[0]||(t[0]=e("h1",null,"Section 1",-1)),t[1]||(t[1]=e("h2",null,"Cluster config, tooling, and how every timing was captured",-1))]),_:1},16))}};export{w as default};

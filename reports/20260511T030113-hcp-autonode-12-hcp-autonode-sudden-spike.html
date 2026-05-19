@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Benchmark 12 — Sudden spike — reactive scale-up (degradation window) (hcp-autonode)</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --border: #2d3a4d;
+      --text: #e6edf3;
+      --muted: #8b9cb3;
+      --accent: #58a6ff;
+      --warning: #d4a72c;
+      --ok: #3fb950;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 15px;
+    }
+    main { max-width: 920px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+    header.doc {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+    h1 { font-size: 1.35rem; font-weight: 600; margin: 0 0 0.35rem; letter-spacing: -0.02em; }
+    .subtitle { color: var(--muted); font-size: 0.95rem; margin: 0; }
+    dl.meta {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.35rem 1.25rem;
+      margin: 1.25rem 0 0;
+      font-size: 0.9rem;
+    }
+    dl.meta dt { color: var(--muted); font-weight: 500; }
+    dl.meta dd { margin: 0; }
+    h2 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 2rem 0 0.75rem;
+      color: var(--accent);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+    }
+    .stat .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+    .stat .value { font-size: 1.4rem; font-weight: 700; margin-top: 0.2rem; font-variant-numeric: tabular-nums; }
+    table.timeline {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 0.5rem;
+    }
+    table.timeline th, table.timeline td {
+      text-align: left;
+      padding: 0.45rem 0.6rem;
+      border-bottom: 1px solid var(--border);
+    }
+    table.timeline th { color: var(--muted); font-weight: 500; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .badge-ok { color: var(--ok); }
+    .badge-warn { color: var(--warning); }
+    .badge-fail { color: #f85149; }
+    pre.json-extra { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; font-size: 0.82rem; overflow-x: auto; white-space: pre-wrap; }
+    footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--muted); }
+    a { color: var(--accent); }
+</style>
+</head>
+<body>
+  <main>
+    <header class="doc">
+      <h1>Benchmark 12 — Sudden spike — reactive scale-up (degradation window)</h1>
+      <p class="subtitle">ROSA HCP-AUTONODE · an-bench</p>
+      <dl class="meta">
+        <dt>Run ID</dt>  <dd><code>20260511T030113-hcp-autonode</code></dd>
+        <dt>Cluster name</dt>  <dd><code>an-bench</code></dd>
+        <dt>Cluster type</dt>  <dd>hcp-autonode</dd>
+        <dt>Status</dt>  <dd><span class="badge-ok">✓ ok</span></dd>
+        <dt>Total elapsed</dt>  <dd>9m10s</dd>
+        <dt>Report generated</dt>  <dd><code>2026-05-12T02:26:56Z</code></dd>
+        <dt>Cluster install report</dt>  <dd><code>20260511T030113-hcp-autonode-01-hcp-autonode-cluster-install.html</code> (not yet written)</dd>
+      </dl>
+    </header>
+
+    <section>
+      <h2>Milestones</h2>
+      <table class="timeline">
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Elapsed</th>
+            <th>Elapsed (ms)</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          <tr>
+            <td>12-sudden-spike.phase1.surge_trigger_to_hpa_decision</td>
+            <td style="font-variant-numeric:tabular-nums">0m34s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">34,362 ms</td>
+          </tr>
+          <tr>
+            <td>12-sudden-spike.phase1.surge_trigger_to_pods_pending</td>
+            <td style="font-variant-numeric:tabular-nums">0m36s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">36,661 ms</td>
+          </tr>
+          <tr>
+            <td>12-sudden-spike.phase1.pods_pending_to_nodeclaim</td>
+            <td style="font-variant-numeric:tabular-nums">1m21s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">81,671 ms</td>
+          </tr>
+          <tr>
+            <td>12-sudden-spike.phase1.surge_trigger_to_first_node_ready</td>
+            <td style="font-variant-numeric:tabular-nums">6m22s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">382,756 ms</td>
+          </tr>
+          <tr>
+            <td>12-sudden-spike.phase1.surge_trigger_to_first_pod_ready</td>
+            <td style="font-variant-numeric:tabular-nums">6m34s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">394,302 ms</td>
+          </tr>
+          <tr>
+            <td>12-sudden-spike.phase1.surge_trigger_to_50pct_ready</td>
+            <td style="font-variant-numeric:tabular-nums">6m34s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">394,302 ms</td>
+          </tr>
+          <tr>
+            <td>12-sudden-spike.phase1.surge_trigger_to_all_ready</td>
+            <td style="font-variant-numeric:tabular-nums">6m34s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">394,302 ms</td>
+          </tr>
+          <tr>
+            <td>12-sudden-spike.phase2.surge_trigger_to_hpa_decision</td>
+            <td style="font-variant-numeric:tabular-nums">0m18s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">18,158 ms</td>
+          </tr>
+          <tr>
+            <td>12-sudden-spike.phase2.surge_trigger_to_preemption</td>
+            <td style="font-variant-numeric:tabular-nums">0m52s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">52,191 ms</td>
+          </tr>
+          <tr>
+            <td>12-sudden-spike.phase2.surge_trigger_to_first_pod_ready</td>
+            <td style="font-variant-numeric:tabular-nums">1m3s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">63,809 ms</td>
+          </tr>
+          <tr>
+            <td>12-sudden-spike.phase2.surge_trigger_to_50pct_ready</td>
+            <td style="font-variant-numeric:tabular-nums">1m3s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">63,809 ms</td>
+          </tr>
+          <tr>
+            <td>12-sudden-spike.phase2.surge_trigger_to_all_ready</td>
+            <td style="font-variant-numeric:tabular-nums">1m3s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">63,809 ms</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    
+
+    <section><h2>Extra data</h2><pre class="json-extra">{
+  "target_replicas": 10,
+  "balloon_replicas": 5,
+  "filler_replicas": "manifest_default",
+  "scenario": "sudden_spike_two_phase",
+  "phase1.baseline_node_count": 4,
+  "phase1.surge_trigger_ms": 1778552262392,
+  "phase1.hpa_desired_replicas": 4,
+  "phase1.snapshot_60s_ready": 16,
+  "phase1.snapshot_60s_pending": 0,
+  "phase1.snapshot_120s_ready": 16,
+  "phase1.snapshot_120s_pending": 0,
+  "phase1.snapshot_180s_ready": 16,
+  "phase1.snapshot_180s_pending": 0,
+  "phase2.baseline_node_count": 6,
+  "phase2.surge_trigger_ms": 1778552748875,
+  "phase2.hpa_desired_replicas": 4,
+  "phase2.snapshot_60s_ready": 5,
+  "phase2.snapshot_60s_pending": 3,
+  "first_pod_improvement_ms": 330493,
+  "first_pod_improvement_pct": 84,
+  "full_recovery_improvement_ms": 330493,
+  "full_recovery_improvement_pct": 84
+}</pre></section>
+
+    <footer>
+      Run ID: <code>20260511T030113-hcp-autonode</code> ·
+      Generated: <code>2026-05-12T02:26:56Z</code> ·
+      Regenerate index: <code>python3 scripts/update-reports-index.py</code>
+    </footer>
+  </main>
+</body>
+</html>

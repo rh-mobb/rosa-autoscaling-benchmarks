@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Benchmark 09b — 09b-karpenter-overprovisioning (hcp-autonode)</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --border: #2d3a4d;
+      --text: #e6edf3;
+      --muted: #8b9cb3;
+      --accent: #58a6ff;
+      --warning: #d4a72c;
+      --ok: #3fb950;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 15px;
+    }
+    main { max-width: 920px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+    header.doc {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+    h1 { font-size: 1.35rem; font-weight: 600; margin: 0 0 0.35rem; letter-spacing: -0.02em; }
+    .subtitle { color: var(--muted); font-size: 0.95rem; margin: 0; }
+    dl.meta {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.35rem 1.25rem;
+      margin: 1.25rem 0 0;
+      font-size: 0.9rem;
+    }
+    dl.meta dt { color: var(--muted); font-weight: 500; }
+    dl.meta dd { margin: 0; }
+    h2 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 2rem 0 0.75rem;
+      color: var(--accent);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+    }
+    .stat .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+    .stat .value { font-size: 1.4rem; font-weight: 700; margin-top: 0.2rem; font-variant-numeric: tabular-nums; }
+    table.timeline {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 0.5rem;
+    }
+    table.timeline th, table.timeline td {
+      text-align: left;
+      padding: 0.45rem 0.6rem;
+      border-bottom: 1px solid var(--border);
+    }
+    table.timeline th { color: var(--muted); font-weight: 500; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .badge-ok { color: var(--ok); }
+    .badge-warn { color: var(--warning); }
+    .badge-fail { color: #f85149; }
+    pre.json-extra { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; font-size: 0.82rem; overflow-x: auto; white-space: pre-wrap; }
+    footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--muted); }
+    a { color: var(--accent); }
+</style>
+</head>
+<body>
+  <main>
+    <header class="doc">
+      <h1>Benchmark 09b — 09b-karpenter-overprovisioning</h1>
+      <p class="subtitle">ROSA HCP-AUTONODE · an-bench</p>
+      <dl class="meta">
+        <dt>Run ID</dt>  <dd><code>20260511T030113-hcp-autonode</code></dd>
+        <dt>Cluster name</dt>  <dd><code>an-bench</code></dd>
+        <dt>Cluster type</dt>  <dd>hcp-autonode</dd>
+        <dt>Status</dt>  <dd><span class="badge-ok">✓ ok</span></dd>
+        <dt>Total elapsed</dt>  <dd>21m2s</dd>
+        <dt>Report generated</dt>  <dd><code>2026-05-15T00:40:03Z</code></dd>
+        <dt>Cluster install report</dt>  <dd><code>20260511T030113-hcp-autonode-01-hcp-autonode-cluster-install.html</code> (not yet written)</dd>
+      </dl>
+    </header>
+
+    <section>
+      <h2>Milestones</h2>
+      <table class="timeline">
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Elapsed</th>
+            <th>Elapsed (ms)</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          <tr>
+            <td>09b-karpenter-overprovisioning.start_to_headroom_ready</td>
+            <td style="font-variant-numeric:tabular-nums">0m24s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">24,251 ms</td>
+          </tr>
+          <tr>
+            <td>09b-karpenter-overprovisioning.hpa_trigger_to_preemption</td>
+            <td style="font-variant-numeric:tabular-nums">0m5s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">5,563 ms</td>
+          </tr>
+          <tr>
+            <td>09b-karpenter-overprovisioning.hpa_trigger_to_first_pause_preempted</td>
+            <td style="font-variant-numeric:tabular-nums">0m5s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">5,563 ms</td>
+          </tr>
+          <tr>
+            <td>09b-karpenter-overprovisioning.hpa_trigger_to_pods_running</td>
+            <td style="font-variant-numeric:tabular-nums">0m6s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">6,659 ms</td>
+          </tr>
+          <tr>
+            <td>09b-karpenter-overprovisioning.pods_running_to_pods_ready</td>
+            <td style="font-variant-numeric:tabular-nums">0m23s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">23,743 ms</td>
+          </tr>
+          <tr>
+            <td>09b-karpenter-overprovisioning.hpa_trigger_to_pods_ready</td>
+            <td style="font-variant-numeric:tabular-nums">0m30s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">30,402 ms</td>
+          </tr>
+          <tr>
+            <td>09b-karpenter-overprovisioning.sustained_peak_wall_clock</td>
+            <td style="font-variant-numeric:tabular-nums">19m59s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">1,199,950 ms</td>
+          </tr>
+          <tr>
+            <td>09b-karpenter-overprovisioning.pods_running_to_headroom_restored</td>
+            <td style="font-variant-numeric:tabular-nums">20m25s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">1,225,155 ms</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    
+
+    <section><h2>Extra data</h2><pre class="json-extra">{
+  "nodepool_name": "autonode-bench",
+  "test08_baseline_ms": {
+    "08-hpa-triggers-cas.scheduler_triggered_to_node_ready": 259578,
+    "08-hpa-triggers-cas.hpa_trigger_to_all_running": 299730
+  },
+  "fleet_snapshots": [
+    {
+      "label": "t0_baseline",
+      "timestamp_ms": 1778802989286,
+      "node_names": [
+        "ip-10-1-114-246.ec2.internal",
+        "ip-10-1-123-144.ec2.internal",
+        "ip-10-1-40-115.ec2.internal",
+        "ip-10-1-49-201.ec2.internal",
+        "ip-10-1-99-123.ec2.internal"
+      ],
+      "node_count": 5,
+      "nodepool_name": "autonode-bench",
+      "nodeclaim_count": 3
+    },
+    {
+      "label": "after_headroom",
+      "timestamp_ms": 1778803041325,
+      "node_names": [
+        "ip-10-1-114-246.ec2.internal",
+        "ip-10-1-123-144.ec2.internal",
+        "ip-10-1-40-115.ec2.internal",
+        "ip-10-1-49-201.ec2.internal",
+        "ip-10-1-99-123.ec2.internal"
+      ],
+      "node_count": 5,
+      "nodepool_name": "autonode-bench",
+      "nodeclaim_count": 3
+    },
+    {
+      "label": "at_hpa_trigger",
+      "timestamp_ms": 1778803049170,
+      "node_names": [
+        "ip-10-1-114-246.ec2.internal",
+        "ip-10-1-123-144.ec2.internal",
+        "ip-10-1-40-115.ec2.internal",
+        "ip-10-1-49-201.ec2.internal",
+        "ip-10-1-99-123.ec2.internal"
+      ],
+      "node_count": 5,
+      "nodepool_name": "autonode-bench",
+      "nodeclaim_count": 3
+    },
+    {
+      "label": "after_workload_running",
+      "timestamp_ms": 1778803054803,
+      "node_names": [
+        "ip-10-1-114-246.ec2.internal",
+        "ip-10-1-123-144.ec2.internal",
+        "ip-10-1-40-115.ec2.internal",
+        "ip-10-1-49-201.ec2.internal",
+        "ip-10-1-99-123.ec2.internal"
+      ],
+      "node_count": 5,
+      "nodepool_name": "autonode-bench",
+      "nodeclaim_count": 3
+    },
+    {
+      "label": "after_restore",
+      "timestamp_ms": 1778804279958,
+      "node_names": [
+        "ip-10-1-0-177.ec2.internal",
+        "ip-10-1-114-246.ec2.internal",
+        "ip-10-1-123-144.ec2.internal",
+        "ip-10-1-16-28.ec2.internal",
+        "ip-10-1-40-115.ec2.internal",
+        "ip-10-1-49-201.ec2.internal",
+        "ip-10-1-80-183.ec2.internal",
+        "ip-10-1-99-123.ec2.internal"
+      ],
+      "node_count": 8,
+      "nodepool_name": "autonode-bench",
+      "nodeclaim_count": 6
+    },
+    {
+      "label": "before_hpa_scale_down_burn",
+      "timestamp_ms": 1778804283151,
+      "node_names": [
+        "ip-10-1-0-177.ec2.internal",
+        "ip-10-1-114-246.ec2.internal",
+        "ip-10-1-123-144.ec2.internal",
+        "ip-10-1-16-28.ec2.internal",
+        "ip-10-1-40-115.ec2.internal",
+        "ip-10-1-49-201.ec2.internal",
+        "ip-10-1-80-183.ec2.internal",
+        "ip-10-1-99-123.ec2.internal"
+      ],
+      "node_count": 8,
+      "nodepool_name": "autonode-bench",
+      "nodeclaim_count": 6
+    },
+    {
+      "label": "after_fleet_scale_down",
+      "timestamp_ms": 1778805557950,
+      "node_names": [
+        "ip-10-1-0-177.ec2.internal",
+        "ip-10-1-16-28.ec2.internal",
+        "ip-10-1-40-115.ec2.internal",
+        "ip-10-1-44-86.ec2.internal",
+        "ip-10-1-80-183.ec2.internal",
+        "ip-10-1-99-123.ec2.internal"
+      ],
+      "node_count": 6,
+      "nodepool_name": "autonode-bench",
+      "nodeclaim_count": 5
+    }
+  ],
+  "topology_mode": "saturated_pool_baseline",
+  "baseline_pool_selector": "karpenter.sh/nodepool=autonode-bench",
+  "pool_bootstrap": {
+    "used": true,
+    "replicas": 3
+  },
+  "capacity_filler_sizing": {
+    "pool_label": "karpenter.sh/nodepool=autonode-bench",
+    "ready_node_count": 3,
+    "allocatable_cpu_millicores": 10500,
+    "allocatable_memory_mebibytes": 43203,
+    "baseline_cpu_millicores_excl_benchmark": 1209,
+    "baseline_memory_mebibytes_excl_benchmark": 9690,
+    "planned_non_filler_cpu_millicores": 4500,
+    "planned_non_filler_memory_mebibytes": 8320,
+    "max_slack_cpu_cores": 2.0,
+    "filler_cpu_millicores_per_replica": 400,
+    "filler_memory_mebibytes_per_replica": 400,
+    "memory_reserve_mebibytes": 512,
+    "exclude_namespaces": [
+      "benchmark"
+    ],
+    "replicas_cpu_lower_bound": 7,
+    "replicas_memory_upper_bound": 61,
+    "replicas_chosen": 7,
+    "projected_cpu_slack_cores_after_scale": 1.991,
+    "replicas_after_pack": 7
+  },
+  "capacity_filler_pack_rounds": [],
+  "preflight": {
+    "slack_cpu_cores": 1.99,
+    "pause_requested_cpu_cores": 4.0,
+    "verdict": "saturated",
+    "allocatable_cpu_millicores": 10500,
+    "requested_cpu_millicores": 8509,
+    "cpu_slack_scope": "nodes[karpenter.sh/nodepool=autonode-bench]",
+    "new_nodes_for_balloons": 0,
+    "topology_mode": "saturated_pool_baseline",
+    "filler_replicas_effective": 7
+  },
+  "burst_absorption_mechanism": "preemption",
+  "burst_absorption_evidence": "1 preemption event(s), 0 new nodes",
+  "preemption_events": [
+    {
+      "reason": "Preempted",
+      "object": "cluster-overprovisioner-56f469f9f-zzn5t",
+      "message": "Preempted by pod 17892a7d-df3c-47f6-8a00-d8572b2b6c21 on node ip-10-1-123-144.ec2.internal"
+    }
+  ],
+  "hpa_to_running_ms": 6659,
+  "sustained_peak": {
+    "duration_s_requested": 1200,
+    "poll_interval_s": 60,
+    "sample_count": 18,
+    "samples": [
+      {
+        "timestamp_ms": 1778803078646,
+        "cluster_ready_node_count": 5,
+        "bench_pool_ready_nodes": 3,
+        "node_names": [
+          "ip-10-1-114-246.ec2.internal",
+          "ip-10-1-123-144.ec2.internal",
+          "ip-10-1-40-115.ec2.internal",
+          "ip-10-1-49-201.ec2.internal",
+          "ip-10-1-99-123.ec2.internal"
+        ],
+        "hpa_current_replicas": 4,
+        "hpa_desired_replicas": 4,
+        "pause_pods_by_phase": {
+          "Running": 3,
+          "Pending": 1
+        },
+        "cpu_burner_pods_by_phase": {
+          "Running": 4
+        },
+        "nodeclaim_count": 4
+      },
+      {
+        "timestamp_ms": 1778803146356,
+        "cluster_ready_node_count": 5,
+        "bench_pool_ready_nodes": 3,
+        "node_names": [
+          "ip-10-1-114-246.ec2.internal",
+          "ip-10-1-123-144.ec2.internal",
+          "ip-10-1-40-115.ec2.internal",
+          "ip-10-1-49-201.ec2.internal",
+          "ip-10-1-99-123.ec2.internal"
+        ],
+        "hpa_current_replicas": 12,
+        "hpa_desired_replicas": 16,
+        "pause_pods_by_phase": {
+          "Pending": 4
+        },
+        "cpu_burner_pods_by_phase": {
+          "Running": 11,
+          "Pending": 5
+        },
+        "nodeclaim_count": 5,
+        "nodes_added_vs_prev": [],
+        "nodes_removed_vs_prev": []
+      },
+      {
+        "timestamp_ms": 1778803215118,
+        "cluster_ready_node_count": 5,
+        "bench_pool_ready_nodes": 3,
+        "node_names": [
+          "ip-10-1-114-246.ec2.internal",
+          "ip-10-1-123-144.ec2.internal",
+          "ip-10-1-40-115.ec2.internal",
+          "ip-10-1-49-201.ec2.internal",
+          "ip-10-1-99-123.ec2.internal"
+        ],
+        "hpa_current_replicas": 20,
+        "hpa_desired_replicas": 20,
+        "pause_pods_by_phase": {
+          "Pending": 4
+        },
+        "cpu_burner_pods_by_phase": {
+          "Running": 11,
+          "Pending": 9
+        },
+        "nodeclaim_count": 6,
+        "nodes_added_vs_prev": [],
+        "nodes_removed_vs_prev": []
+      },
+      {
+        "timestamp_ms": 1778803283846,
+        "cluster_ready_node_count": 5,
+        "bench_pool_ready_nodes": 3,
+        "node_names": [
+          "ip-10-1-114-246.ec2.internal",
+          "ip-10-1-123-144.ec2.internal",
+          "ip-10-1-40-115.ec2.internal",
+          "ip-10-1-49-201.ec2.internal",
+          "ip-10-1-99-123.ec2.internal"
+        ],
+        "hpa_current_replicas": 20,
+        "hpa_desired_replicas": 20,
+        "pause_pods_by_phase": {
+          "Pending": 4
+        },
+        "cpu_burner_pods_by_phase": {
+          "Running": 11,
+          "Pending": 9
+        },
+        "nodeclaim_count": 6,
+        "nodes_added_vs_prev": [],
+        "nodes_removed_vs_prev": []
+      },
+      {
+        "timestamp_ms": 1778803352503,
+        "cluster_ready_node_count": 6,
+        "bench_pool_ready_nodes": 4,
+        "node_names": [
+          "ip-10-1-114-246.ec2.internal",
+          "ip-10-1-123-144.ec2.internal",
+          "ip-10-1-40-115.ec2.internal",
+          "ip-10-1-49-201.ec2.internal",
+          "ip-10-1-80-183.ec2.internal",
+          "ip-10-1-99-123.ec2.internal"
+        ],
+        "hpa_current_replicas": 20,
+        "hpa_desired_replicas": 20,
+        "pause_pods_by_phase": {
+          "Pending": 4
+        },
+        "cpu_burner_pods_by_phase": {
+          "Running": 11,
+          "Pending": 9
+        },
+        "nodeclaim_count": 6,
+        "nodes_added_vs_prev": [
+          "ip-10-1-80-183.ec2.internal"
+        ],
+        "nodes_removed_vs_prev": []
+      },
+      {
+        "timestamp_ms": 1778803420823,
+        "cluster_ready_node_count": 8,
+        "bench_pool_ready_nodes": 6,
+        "node_names": [
+          "ip-10-1-0-177.ec2.internal",
+          "ip-10-1-114-246.ec2.internal",
+          "ip-10-1-123-144.ec2.internal",
+          "ip-10-1-16-28.ec2.internal",
+          "ip-10-1-40-115.ec2.internal",
+          "ip-10-1-49-201.ec2.internal",
+          "ip-10-1-80-183.ec2.internal",
+          "ip-10-1-99-123.ec2.internal"
+        ],
+        "hpa_current_replicas": 20,
+        "hpa_desired_replicas": 20,
+        "pause_pods_by_phase": {
+          "Running": 3,
+          "Pending": 1
+        },
+        "cpu_burner_pods_by_phase": {
+          "Running": 20
+        },
+        "nodeclaim_count": 6,
+        "nodes_added_vs_prev": [
+          "ip-10-1-0-177.ec2.internal",
+          "ip-10-1-16-28.ec2.internal"
+        ],
+        "nodes_removed_vs_prev": []
+      },
+      {
+        "timestamp_ms": 1778803488628,
+        "cluster_ready_node_count": 8,
+        "bench_pool_ready_nodes": 6,
+        "node_names": [
+          "ip-10-1-0-177.ec2.internal",
+          "ip-10-1-114-246.ec2.internal",
+          "ip-10-1-123-144.ec2.internal",
+          "ip-10-1-16-28.ec2.internal",
+          "ip-10-1-40-115.ec2.internal",
+          "ip-10-1-49-201.ec2.internal",
+          "ip-10-1-80-183.ec2.internal",
+          "ip-10-1-99-123.ec2.internal"
+        ],
+        "hpa_current_replicas": 20,
+        "hpa_desired_replicas": 20,
+        "pause_pods_by_phase": {
+          "Running": 4
+        },
+        "cpu_burner_pods_by_phase": {
+          "Running": 20
+        },
+        "nodeclaim_count": 6,
+        "nodes_added_vs_prev": [],
+        "nodes_removed_vs_prev": []
+      },
+      {
+        "timestamp_ms": 1778803556774,
+        "cluster_ready_node_count": 8,
+        "bench_pool_ready_nodes": 6,
+        "node_names": [
+          "ip-10-1-0-177.ec2.internal",
+          "ip-10-1-114-246.ec2.internal",
+          "ip-10-1-123-144.ec2.internal",
+          "ip-10-1-16-28.ec2.internal",
+          "ip-10-1-40-115.ec2.internal",
+          "ip-10-1-49-201.ec2.internal",
+          "ip-10-1-80-183.ec2.internal",
+          "ip-10-1-99-123.ec2.internal"
+        ],
+        "hpa_current_replicas": 20,
+        "hpa_desired_replicas": 20,
+        "pause_pods_by_phase": {
+          "Running": 4
+        },
+        "cpu_burner_pods_by_phase": {
+          "Running": 20
+        },
+        "nodeclaim_count": 6,
+        "nodes_added_vs_prev": [],
+        "nodes_removed_vs_prev": []
+      },
+      {
+        "timestamp_ms": 1778803624515,
+        "cluster_ready_node_count": 8,
+        "bench_pool_ready_nodes": 6,
+        "node_names": [
+          "ip-10-1-0-177.ec2.internal",
+          "ip-10-1-114-246.ec2.internal",
+          "ip-10-1-123-144.ec2.internal",
+          "ip-10-1-16-28.ec2.internal",
+          "ip-10-1-40-115.ec2.internal",
+          "ip-10-1-49-201.ec2.internal",
+          "ip-10-1-80-183.ec2.internal",
+          "ip-10-1-99-123.ec2.internal"
+        ],
+        "hpa_current_replicas": 20,
+        "hpa_desired_replicas": 20,
+        "pause_pods_by_phase": {
+          "Running": 4
+        },
+        "cpu_burner_pods_by_phase": {
+          "Running": 20
+        },
+        "nodeclaim_count": 6,
+        "nodes_added_vs_prev": [],
+        "nodes_removed_vs_prev": []
+      },
+      {
+        "timestamp_ms": 1778803692197,
+        "cluster_ready_node_count": 8,
+        "bench_pool_ready_nodes": 6,
+        "node_names": [
+          "ip-10-1-0-177.ec2.internal",
+          "ip-10-1-114-246.ec2.internal",
+          "ip-10-1-123-144.ec2.internal",
+          "ip-10-1-16-28.ec2.internal",
+          "ip-10-1-40-115.ec2.internal",
+          "ip-10-1-49-201.ec2.internal",
+          "ip-10-1-80-183.ec2.internal",
+          "ip-10-1-99-123.ec2.internal"
+        ],
+        "hpa_current_replicas": 20,
+        "hpa_desired_replicas": 20,
+        "pause_pods_by_phase": {
+          "Running": 4
+        },
+        "cpu_burner_pods_by_phase": {
+          "Running": 20
+        },
+        "nodeclaim_count": 6,
+        "nodes_added_vs_prev": [],
+        "nodes_removed_vs_prev": []
+      },
+      {
+        "timestamp_ms": 1778803760582,
+        "cluster_ready_node_count": 8,
+        "bench_pool_ready_nodes": 6,
+        "node_names": [
+          "ip-10-1-0-177.ec2.internal",
+          "ip-10-1-114-246.ec2.internal",
+          "ip-10-1-123-144.ec2.internal",
+          "ip-10-1-16-28.ec2.internal",
+          "ip-10-1-40-115.ec2.internal",
+          "ip-10-1-49-201.ec2.internal",
+          "ip-10-1-80-183.ec2.internal",
+          "ip-10-1-99-123.ec2.internal"
+        ],
+        "hpa_current_replicas": 20,
+        "hpa_desired_replicas": 20,
+        "pause_pods_by_phase": {
+          "Running": 4
+        },
+        "cpu_burner_pods_by_phase": {
+          "Running": 20
+        },
+        "nodeclaim_count": 6,
+        "nodes_added_vs_prev": [],
+        "nodes_removed_vs_prev": []
+      },
+      {
+        "timestamp_ms": 1778803828417,
+        "cluster_ready_node_count": 8,
+        "bench_pool_ready_nodes": 6,
+        "node_names": [
+          "ip-10-1-0-177.ec2.internal",
+          "ip-10-1-114-246.ec2.internal",
+          "ip-10-1-123-144.ec2.internal",
+          "ip-10-1-16-28.ec2.internal",
+          "ip-10-1-40-115.ec2.internal",
+          "ip-10-1-49-201.ec2.internal",
+          "ip-10-1-80-183.ec2.internal",
+          "ip-10-1-99-123.ec2.internal"
+        ],
+        "hpa_current_replicas": 20,
+        "hpa_desired_replicas": 20,
+        "pause_pods_by_phase": {
+          "Running": 4
+        },
+        "cpu_burner_pods_by_phase": {
+          "Running": 20
+        },
+        "nodeclaim_count": 6,
+        "nodes_added_vs_prev": [],
+        "nodes_removed_vs_prev": []
+      },
+      {
+        "timestamp_ms": 1778803896416,
+        "cluster_ready_node_count": 8,
+        "bench_pool_ready_nodes": 6,
+        "node_names": [
+          "ip-10-1-0-177.ec2.internal",
+          "ip-10-1-114-246.ec2.internal",
+          "ip-10-1-123-144.ec2.internal",
+          "ip-10-1-16-28.ec2.internal",
+          "ip-10-1-40-115.ec2.internal",
+          "ip-10-1-49-201.ec2.internal",
+          "ip-10-1-80-183.ec2.internal",
+          "ip-10-1-99-123.ec2.internal"
+        ],
+        "hpa_current_replicas": 20,
+        "hpa_desired_replicas": 20,
+        "pause_pods_by_phase": {
+          "Running": 4
+        },
+        "cpu_burner_pods_by_phase": {
+          "Running": 20
+        },
+        "nodeclaim_count": 6,
+        "nodes_added_vs_prev": [],
+        "nodes_removed_vs_prev": []
+      },
+      {
+        "timestamp_ms": 1778803964266,
+        "cluster_ready_node_count": 8,
+        "bench_pool_ready_nodes": 6,
+        "node_names": [
+          "ip-10-1-0-177.ec2.internal",
+          "ip-10-1-114-246.ec2.internal",
+          "ip-10-1-123-144.ec2.internal",
+          "ip-10-1-16-28.ec2.internal",
+          "ip-10-1-40-115.ec2.internal",
+          "ip-10-1-49-201.ec2.internal",
+          "ip-10-1-80-183.ec2.internal",
+          "ip-10-1-99-123.ec2.internal"
+        ],
+        "hpa_current_replicas": 20,
+        "hpa_desired_replicas": 20,
+        "pause_pods_by_phase": {
+          "Running": 4
+        },
+        "cpu_burner_pods_by_phase": {
+          "Running": 20
+        },
+        "nodeclaim_count": 6,
+        "nodes_added_vs_prev": [],
+        "nodes_removed_vs_prev": []
+      },
+      {
+        "timestamp_ms": 1778804033201,
+        "cluster_ready_node_count": 8,
+        "bench_pool_ready_nodes": 6,
+        "node_names": [
+          "ip-10-1-0-177.ec2.internal",
+          "ip-10-1-114-246.ec2.internal",
+          "ip-10-1-123-144.ec2.internal",
+          "ip-10-1-16-28.ec2.internal",
+          "ip-10-1-40-115.ec2.internal",
+          "ip-10-1-49-201.ec2.internal",
+          "ip-10-1-80-183.ec2.internal",
+          "ip-10-1-99-123.ec2.internal"
+        ],
+        "hpa_current_replicas": 20,
+        "hpa_desired_replicas": 20,
+        "pause_pods_by_phase": {
+          "Running": 4
+        },
+        "cpu_burner_pods_by_phase": {
+          "Running": 20
+        },
+        "nodeclaim_count": 6,
+        "nodes_added_vs_prev": [],
+        "nodes_removed_vs_prev": []
+      },
+      {
+        "timestamp_ms": 1778804100986,
+        "cluster_ready_node_count": 8,
+        "bench_pool_ready_nodes": 6,
+        "node_names": [
+          "ip-10-1-0-177.ec2.internal",
+          "ip-10-1-114-246.ec2.internal",
+          "ip-10-1-123-144.ec2.internal",
+          "ip-10-1-16-28.ec2.internal",
+          "ip-10-1-40-115.ec2.internal",
+          "ip-10-1-49-201.ec2.internal",
+          "ip-10-1-80-183.ec2.internal",
+          "ip-10-1-99-123.ec2.internal"
+        ],
+        "hpa_current_replicas": 20,
+        "hpa_desired_replicas": 20,
+        "pause_pods_by_phase": {
+          "Running": 4
+        },
+        "cpu_burner_pods_by_phase": {
+          "Running": 20
+        },
+        "nodeclaim_count": 6,
+        "nodes_added_vs_prev": [],
+        "nodes_removed_vs_prev": []
+      },
+      {
+        "timestamp_ms": 1778804169122,
+        "cluster_ready_node_count": 8,
+        "bench_pool_ready_nodes": 6,
+        "node_names": [
+          "ip-10-1-0-177.ec2.internal",
+          "ip-10-1-114-246.ec2.internal",
+          "ip-10-1-123-144.ec2.internal",
+          "ip-10-1-16-28.ec2.internal",
+          "ip-10-1-40-115.ec2.internal",
+          "ip-10-1-49-201.ec2.internal",
+          "ip-10-1-80-183.ec2.internal",
+          "ip-10-1-99-123.ec2.internal"
+        ],
+        "hpa_current_replicas": 20,
+        "hpa_desired_replicas": 20,
+        "pause_pods_by_phase": {
+          "Running": 4
+        },
+        "cpu_burner_pods_by_phase": {
+          "Running": 20
+        },
+        "nodeclaim_count": 6,
+        "nodes_added_vs_prev": [],
+        "nodes_removed_vs_prev": []
+      },
+      {
+        "timestamp_ms": 1778804236974,
+        "cluster_ready_node_count": 8,
+        "bench_pool_ready_nodes": 6,
+        "node_names": [
+          "ip-10-1-0-177.ec2.internal",
+          "ip-10-1-114-246.ec2.internal",
+          "ip-10-1-123-144.ec2.internal",
+          "ip-10-1-16-28.ec2.internal",
+          "ip-10-1-40-115.ec2.internal",
+          "ip-10-1-49-201.ec2.internal",
+          "ip-10-1-80-183.ec2.internal",
+          "ip-10-1-99-123.ec2.internal"
+        ],
+        "hpa_current_replicas": 20,
+        "hpa_desired_replicas": 20,
+        "pause_pods_by_phase": {
+          "Running": 4
+        },
+        "cpu_burner_pods_by_phase": {
+          "Running": 20
+        },
+        "nodeclaim_count": 6,
+        "nodes_added_vs_prev": [],
+        "nodes_removed_vs_prev": []
+      }
+    ]
+  },
+  "headroom_restore_ms": 1225155,
+  "restore_fleet_delta": {
+    "type": "nodeclaim+3",
+    "count": 3
+  },
+  "scale_down": {
+    "fleet_metric": "nodeclaim_count",
+    "nodepool_name": "autonode-bench",
+    "nodeclaim_count_before_idle": 6,
+    "nodeclaim_count_after_stable_or_snapshot": 5,
+    "hpa_at_min_replicas": false,
+    "fleet_size_stable": false,
+    "stable_polls_required": 3,
+    "timeout_budget_s": 2400,
+    "hpa_phase_timeout_s": 1200,
+    "fleet_phase_timeout_s": 1200
+  }
+}</pre></section>
+
+    <footer>
+      Run ID: <code>20260511T030113-hcp-autonode</code> ·
+      Generated: <code>2026-05-15T00:40:03Z</code> ·
+      Regenerate index: <code>python3 scripts/update-reports-index.py</code>
+    </footer>
+  </main>
+</body>
+</html>

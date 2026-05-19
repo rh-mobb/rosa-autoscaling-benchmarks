@@ -1,0 +1,65 @@
+---
+# manifests/overprovisioning/surge-overprovisioner.yaml
+#
+# Balloon pod deployment for T11 (planned surge) and T12 (sudden spike).
+#
+# Uses the existing cluster-overprovisioner PriorityClass (value: -1) so
+# these pods are immediately evicted when cpu-burner pods need to schedule.
+# Each balloon pod requests exactly 500m CPU / 512Mi memory — matching
+# cpu-burner's resource requests so that one preempted balloon pod frees
+# exactly one slot for one cpu-burner pod.
+#
+# Size the replica count to the expected surge:
+#   --balloon-replicas = target_cpu_burner_replicas - current_cpu_burner_replicas
+#
+# Example: surge from 1 → 6 cpu-burner replicas = 5 balloon pods.
+#
+# The benchmark scripts override `replicas` at runtime via `oc scale`.
+# Requires: priority-class.yaml applied first.
+#
+# Applied by: run-test-11-planned-surge.py (balloon-pods strategy)
+#             run-test-12-sudden-spike.py  (Phase 2 — balloon pods)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: benchmark
+  labels:
+    benchmark: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: surge-overprovisioner
+  namespace: benchmark
+  labels:
+    app: surge-overprovisioner
+    benchmark: "true"
+  annotations:
+    description: >
+      Balloon pods that reserve cluster capacity for surge scenarios (T11/T12).
+      Each pod holds exactly 500m CPU / 512Mi — matching cpu-burner resources
+      so one preempted balloon pod frees one cpu-burner slot instantly.
+      Scale replica count to match expected surge demand before the test.
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: surge-overprovisioner
+  template:
+    metadata:
+      labels:
+        app: surge-overprovisioner
+        benchmark: "true"
+    spec:
+      priorityClassName: cluster-overprovisioner
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.9
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

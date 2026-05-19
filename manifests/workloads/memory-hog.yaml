@@ -1,0 +1,69 @@
+---
+# manifests/workloads/memory-hog.yaml
+#
+# A memory-intensive pod used for machine pool provisioning benchmarks (test 02).
+# Requests enough memory that it forces a node from a specific machine pool to
+# be provisioned to schedule it.
+#
+# Applied by the benchmark-machine-pool skill.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: benchmark
+  labels:
+    benchmark: "true"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: memory-hog
+  namespace: benchmark
+  labels:
+    app: memory-hog
+    benchmark: "true"
+spec:
+  # Schedule on benchmark pools only
+  nodeSelector:
+    benchmark: "true"
+  containers:
+    - name: memory-hog
+      image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+      command:
+        - /bin/bash
+        - -c
+        # Allocate ~24 GiB of anonymous memory and hold it
+        - "microdnf install -y stress-ng && stress-ng --vm 1 --vm-bytes 24G --vm-keep --timeout 0"
+      resources:
+        requests:
+          cpu: "500m"
+          memory: "24Gi"
+        limits:
+          cpu: "1000m"
+          memory: "26Gi"
+  restartPolicy: Never
+---
+# Oversize variant — requests more memory than any standard node can provide.
+# Used by benchmark-unschedulable (test 05) to demonstrate FailedScheduling.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: oversize-workload
+  namespace: benchmark
+  labels:
+    app: oversize-workload
+    benchmark: "true"
+  annotations:
+    description: "Intentionally oversized — will not schedule on any available node type"
+spec:
+  containers:
+    - name: oversize
+      image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+      command: ["sleep", "infinity"]
+      resources:
+        requests:
+          cpu: "200"
+          memory: "1Ti"
+        limits:
+          cpu: "200"
+          memory: "1Ti"
+  restartPolicy: Never

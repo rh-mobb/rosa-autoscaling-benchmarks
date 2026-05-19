@@ -1,0 +1,69 @@
+---
+# manifests/workloads/karpenter-trigger-100.yaml
+#
+# High-replica variant of karpenter-trigger.yaml for mass-scale benchmarks.
+#
+# 100 replicas × 500m CPU / 512Mi each — sized to overflow any single m5.xlarge
+# NodePool baseline and force Karpenter to provision many nodes simultaneously.
+# Used by tests that intentionally measure burst provisioning, parallel node
+# arrival, or proactive pre-warming (not single-node scale-up).
+#
+# Applied by:
+#   run-test-10-autonode-scale.py  (Phase 1 initial burst)
+#   run-test-11-planned-surge.py   (proactive-nodes strategy pre-warm trigger)
+#   run-test-13-parallel-nodes.py  (parallel node provisioning trigger)
+#
+# For the equivalent single-node scale-up used in Tests 03 and 04, use
+# karpenter-trigger.yaml (20 replicas) instead.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: benchmark
+  labels:
+    benchmark: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: karpenter-trigger
+  namespace: benchmark
+  labels:
+    app: karpenter-trigger
+    benchmark: "true"
+  annotations:
+    description: >
+      High-replica pause workload for mass-scale Karpenter provisioning benchmarks.
+      100 replicas force Karpenter to provision many NodeClaims simultaneously,
+      testing burst throughput and parallel node arrival.
+spec:
+  replicas: 100
+  selector:
+    matchLabels:
+      app: karpenter-trigger
+  template:
+    metadata:
+      labels:
+        app: karpenter-trigger
+        benchmark: "true"
+    spec:
+      tolerations:
+        - operator: Exists
+          effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: karpenter.sh/nodepool
+                    operator: In
+                    # Must match the NodePool name used in the benchmark run
+                    # (default: autonode-bench, set via --nodepool-name).
+                    values:
+                      - autonode-bench
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.9
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"

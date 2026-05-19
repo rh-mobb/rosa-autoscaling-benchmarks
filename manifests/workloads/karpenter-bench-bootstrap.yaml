@@ -1,0 +1,53 @@
+---
+# Transient pods to warm an empty Karpenter NodePool before test 09b sizing.
+# Run-test-09b applies this when fewer Ready pool nodes exist than
+# --baseline-pool-ready-count, then scales it to 0 before the main bundle.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: autonode-bootstrap
+  labels:
+    benchmark: "false"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pool-warm
+  namespace: autonode-bootstrap
+  labels:
+    app: pool-warm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pool-warm
+  template:
+    metadata:
+      labels:
+        app: pool-warm
+    spec:
+      tolerations:
+        - operator: Exists
+          effect: NoSchedule
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: pool-warm
+              topologyKey: kubernetes.io/hostname
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: karpenter.sh/nodepool
+                    operator: In
+                    values:
+                      - autonode-bench
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.9
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"

@@ -1,0 +1,69 @@
+---
+# manifests/workloads/arm64-trigger-autonode.yaml
+#
+# Pause workload that triggers Karpenter (AutoNode) to provision an ARM64
+# (Graviton) node on a ROSA HCP AutoNode cluster (test 16 — ARM node benchmark).
+#
+# 20 replicas, 500m CPU / 512Mi each — same sizing as karpenter-trigger.yaml and
+# spot-trigger-autonode.yaml so the provisioning measurement is directly
+# comparable to test 10 (on-demand x86) and test 15 (spot x86) timing.
+#
+# registry.k8s.io/pause:3.9 is a multi-arch image (amd64 + arm64), so it runs
+# on Graviton nodes without any changes.
+#
+# nodeAffinity pins pods to the autonode-arm64 NodePool
+# (manifests/autonode/nodepool-arm64.yaml) so Karpenter creates an arm64
+# NodeClaim rather than an x86_64 one.
+#
+# Applied by: run-test-16-arm-nodes.py
+# Cleaned up: namespace and NodePool deleted on test completion or SIGINT.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: arm64-test
+  labels:
+    benchmark: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arm64-trigger
+  namespace: arm64-test
+  labels:
+    app: arm64-trigger
+    benchmark: "true"
+  annotations:
+    description: >
+      Intentionally over-replicated pause workload for Karpenter ARM64
+      benchmarking (test 16).  nodeAffinity pins pods to the autonode-arm64
+      NodePool so that Karpenter provisions a Graviton node.
+spec:
+  replicas: 20
+  selector:
+    matchLabels:
+      app: arm64-trigger
+  template:
+    metadata:
+      labels:
+        app: arm64-trigger
+        benchmark: "true"
+    spec:
+      tolerations:
+        - operator: Exists
+          effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: karpenter.sh/nodepool
+                    operator: In
+                    values:
+                      - autonode-arm64
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.9
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"

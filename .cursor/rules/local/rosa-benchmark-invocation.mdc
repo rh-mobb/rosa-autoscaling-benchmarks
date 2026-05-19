@@ -1,0 +1,27 @@
+---
+description: When agents may invoke benchmark-* Cursor skills and when to confirm with the user
+alwaysApply: true
+---
+
+# ROSA benchmark harness — skill invocation & confirmation
+
+**Invocation:** `benchmark-*` skills under `.cursor/skills/` are **eligible for model invocation**. Use them whenever the conversation is about running or planning benchmark tests **01–09**, cluster install timing, autoscaling demos, **`make create-classic`** / **`make create-hcp`**, **`make destroy-*`**, or **`clusters/hcp/terraform`** for this repo’s HCP harness.
+
+**Skip a confirmation ping** when the user gives a **direct run request** — they explicitly name the benchmark, test number, or `make`/Terraform action to execute (examples: “run `benchmark-run-all`”, “execute test 06”, “run `make create-hcp` for the benchmark”). Then proceed after normal auth/preflight checks.
+
+**Ask once before mutating/long runs** when the intent is **indirect or exploratory** — vague benchmarking ideas, roadmap chat, “we should compare Classic and HCP”, or you inferred they want cluster lifecycle without them ordering it. Summarize planned steps, topology (**Classic** vs **HCP** Terraform), blast radius/time, then wait for explicit approval before **`terraform apply`**, **`make create-*`**, **`make destroy-*`**, or chaining the whole suite.
+
+**Always OK without extra confirmation:** read-only checks (**`rosa whoami`**, **`make cluster-create-lock-status`**, **`record-event.py ls`**, checkpoint **status**/summary).
+
+**Long installs (test 01):** Do **not** block on **`make create-classic`**, **`make create-hcp`**, or **`resume-install-wait.sh`** in the **Cursor integrated Shell** for tens of minutes — tool limits can **SIGTERM** the job and leave OCM half-provisioned. Use the **tmux** flow in **`benchmark-run-all`** or **`nohup` + log** per **`benchmark-cluster-install`** → *Long jobs — Cursor Shell vs tmux / `nohup`*.
+
+**Hands-off harness operations:** When a **`benchmark-*`** skill documents an automatic recovery path (examples: HCP destroy **`ROSA_HCP_TERRAFORM_DESTROY_NO_REFRESH`**, **`make reconcile-hcp`** after failed apply, scripted OCM **403** backoffs), **run that path** — **do not** pause to ask the user for Makefile / Terraform flags, env var spellings, or “did you mean NO_REFRESH?” unless the skill marks the step as **last resort** or **manual** after automated retries fail.
+
+**Benchmark completion & reporting:** When the user asks you to **benchmark**, **measure**, **run test** **01–09**, or similar, treat that as a request for a **finished outcome and a proper deliverable**, not only a CLI or **`make`** invocation.
+
+- Follow the relevant **`benchmark-*`** skill **end-to-end**, including its **mandatory close-out**: test **01** → **HTML** under **`reports/`** (see **`benchmark-cluster-install`**); tests **02–09** → **Cursor Canvas** (and checkpoint/events when a **`RUN_ID`** is in play) per each skill; **`benchmark-run-all`** → each skill’s close-out plus the **suite HTML** under **`reports/`** when the suite was the scope.
+- Do **not** end after a partial step (e.g. **`make add-pool`** alone) if the skill still requires verification, event capture, or Canvas/HTML — unless the user explicitly asked for fire-and-forget and accepts no report.
+- If blocked (auth, quota, timeout), still ship the **Canvas** or **HTML** with a **partial / failed** narrative and use **`checkpoint.py fail`** (and **`record-event`** where useful).
+- **HCP `make destroy-hcp`:** on refresh / **`cluster_default`** / **Invalid index** errors after a partial teardown, agents **automatically** retry with **`ROSA_HCP_TERRAFORM_DESTROY_NO_REFRESH=1`** per **`benchmark-run-all`** — **do not** require the user to remember that flag.
+
+Canonical detail lives in **`benchmark-run-all/SKILL.md` → “Invocation & confirmation (for agents)”**.

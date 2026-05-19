@@ -1,0 +1,122 @@
+---
+# manifests/workloads/autonode-app.yaml
+#
+# CPU-intensive sample app + load generator for AutoNode (Karpenter) benchmark
+# tests (test 10).
+#
+# The Deployment uses nodeSelector: autonode: "true" so all app pods land
+# exclusively on Karpenter-managed nodes from the autonode-bench NodePool,
+# keeping measurements isolated from the default machine-pool workers.
+#
+# The load-generator starts at 0 replicas; the benchmark script scales it up
+# progressively (5 → 15 → 30) to drive HPA and trigger node provisioning.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: autonode-test
+  labels:
+    benchmark: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autonode-app
+  namespace: autonode-test
+  labels:
+    app: autonode-app
+    benchmark: "true"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: autonode-app
+  template:
+    metadata:
+      labels:
+        app: autonode-app
+        benchmark: "true"
+    spec:
+      nodeSelector:
+        autonode: "true"
+      containers:
+        - name: app
+          image: python:3.11-slim
+          command:
+            - python
+            - -c
+            - |
+              from http.server import HTTPServer, BaseHTTPRequestHandler
+              import math
+              class Handler(BaseHTTPRequestHandler):
+                  def do_GET(self):
+                      x = 0.0001
+                      for i in range(1000000):
+                          x += math.sqrt(x)
+                      self.send_response(200)
+                      self.end_headers()
+                      self.wfile.write(b"OK\n")
+                  def log_message(self, format, *args):
+                      pass
+              HTTPServer(("", 8080), Handler).serve_forever()
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              # NOTE: Use 1500m for predictable 1-node-per-wave scaling.
+              # Fresh Karpenter nodes have only ~500m DaemonSet overhead (vs ~830m
+              # on default workers), leaving ~3000m free. At 1000m/pod, 3 pods fit
+              # per node — Wave 2 (6 pods) did not provision a new node in our run.
+              # At 1500m/pod, floor(3000/1500) = 2 pods/node — guaranteed +1 node
+              # per +2 replica wave. Benchmark run 20260508T031735 used 1000m.
+              cpu: "1000m"
+              memory: "128Mi"
+            limits:
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: autonode-app
+  namespace: autonode-test
+  labels:
+    app: autonode-app
+spec:
+  selector:
+    app: autonode-app
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-generator
+  namespace: autonode-test
+  labels:
+    app: load-generator
+    benchmark: "true"
+spec:
+  # Start at 0 replicas; benchmark script scales progressively
+  replicas: 0
+  selector:
+    matchLabels:
+      app: load-generator
+  template:
+    metadata:
+      labels:
+        app: load-generator
+        benchmark: "true"
+    spec:
+      containers:
+        - name: loader
+          image: busybox:1.36
+          command:
+            - /bin/sh
+            - -c
+            - "while true; do wget -q -O- http://autonode-app.autonode-test.svc.cluster.local; done"
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "16Mi"
+            limits:
+              memory: "32Mi"

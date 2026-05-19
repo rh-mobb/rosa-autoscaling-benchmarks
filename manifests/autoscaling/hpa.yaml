@@ -1,0 +1,45 @@
+---
+# manifests/autoscaling/hpa.yaml
+#
+# HorizontalPodAutoscaler for the cpu-burner deployment.
+# Scales between 1 and 20 replicas based on average CPU utilization.
+#
+# Target: 50% average CPU utilization across pods.
+# With each pod requesting 500m CPU and burning ~80%, this triggers scaling
+# when a single pod exceeds 400m sustained (50% of 500m * 1.6 = 400m).
+#
+# Applied by: benchmark-hpa, benchmark-hpa-triggers-cas, benchmark-overprovisioning
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: cpu-burner-hpa
+  namespace: benchmark
+  labels:
+    benchmark: "true"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: cpu-burner
+  minReplicas: 1
+  maxReplicas: 20
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0      # scale up immediately when threshold exceeded
+      policies:
+        - type: Pods
+          value: 4
+          periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 300    # 5-minute cooldown before scaling down
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 60

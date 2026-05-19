@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Autoscaling Suite — Classic (Tests 10–13) · 20260511T041449</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --border: #2a2d3a;
+    --text: #e0e4f0; --muted: #7a7f94; --accent: #4b91f7;
+    --success: #3ecf8e; --warning: #f6a623; --danger: #f05252;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.6; }
+  .page { max-width: 1040px; margin: 0 auto; padding: 40px 24px; }
+  h1 { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  h2 { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 12px; margin-top: 32px; }
+  h3 { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
+  .meta { color: var(--muted); font-size: 12px; margin-bottom: 32px; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .kpi .value { font-size: 26px; font-weight: 700; line-height: 1.2; }
+  .kpi .label { font-size: 11px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .04em; }
+  .kpi .sub { font-size: 11px; color: var(--muted); margin-top: 6px; }
+  .kpi.success .value { color: var(--success); }
+  .kpi.warning .value { color: var(--warning); }
+  .kpi.danger  .value { color: var(--danger); }
+  .kpi.accent  .value { color: var(--accent); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: var(--surface); color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; padding: 10px 12px; border: 1px solid var(--border); text-align: left; }
+  td { padding: 10px 12px; border: 1px solid var(--border); vertical-align: middle; }
+  tr:nth-child(even) td { background: rgba(255,255,255,.02); }
+  .t-success { color: var(--success); font-weight: 600; }
+  .t-warning { color: var(--warning); font-weight: 600; }
+  .t-danger  { color: var(--danger); font-weight: 600; }
+  .t-muted   { color: var(--muted); }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .pill.success { background: rgba(62,207,142,.15); color: var(--success); }
+  .pill.warning { background: rgba(246,166,35,.15); color: var(--warning); }
+  .pill.danger  { background: rgba(240,82,82,.15);  color: var(--danger); }
+  .pill.neutral { background: rgba(255,255,255,.07); color: var(--muted); }
+  .callout { border-left: 3px solid var(--accent); background: rgba(75,145,247,.08); padding: 14px 16px; border-radius: 0 6px 6px 0; margin: 16px 0; }
+  .callout.success { border-color: var(--success); background: rgba(62,207,142,.08); }
+  .callout.warning { border-color: var(--warning); background: rgba(246,166,35,.08); }
+  .callout .title { font-weight: 600; margin-bottom: 4px; }
+  .findings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+  .finding { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .finding h4 { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+  .finding p { color: var(--muted); font-size: 12px; line-height: 1.65; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+  .bar-wrap { margin: 8px 0 4px; }
+  .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .bar-label { width: 240px; font-size: 12px; color: var(--muted); flex-shrink: 0; }
+  .bar-track { flex: 1; height: 12px; background: rgba(255,255,255,.06); border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; }
+  .bar-val { font-size: 12px; font-weight: 600; min-width: 48px; }
+  footer { margin-top: 48px; color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Advanced Autoscaling Suite — Classic (Tests 10–13)</h1>
+  <p class="meta">
+    Run ID: 20260511T041449-classic &nbsp;·&nbsp;
+    Cluster: classic-bench &nbsp;·&nbsp;
+    OCP 4.19.30 &nbsp;·&nbsp; m5.xlarge, 3-AZ, CAS &nbsp;·&nbsp;
+    Generated: 2026-05-12
+  </p>
+
+  <!-- KPI Grid -->
+  <div class="kpi-grid">
+    <div class="kpi neutral">
+      <div class="value">—</div>
+      <div class="label">Test 10 — Karpenter scale</div>
+      <div class="sub">Skipped — Classic has no Karpenter NodeClaims</div>
+    </div>
+    <div class="kpi success">
+      <div class="value">43s</div>
+      <div class="label">Test 11 — Planned surge (best)</div>
+      <div class="sub">Proactive-nodes: surge trigger → all pods Ready</div>
+    </div>
+    <div class="kpi success">
+      <div class="value">31s</div>
+      <div class="label">Test 12 — Sudden spike (prepared)</div>
+      <div class="sub">Phase 2 with balloon pods vs 9m48s Phase 1</div>
+    </div>
+    <div class="kpi warning">
+      <div class="value">17s</div>
+      <div class="label">Test 13 — CAS parallel stagger</div>
+      <div class="sub">Between first and second node Ready (2/3 nodes)</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Timing table -->
+  <h2>Detailed timing — all tests and strategies</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Test / Strategy</th>
+        <th>Phase / Metric</th>
+        <th>Elapsed</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Test 10 -->
+      <tr>
+        <td><strong>10 — Karpenter scale</strong></td>
+        <td>All phases</td>
+        <td class="t-muted">—</td>
+        <td><span class="pill neutral">Skipped</span></td>
+      </tr>
+      <tr>
+        <td class="t-muted" style="padding-left:24px">hcp-autonode only</td>
+        <td class="t-muted">Requires Karpenter NodeClaims</td>
+        <td class="t-muted">—</td>
+        <td class="t-muted">N/A for Classic</td>
+      </tr>
+
+      <!-- Test 11 balloon -->
+      <tr>
+        <td><strong>11 — Planned surge</strong><br><span class="t-muted" style="font-size:12px">balloon-pods strategy</span></td>
+        <td>Preparation → balloon pods Ready</td>
+        <td class="t-success">&lt;1s</td>
+        <td><span class="pill success">Completed</span></td>
+      </tr>
+      <tr>
+        <td class="t-muted" style="padding-left:24px">balloon-pods</td>
+        <td>Surge trigger → HPA decision</td>
+        <td>49s</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="t-muted" style="padding-left:24px">balloon-pods</td>
+        <td>Surge trigger → preemption</td>
+        <td>2m7s</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="t-muted" style="padding-left:24px">balloon-pods</td>
+        <td>Surge trigger → all pods Ready <em>(key KPI)</em></td>
+        <td class="t-warning">2m18s</td>
+        <td></td>
+      </tr>
+
+      <!-- Test 11 proactive -->
+      <tr>
+        <td><strong>11 — Planned surge</strong><br><span class="t-muted" style="font-size:12px">proactive-nodes strategy</span></td>
+        <td>Preparation → all nodes Ready</td>
+        <td class="t-warning">6m23s</td>
+        <td><span class="pill success">Completed</span></td>
+      </tr>
+      <tr>
+        <td class="t-muted" style="padding-left:24px">proactive-nodes</td>
+        <td>Surge trigger → HPA decision</td>
+        <td>18s</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="t-muted" style="padding-left:24px">proactive-nodes</td>
+        <td>Surge trigger → all pods Ready <em>(key KPI)</em></td>
+        <td class="t-success">43s</td>
+        <td></td>
+      </tr>
+
+      <!-- Test 12 P1 -->
+      <tr>
+        <td><strong>12 — Sudden spike</strong><br><span class="t-muted" style="font-size:12px">Phase 1 — no preparation</span></td>
+        <td>Surge trigger → HPA decision</td>
+        <td>1m5s</td>
+        <td><span class="pill success">Completed</span></td>
+      </tr>
+      <tr>
+        <td class="t-muted" style="padding-left:24px">Phase 1 (raw CAS)</td>
+        <td>Surge trigger → CAS triggered</td>
+        <td>1m9s</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="t-muted" style="padding-left:24px">Phase 1 (raw CAS)</td>
+        <td>Surge trigger → first node Ready</td>
+        <td class="t-danger">9m37s</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="t-muted" style="padding-left:24px">Phase 1 (raw CAS)</td>
+        <td>Surge trigger → all pods Ready <em>(key KPI)</em></td>
+        <td class="t-danger">9m48s</td>
+        <td></td>
+      </tr>
+
+      <!-- Test 12 P2 -->
+      <tr>
+        <td><strong>12 — Sudden spike</strong><br><span class="t-muted" style="font-size:12px">Phase 2 — balloon pods</span></td>
+        <td>Surge trigger → HPA decision</td>
+        <td>18s</td>
+        <td><span class="pill success">Completed</span></td>
+      </tr>
+      <tr>
+        <td class="t-muted" style="padding-left:24px">Phase 2 (balloon pods)</td>
+        <td>Surge trigger → preemption</td>
+        <td>20s</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="t-muted" style="padding-left:24px">Phase 2 (balloon pods)</td>
+        <td>Surge trigger → all pods Ready <em>(key KPI)</em></td>
+        <td class="t-success">31s</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="t-muted" style="padding-left:24px">P1 → P2 improvement</td>
+        <td>Latency reduction</td>
+        <td class="t-success">−9m17s (95%)</td>
+        <td></td>
+      </tr>
+
+      <!-- Test 13 -->
+      <tr>
+        <td><strong>13 — Parallel nodes</strong></td>
+        <td>Trigger → FailedScheduling</td>
+        <td>3s</td>
+        <td><span class="pill warning">Partial (2/3)</span></td>
+      </tr>
+      <tr>
+        <td class="t-muted" style="padding-left:24px">CAS (3-AZ)</td>
+        <td>FailedScheduling → CAS ScaledUpGroup</td>
+        <td>1s</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="t-muted" style="padding-left:24px">CAS (3-AZ)</td>
+        <td>Trigger → Node 1 Ready (us-east-1a)</td>
+        <td>7m36s</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="t-muted" style="padding-left:24px">CAS (3-AZ)</td>
+        <td>Trigger → Node 2 Ready (us-east-1b)</td>
+        <td>7m53s</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="t-muted" style="padding-left:24px">CAS (3-AZ)</td>
+        <td>Node 1→2 stagger (parallelism)</td>
+        <td class="t-success">17s</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="t-muted" style="padding-left:24px">CAS (3-AZ)</td>
+        <td>Node 3</td>
+        <td class="t-muted">Not provisioned</td>
+        <td class="t-muted">Demand satisfied with 2</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider">
+
+  <!-- Bar chart section -->
+  <h2>Surge → all pods Ready: strategy comparison</h2>
+  <div class="bar-wrap">
+    <div class="bar-row">
+      <div class="bar-label">Raw CAS, no prep (T03 baseline)</div>
+      <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--danger)"></div></div>
+      <div class="bar-val t-danger">7m33s</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">T12 Phase 1 — raw CAS sudden spike</div>
+      <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--danger)"></div></div>
+      <div class="bar-val t-danger">9m48s</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">T09 overprovisioning (HPA trigger)</div>
+      <div class="bar-track"><div class="bar-fill" style="width:26%;background:var(--warning)"></div></div>
+      <div class="bar-val t-warning">2m3s</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">T11 balloon-pods planned surge</div>
+      <div class="bar-track"><div class="bar-fill" style="width:24%;background:var(--warning)"></div></div>
+      <div class="bar-val t-warning">2m18s</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">T11 proactive-nodes planned surge</div>
+      <div class="bar-track"><div class="bar-fill" style="width:7%;background:var(--success)"></div></div>
+      <div class="bar-val t-success">43s</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">T12 Phase 2 — balloon pods sudden spike</div>
+      <div class="bar-track"><div class="bar-fill" style="width:5%;background:var(--success)"></div></div>
+      <div class="bar-val t-success">31s</div>
+    </div>
+  </div>
+  <p style="color:var(--muted);font-size:12px;margin-top:8px">Bars scaled relative to 9m48s maximum. All times from surge trigger (HPA applied) until all pods Ready.</p>
+
+  <hr class="divider">
+
+  <!-- Key findings -->
+  <h2>Key findings</h2>
+
+  <div class="callout success">
+    <div class="title">Proactive design eliminates the EC2 provisioning penalty</div>
+    <p style="font-size:13px;color:var(--muted);margin-top:4px">
+      Whether the spike is planned (test 11) or sudden (test 12), balloon pods or pre-warmed nodes
+      reduced time-to-all-ready from 7–10 minutes to 31–43 seconds. The remaining latency is the
+      HPA metrics-server detection window (~18–49s) — an irreducible baseline that requires KEDA or
+      custom metrics to reduce further. <strong>Autoscaling design matters more than autoscaler choice.</strong>
+    </p>
+  </div>
+
+  <div class="findings-grid">
+    <div class="finding">
+      <h4>Test 11 — Planned surge</h4>
+      <p>
+        Balloon-pods preparation is near-zero cost (&lt;1s — pods cached) but surge response is 2m18s
+        due to the HPA metrics window + preemption time. Proactive-nodes requires 6m23s lead time
+        (CAS provisioning) but delivers a 43s surge response. Choose by how much advance notice
+        you have: balloon-pods for uncertain timing, proactive-nodes for known events (retail sales,
+        launches) where 10 min warning is feasible.
+      </p>
+    </div>
+    <div class="finding">
+      <h4>Test 12 — Sudden spike, 95% improvement</h4>
+      <p>
+        Phase 1 (raw CAS): EC2 provisioning dominated at 9m37s node ready time.
+        Phase 2 (balloon pods): preemption completed in 20s, all pods Ready in 31s.
+        The 95% improvement (9m48s → 31s) confirms balloon pods are highly effective for
+        sudden spikes even on Classic CAS clusters. The remaining latency is the metrics-server
+        window, not node provisioning.
+      </p>
+    </div>
+    <div class="finding">
+      <h4>Test 13 — CAS parallel provisioning</h4>
+      <p>
+        CAS dispatched parallel scale-ups to separate AZ MachineSets, achieving only 17s stagger
+        between nodes 1 and 2 — well within the 30–90s documented range. This confirms CAS batches
+        multi-AZ launches concurrently. Only 2/3 target nodes provisioned because demand was
+        satisfied after 2 nodes; the trigger workload was not sufficient to force a 3rd CAS cycle.
+        This is correct CAS behavior.
+      </p>
+    </div>
+    <div class="finding">
+      <h4>Test 10 — Karpenter (skipped)</h4>
+      <p>
+        Test 10 requires a ROSA HCP cluster with AutoNode (Karpenter) enabled. On Classic, CAS uses
+        AWS Auto Scaling Groups and cannot create NodeClaims. To benchmark Karpenter NodeClaim
+        latency, provision an hcp-autonode cluster and run this suite again. Karpenter typically
+        achieves first-node-ready in 60–90s via EC2 Fleet API, compared to 7m36s CAS above.
+      </p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Recommendations -->
+  <h2>Recommendations</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Scenario</th>
+        <th>Recommended strategy</th>
+        <th>Expected surge response</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Planned sale / event (≥10 min notice)</td>
+        <td>Proactive-nodes: force N nodes ahead of time</td>
+        <td class="t-success">~43s</td>
+      </tr>
+      <tr>
+        <td>Planned sale / event (uncertain timing)</td>
+        <td>Balloon-pods: maintain idle headroom continuously</td>
+        <td class="t-warning">~2m18s</td>
+      </tr>
+      <tr>
+        <td>Sudden unplanned spike</td>
+        <td>Balloon-pods always deployed as baseline</td>
+        <td class="t-success">~31s</td>
+      </tr>
+      <tr>
+        <td>Sudden spike, Karpenter available (HCP-AutoNode)</td>
+        <td>Karpenter NodePool + balloon pods</td>
+        <td class="t-success">&lt;30s (est.)</td>
+      </tr>
+      <tr>
+        <td>No preparation, CAS Classic</td>
+        <td>None — raw autoscaling</td>
+        <td class="t-danger">~9m48s</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout" style="margin-top:24px">
+    <div class="title">Sizing note — balloon replicas</div>
+    <p style="font-size:13px;color:var(--muted);margin-top:4px">
+      Balloon replicas should equal <em>expected HPA target − current replicas</em>. For this cluster
+      (m5.xlarge, 3 workers), 5 balloon pods at 500m/128Mi each consumed ~2.5 vCPU of headroom across
+      the 3 nodes — enough to absorb a 1→6 replica surge without CAS. For larger surges, combine
+      balloon pods with proactive-nodes or increase the machine pool max-replicas before the event.
+    </p>
+  </div>
+
+  <hr class="divider">
+
+  <h2>Test status summary</h2>
+  <table>
+    <thead>
+      <tr><th>Test</th><th>Status</th><th>Duration</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>10 — Karpenter scale</td>
+        <td><span class="pill neutral">Skipped</span></td>
+        <td class="t-muted">—</td>
+        <td class="t-muted">Classic cluster: no Karpenter NodeClaims</td>
+      </tr>
+      <tr>
+        <td>11 — Planned surge</td>
+        <td><span class="pill success">Completed</span></td>
+        <td>7m16s</td>
+        <td>Both strategies: balloon-pods and proactive-nodes</td>
+      </tr>
+      <tr>
+        <td>12 — Sudden spike</td>
+        <td><span class="pill success">Completed</span></td>
+        <td>12m4s</td>
+        <td>Two-phase: raw CAS vs balloon-pods, 95% improvement</td>
+      </tr>
+      <tr>
+        <td>13 — Parallel nodes</td>
+        <td><span class="pill warning">Partial</span></td>
+        <td>40m24s</td>
+        <td>2/3 nodes provisioned; stagger 17s; demand satisfied after 2</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <footer>
+    <p>Run ID: 20260511T041449-classic · Cluster: classic-bench · OCP 4.19.30 · Generated 2026-05-12</p>
+    <p style="margin-top:4px">Compare with HCP-AutoNode run: 20260511T030113-hcp-autonode · Full comparison: <a href="20260512T031206-comparison.html" style="color:var(--accent)">20260512T031206-comparison.html</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

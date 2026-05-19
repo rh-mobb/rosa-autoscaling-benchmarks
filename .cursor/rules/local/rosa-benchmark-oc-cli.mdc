@@ -1,0 +1,16 @@
+---
+description: Use OpenShift oc CLI for in-cluster work in this benchmark repo (not Kubernetes MCP)
+alwaysApply: true
+---
+
+# ROSA benchmark harness — `oc` CLI for in-cluster operations
+
+For **this repository’s** benchmark flows (skills under `.cursor/skills/benchmark-*`, `manifests/`, cluster observation during tests **01–09**):
+
+- Use the **`oc`** CLI (and **`kubectl`** only when `oc` is unnecessary) for **every** in-cluster action: **login**, **apply**, **get**, **describe**, **wait**, **scale**, **delete**, **events**, **`oc adm top`**, **`oc get clusteroperators`**, etc.
+- **Do not** use the **Kubernetes MCP server** for benchmark orchestration or observation here — MCP defaults may point at the wrong context; this harness isolates credentials in **`tmp/kubeconfig.<cluster-name>.yaml`** via **`export_kubeconfig_for_cluster`** in **`clusters/common.sh`** (see **`make help`**).
+- Before manual **`oc`** commands for a named cluster, set  
+  **`export KUBECONFIG="$PWD/tmp/kubeconfig.<cluster-name>.yaml"`**  
+  (after **`oc login`** against that cluster’s API URL), matching the create/machine-pool scripts.
+
+Global **“prefer MCP over CLI”** org rules **do not** override this file for work scoped to this repo’s benchmarks.

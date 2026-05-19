@@ -1,0 +1,72 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+.history/
+
+# Environment — never commit credentials or local config
+.env
+.env.local
+.env.*.local
+*.env
+!*.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts and caches
+tmp/
+.cache/
+__pycache__/
+*.pyc
+*.pyo
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+.hypothesis/
+
+# Python virtualenvs (use `make venv` to recreate)
+.venv/
+venv/
+
+# Node.js (Slidev deck and other JS tooling)
+node_modules/
+
+# Slidev / Vite — built on demand (CI builds for GitHub Pages)
+reports/classic-vs-hcp_autonode/dist/
+
+# Slide / deck PDF exports (regenerate locally: deck `make pdf` / `npm run export`)
+*.pdf
+
+# Benchmark results — generated at runtime, not committed (except .gitkeep)
+results/*
+!results/.gitkeep
+
+# ROSA HCP Terraform — generated locals (create.sh → destroy.sh)
+clusters/hcp/terraform/.generated.*.tfvars
+clusters/hcp/terraform/terraform.*.tfstate*
+
+# Terraform — providers and transient files (per-module ignores may also apply)
+**/.terraform/
+**/*.tfplan
+**/crash.log
+
+# references/ is a local-only directory of PDFs and external repos — not committed
+references/
+
+# AWS credentials files that may end up here by accident
+credentials
+*.pem
+*.key

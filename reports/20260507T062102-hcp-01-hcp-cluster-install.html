@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Benchmark 01 — ROSA HCP cluster install</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --border: #2d3a4d;
+      --text: #e6edf3;
+      --muted: #8b9cb3;
+      --accent: #58a6ff;
+      --warning: #d4a72c;
+      --ok: #3fb950;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 15px;
+    }
+    main { max-width: 920px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+    header.doc {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+    h1 { font-size: 1.35rem; font-weight: 600; margin: 0 0 0.35rem; letter-spacing: -0.02em; }
+    .subtitle { color: var(--muted); font-size: 0.95rem; margin: 0; }
+    dl.meta {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.35rem 1.25rem;
+      margin: 1.25rem 0 0;
+      font-size: 0.9rem;
+    }
+    dl.meta dt { color: var(--muted); font-weight: 500; }
+    dl.meta dd { margin: 0; }
+    h2 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 2rem 0 0.75rem;
+      color: var(--accent);
+    }
+    section:first-of-type h2 { margin-top: 0; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+    }
+    .stat.warning {
+      border-color: var(--warning);
+      box-shadow: 0 0 0 1px rgba(212, 167, 44, 0.25);
+    }
+    .stat.ok {
+      border-color: var(--ok);
+      box-shadow: 0 0 0 1px rgba(63, 185, 80, 0.25);
+    }
+    .stat .label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+    .stat .value {
+      font-size: 1.35rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat .hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+    }
+    table.timeline, table.ref {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    table.timeline th, table.timeline td,
+    table.ref th, table.ref td {
+      text-align: left;
+      padding: 0.55rem 0.65rem;
+      border-bottom: 1px solid var(--border);
+    }
+    table.ref th, table.ref td { border: 1px solid var(--border); }
+    table.ref th {
+      background: var(--surface);
+      color: var(--muted);
+      font-weight: 500;
+    }
+    table.timeline th {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; }
+    td.source { color: var(--muted); font-size: 0.82rem; }
+    .callout {
+      background: var(--surface);
+      border-left: 3px solid var(--accent);
+      padding: 0.85rem 1rem;
+      border-radius: 0 8px 8px 0;
+      margin-top: 0.5rem;
+    }
+    .callout.ok { border-left-color: var(--ok); }
+    ul.findings { margin: 0.5rem 0 0; padding-left: 1.2rem; }
+    ul.findings li { margin: 0.35rem 0; }
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    details.callout.warning summary { cursor: pointer; font-weight: 600; }
+    .callout.warning { border-left-color: var(--warning); }
+    .badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      vertical-align: middle;
+    }
+    .badge.ok { background: rgba(63,185,80,0.15); color: var(--ok); border: 1px solid rgba(63,185,80,0.3); }
+    .badge.warn { background: rgba(212,167,44,0.15); color: var(--warning); border: 1px solid rgba(212,167,44,0.3); }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="doc">
+      <h1>Benchmark 01 — Cluster install (ROSA HCP) <span class="badge warn">Partial run</span></h1>
+      <p class="subtitle">Test <code style="background:var(--surface);padding:0.12rem 0.35rem;border-radius:4px">01-cluster-install</code> — Terraform provision, then <strong>OCM ready</strong>, <strong>oc login</strong>, default <strong>worker</strong> nodes Ready, <strong>ClusterOperators</strong> Available.</p>
+      <dl class="meta">
+        <dt>Run ID</dt>
+        <dd><code>20260507T062102-hcp</code></dd>
+        <dt>Cluster name</dt>
+        <dd><code>hcp-bench</code></dd>
+        <dt>Region</dt>
+        <dd><code>us-east-1</code></dd>
+        <dt>OpenShift / ROSA</dt>
+        <dd><code>4.21.12</code></dd>
+        <dt>Topology</dt>
+        <dd>Multi-AZ HCP · 3 default pools (workers-0/1/2) · <code>m5.xlarge</code> · min 1 / max 3 replicas per AZ</dd>
+        <dt>Module pin</dt>
+        <dd><code>d6ae385</code> — "fix: use cluster-total min/max replicas for rhcs_cluster_rosa_hcp autoscaling"</dd>
+        <dt>Report generated</dt>
+        <dd><code>2026-05-07T06:49:00Z</code> (UTC)</dd>
+      </dl>
+    </header>
+
+    <section aria-labelledby="summary-heading">
+      <h2 id="summary-heading">Summary</h2>
+      <p class="subtitle" style="margin:-0.25rem 0 0.75rem">Cumulative time from benchmark start (<code>metadata.json</code> <code>started_at</code> = <code>2026-05-07T06:21:02Z</code>). Total includes time lost to two bug-fix iterations before the cluster was created. See "Recovery narrative" below.</p>
+      <div class="stats">
+        <div class="stat">
+          <div class="label">1 · OCM cluster ready</div>
+          <div class="value">17m 52s</div>
+          <div class="hint"><code>hcp.cluster_ready</code> · single-shot reconcile apply</div>
+        </div>
+        <div class="stat">
+          <div class="label">2 · oc login OK</div>
+          <div class="value">24m 47s</div>
+          <div class="hint"><code>hcp.oc_login_ok</code> · includes bug-fix gap (~7&nbsp;min)</div>
+        </div>
+        <div class="stat">
+          <div class="label">3 · Machine pools (workers)</div>
+          <div class="value">18m 27s</div>
+          <div class="hint"><code>hcp.machine_pools_ready</code> · ready concurrent with OCM</div>
+        </div>
+        <div class="stat ok">
+          <div class="label">4 · All operators Available</div>
+          <div class="value">27m 13s</div>
+          <div class="hint"><code>hcp.operators_ready</code> · 21/21 clean</div>
+        </div>
+        <div class="stat warning">
+          <div class="label">Total (wall clock)</div>
+          <div class="value">27m 13s</div>
+          <div class="hint"><code>hcp.total</code> · includes ~7&nbsp;min bug-fix overhead; clean run expected ~20–22&nbsp;min</div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="headline-heading">
+      <h2 id="headline-heading">Key result</h2>
+      <div class="callout ok">
+        <p style="margin:0"><strong>Zero CLUSTERS-MGMT-403 errors.</strong> With the upstream module fixed to pass cluster-total <code>min_replicas</code> / <code>max_replicas</code> to <code>rhcs_cluster_rosa_hcp</code> at creation time, all three <code>rhcs_hcp_machine_pool.default</code> resources were applied in <strong>2–5 seconds</strong> after the cluster became ready — no forbidden-access retries, no sleep. This confirms the root-cause hypothesis from the previous run (<code>20260507T024819-hcp</code>): the OCM 403 race was caused by the provider issuing concurrent machine-pool updates against pools the cluster had already configured.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="segments-heading">
+      <h2 id="segments-heading">Phase durations (canonical milestones)</h2>
+      <table class="ref">
+        <thead>
+          <tr><th scope="col">Segment</th><th scope="col">Duration</th><th scope="col">Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Benchmark start → OCM cluster ready</td><td><strong>17m 52s</strong></td><td>Reconcile apply; excludes ~7&nbsp;min bug-fix gap</td></tr>
+          <tr><td>OCM ready → machine pools Ready</td><td>~35s</td><td>Provider waited for workers inside reconcile apply</td></tr>
+          <tr><td>OCM ready → successful <code>oc login</code></td><td>~6m 55s</td><td>IDP propagation + manual login step</td></tr>
+          <tr><td>Login → all ClusterOperators Available</td><td>~2m 26s</td><td>Operators were already settling</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="timeline-heading">
+      <h2 id="timeline-heading">Timeline</h2>
+      <table class="timeline">
+        <thead>
+          <tr>
+            <th scope="col">Milestone</th>
+            <th scope="col">Δ from benchmark start</th>
+            <th scope="col">End (ISO UTC)</th>
+            <th scope="col">Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">hcp.terraform_init</td>
+            <td class="mono">0m 2s</td>
+            <td class="mono">2026-05-07T06:21:07Z</td>
+            <td class="source">events.jsonl</td>
+          </tr>
+          <tr>
+            <td class="mono">hcp.terraform_apply</td>
+            <td class="mono">3m 7s</td>
+            <td class="mono">2026-05-07T06:24:15Z</td>
+            <td class="source">events.jsonl · <strong>failed</strong> — CLUSTERS-MGMT-400 (min_replicas=1, not multiple of 3 subnets)</td>
+          </tr>
+          <tr>
+            <td class="mono">hcp.create_submitted</td>
+            <td class="mono">3m 7s</td>
+            <td class="mono">2026-05-07T06:24:15Z</td>
+            <td class="source">events.jsonl · initial apply window</td>
+          </tr>
+          <tr style="opacity:0.6">
+            <td class="mono" colspan="4" style="font-style:italic;color:var(--muted)">
+              ~7 min gap — upstream module bug identified &amp; fixed: per-pool min/max replicas swapped for cluster-total values; new commit d6ae385 pushed and Terraform re-initialized
+            </td>
+          </tr>
+          <tr>
+            <td class="mono">hcp.manual_terraform_apply_reconcile</td>
+            <td class="mono">10m 17s</td>
+            <td class="mono">2026-05-07T06:38:55Z</td>
+            <td class="source">events.jsonl · reconcile apply duration (start → OCM ready)</td>
+          </tr>
+          <tr>
+            <td class="mono">hcp.cluster_ready</td>
+            <td class="mono">17m 52s</td>
+            <td class="mono">2026-05-07T06:38:55Z</td>
+            <td class="source">events.jsonl · OCM state = ready; rhcs_cluster_rosa_hcp completed</td>
+          </tr>
+          <tr>
+            <td class="mono">hcp.machine_pools_ready</td>
+            <td class="mono">18m 27s</td>
+            <td class="mono">2026-05-07T06:39:30Z</td>
+            <td class="source">events.jsonl · all 3 rhcs_hcp_machine_pool applied in 2–5&nbsp;s; worker nodes Ready</td>
+          </tr>
+          <tr>
+            <td class="mono">hcp.oc_login_ok</td>
+            <td class="mono">24m 47s</td>
+            <td class="mono">2026-05-07T06:45:50Z</td>
+            <td class="source">events.jsonl · oc login as admin (htpasswd IDP)</td>
+          </tr>
+          <tr>
+            <td class="mono">hcp.operators_ready</td>
+            <td class="mono">27m 13s</td>
+            <td class="mono">2026-05-07T06:48:16Z</td>
+            <td class="source">events.jsonl · 21/21 ClusterOperators Available=True, Progressing=False, Degraded=False</td>
+          </tr>
+          <tr>
+            <td class="mono">hcp.total</td>
+            <td class="mono">27m 13s</td>
+            <td class="mono">2026-05-07T06:48:16Z</td>
+            <td class="source">events.jsonl</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="events-heading">
+      <h2 id="events-heading">Events &amp; findings</h2>
+      <ul class="findings">
+        <li><strong>Bug 1 — <code>CLUSTERS-MGMT-400</code>: min_replicas not a multiple of subnets.</strong> The upstream module commit <code>07b724e</code> ("update to support hcp autoscaling in provider") passed per-pool <code>default_min_replicas_per_pool = 1</code> to <code>rhcs_cluster_rosa_hcp.min_replicas</code>, but OCM interprets that attribute as a cluster-total. For a 3-AZ cluster the total must be a multiple of 3 (one per subnet). Fixed in <code>d6ae385</code>: introduced <code>hcp_max_replicas</code> local and changed the cluster resource to use <code>hcp_replicas</code> (= per_pool × num_azs = 3) and <code>hcp_max_replicas</code> (= 9).</li>
+        <li><strong>Bug 2 — EFS security group timing race.</strong> The first <code>make reconcile-hcp</code> failed because <code>data.aws_security_groups.cluster_default[0].ids</code> was empty — the ROSA-managed cluster SG is not immediately visible in AWS after the cluster resource is created. A second reconcile ~2 minutes later found the SG and completed the EFS mount target configuration in ~90&nbsp;s.</li>
+        <li><strong>Zero 403 errors.</strong> With <code>min_replicas = 3</code> / <code>max_replicas = 9</code> set at cluster creation, ROSA provisioned the three default pools (<code>workers-0/1/2</code>) with autoscaling already active. The <code>rhcs_hcp_machine_pool</code> updates were no-ops (min=1/max=3 per pool matched), completing in 2–5&nbsp;s with no forbidden errors.</li>
+        <li><strong>Machine pools ready concurrent with OCM ready.</strong> The provider's <code>wait_for_std_compute_nodes_complete = true</code> flag caused it to wait for all 3 workers to be <code>Ready</code> before returning, so <code>hcp.machine_pools_ready</code> is only 35&nbsp;s after <code>hcp.cluster_ready</code> — effectively simultaneous.</li>
+        <li><strong>21 ClusterOperators all healthy</strong> within 8 minutes of OCM ready — well within the expected 2–10&nbsp;min range.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="recovery-heading">
+      <h2 id="recovery-heading">Recovery narrative</h2>
+      <details class="callout warning" open>
+        <summary>Partial run — two bug-fix iterations</summary>
+        <p style="margin:0.5rem 0 0">This run benchmarked the first exercise of the new single-shot apply path with the autoscaling-at-creation upstream module fix. Two bugs were discovered and fixed in sequence:</p>
+        <ol style="margin:0.5rem 0 0;padding-left:1.25rem">
+          <li><strong>Wrong min/max semantics</strong>: upstream commit <code>07b724e</code> used per-pool values where OCM expects cluster-totals. Fixed in <code>d6ae385</code>, pushed, and Terraform re-initialized (~7&nbsp;min overhead).</li>
+          <li><strong>EFS SG race</strong>: cluster SG not yet visible in AWS immediately after creation. Fixed by running a second <code>make reconcile-hcp</code> ~2&nbsp;min later.</li>
+        </ol>
+        <p style="margin:0.5rem 0 0">A clean repeat run with module <code>d6ae385</code> should complete end-to-end in <strong>~20–22 minutes</strong> (OCM ready ~15–18&nbsp;min, workers and operators within 8&nbsp;min after that), with <strong>no 403 retries</strong>.</p>
+      </details>
+    </section>
+
+    <section aria-labelledby="narrative-heading">
+      <h2 id="narrative-heading">Narrative</h2>
+      <div class="callout">
+        <p style="margin:0">A new <strong>hcp-bench</strong> ROSA HCP cluster was provisioned as the first end-to-end test of the single-shot Terraform apply path combined with the upstream autoscaling-at-creation fix. The initial apply failed with a <strong>CLUSTERS-MGMT-400</strong> because the upstream module's first attempt at setting cluster-level autoscaling used per-pool replica counts where OCM expects cluster totals. After correcting the module (introducing <code>hcp_max_replicas</code> = per_pool × num_azs) and re-initializing, a <code>make reconcile-hcp</code> provisioned the cluster in <strong>10m 17s</strong> with <strong>zero 403 errors</strong> — the three default machine pools applied in under 5&nbsp;s each. A second reconcile was needed to attach EFS mount targets (AWS SG propagation race), but that completed cleanly in ~2 minutes. <code>oc login</code> succeeded immediately, all 3 workers were <code>Ready</code>, and all 21 ClusterOperators reached <code>Available=True</code> within 27&nbsp;minutes of the original benchmark start (including ~7 minutes of bug-fix time).</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="ref-heading">
+      <h2 id="ref-heading">Timing reference (expected)</h2>
+      <p class="subtitle" style="margin:-0.25rem 0 0.5rem">From <code>benchmark-cluster-install</code> skill — ROSA HCP expectations.</p>
+      <table class="ref">
+        <thead>
+          <tr><th scope="col">Phase</th><th scope="col">Expected (HCP)</th><th scope="col">This run</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Start → OCM cluster ready</td><td>(bulk of create)</td><td>~18&nbsp;min (excl. bug-fix gap)</td></tr>
+          <tr><td>OCM ready → <code>oc login</code></td><td>~2–10 min</td><td>~7&nbsp;min (IDP propagation + manual step)</td></tr>
+          <tr><td>Login → all workers Ready</td><td>~5–15 min</td><td>&lt;1&nbsp;min (already ready before login)</td></tr>
+          <tr><td>Pools → all operators Available</td><td>~2–10 min</td><td>~2&nbsp;min</td></tr>
+          <tr><td><strong>Total (typical)</strong></td><td><strong>15–25 min</strong></td><td><strong>~27&nbsp;min (incl. ~7&nbsp;min bug overhead)</strong></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer>
+      <p>ROSA autoscaling benchmark · Test 01 · HCP · <code>reports/20260507T062102-hcp-01-hcp-cluster-install.html</code></p>
+    </footer>
+  </main>
+</body>
+</html>

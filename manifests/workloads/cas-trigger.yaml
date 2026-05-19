@@ -1,0 +1,64 @@
+---
+# manifests/workloads/cas-trigger.yaml
+#
+# A "pause" workload used to trigger Cluster Autoscaler scale-up (test 03) and
+# observe scale-down after removal (test 04).
+#
+# 20 replicas each requesting 500m CPU / 512Mi memory.
+# On a cluster with only 1–2 m5.xlarge worker nodes (~4 allocatable CPU each),
+# this saturates available capacity and causes FailedScheduling events that
+# prompt CAS to provision additional nodes.
+#
+# Uses the pause image (does nothing, consumes no real CPU/memory) so that
+# the benchmark measures CAS and node provisioning time, not workload startup.
+#
+# Applied by: benchmark-autoscale-up (test 03)
+# Scaled to 0 after test 03; deleted by benchmark-autoscale-down (test 04)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: benchmark
+  labels:
+    benchmark: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cas-trigger
+  namespace: benchmark
+  labels:
+    app: cas-trigger
+    benchmark: "true"
+  annotations:
+    description: >
+      Intentionally over-replicated workload for CAS scale-up benchmarking.
+      Requests exceed available node capacity to trigger FailedScheduling → CAS scale-up.
+spec:
+  replicas: 20
+  selector:
+    matchLabels:
+      app: cas-trigger
+  template:
+    metadata:
+      labels:
+        app: cas-trigger
+        benchmark: "true"
+    spec:
+      # Target only the bench-standard pool so that the workload saturates
+      # exactly that pool's capacity and forces CAS to scale it up.
+      # Without this selector, bare-metal or other large pools absorb all
+      # pods and FailedScheduling never fires.
+      nodeSelector:
+        pool-type: standard
+      # Tolerate the default node taints on freshly provisioned nodes so that
+      # new nodes from CAS become schedulable without additional configuration.
+      tolerations:
+        - operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.9
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"

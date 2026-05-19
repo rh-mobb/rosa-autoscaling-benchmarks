@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Benchmark 01 — ROSA Classic cluster install (20260511T041449)</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --border: #2d3a4d;
+      --text: #e6edf3;
+      --muted: #8b9cb3;
+      --accent: #58a6ff;
+      --warning: #d4a72c;
+      --ok: #3fb950;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 15px;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 3rem;
+    }
+    header.doc {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin: 0 0 0.35rem;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin: 0;
+    }
+    dl.meta {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.35rem 1.25rem;
+      margin: 1.25rem 0 0;
+      font-size: 0.9rem;
+    }
+    dl.meta dt {
+      color: var(--muted);
+      font-weight: 500;
+    }
+    dl.meta dd { margin: 0; }
+
+    h2 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 2rem 0 0.75rem;
+      color: var(--accent);
+    }
+    section:first-of-type h2 { margin-top: 0; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+    }
+    .stat.warning {
+      border-color: var(--warning);
+      box-shadow: 0 0 0 1px rgba(212, 167, 44, 0.25);
+    }
+    .stat .label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+    .stat .value {
+      font-size: 1.35rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat .hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+    }
+    .stat .value.ok { color: var(--ok); }
+
+    table.timeline {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    table.timeline th,
+    table.timeline td {
+      text-align: left;
+      padding: 0.55rem 0.65rem;
+      border-bottom: 1px solid var(--border);
+    }
+    table.timeline th {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    table.timeline tbody tr:hover td {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    td.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; }
+    td.source { color: var(--muted); font-size: 0.82rem; }
+
+    .callout {
+      background: var(--surface);
+      border-left: 3px solid var(--accent);
+      padding: 0.85rem 1rem;
+      border-radius: 0 8px 8px 0;
+      margin-top: 0.5rem;
+    }
+    ul.findings {
+      margin: 0.5rem 0 0;
+      padding-left: 1.2rem;
+    }
+    ul.findings li { margin: 0.35rem 0; }
+
+    table.ref {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 0.5rem;
+    }
+    table.ref th,
+    table.ref td {
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.65rem;
+    }
+    table.ref th {
+      background: var(--surface);
+      color: var(--muted);
+      font-weight: 500;
+      text-align: left;
+    }
+    td.actual-ok { color: var(--ok); font-weight: 600; }
+
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="doc">
+      <h1>Benchmark 01 — Cluster install (ROSA Classic)</h1>
+      <p class="subtitle">Test <code style="background:var(--surface);padding:0.12rem 0.35rem;border-radius:4px">01-cluster-install</code> — path from <strong>creation</strong> to <strong>OCM ready</strong>, <strong>oc login</strong>, <strong>default machine pools</strong> (all workers Ready), then <strong>all operators</strong> Available.</p>
+      <dl class="meta">
+        <dt>Run ID</dt>
+        <dd>20260511T041449-classic</dd>
+        <dt>Cluster name</dt>
+        <dd>classic-bench</dd>
+        <dt>Region</dt>
+        <dd>us-east-1</dd>
+        <dt>OpenShift / ROSA</dt>
+        <dd>4.19.30 · multi-AZ · autoscaling workers 3–9 · m5.xlarge</dd>
+        <dt>Report generated</dt>
+        <dd>2026-05-11T05:10:00Z <span style="color:var(--muted);font-size:0.85em">(UTC)</span></dd>
+      </dl>
+    </header>
+
+    <section aria-labelledby="summary-heading">
+      <h2 id="summary-heading">Summary</h2>
+      <p class="subtitle" style="margin:-0.25rem 0 0.75rem">Cumulative time from benchmark start to each milestone.</p>
+      <div class="stats">
+        <div class="stat">
+          <div class="label">1 · OCM cluster ready</div>
+          <div class="value ok">51m 41s</div>
+          <div class="hint"><code>classic.cluster_ready</code></div>
+        </div>
+        <div class="stat">
+          <div class="label">2 · oc login OK</div>
+          <div class="value ok">52m 27s</div>
+          <div class="hint"><code>classic.oc_login_ok</code> · cluster-admin</div>
+        </div>
+        <div class="stat">
+          <div class="label">3 · Machine pools (workers)</div>
+          <div class="value ok">52m 31s</div>
+          <div class="hint"><code>classic.machine_pools_ready</code> · all workers Ready</div>
+        </div>
+        <div class="stat">
+          <div class="label">4 · All operators Available</div>
+          <div class="value ok">52m 48s</div>
+          <div class="hint"><code>classic.operators_ready</code></div>
+        </div>
+        <div class="stat">
+          <div class="label">Total (install script)</div>
+          <div class="value ok">52m 49s</div>
+          <div class="hint"><code>classic.total</code> · within expected 45–65 min</div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="segments-heading">
+      <h2 id="segments-heading">Phase durations</h2>
+      <p class="subtitle" style="margin:-0.25rem 0 0.5rem">Derived by subtracting consecutive cumulative times.</p>
+      <table class="ref">
+        <thead>
+          <tr>
+            <th scope="col">Segment</th>
+            <th scope="col">Duration</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Benchmark start → OCM cluster ready</td>
+            <td class="actual-ok">51m 41s</td>
+          </tr>
+          <tr>
+            <td>OCM ready → successful <code>oc login</code></td>
+            <td class="actual-ok">46s</td>
+          </tr>
+          <tr>
+            <td>Login → all worker nodes Ready (default pools)</td>
+            <td class="actual-ok">4s</td>
+          </tr>
+          <tr>
+            <td>Pools ready → all ClusterOperators Available</td>
+            <td class="actual-ok">17s</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="timeline-heading">
+      <h2 id="timeline-heading">Timeline</h2>
+      <table class="timeline">
+        <thead>
+          <tr>
+            <th scope="col">Milestone</th>
+            <th scope="col">Elapsed from start</th>
+            <th scope="col">End (ISO UTC)</th>
+            <th scope="col">Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">classic.cluster_ready</td>
+            <td class="mono">51m 41s</td>
+            <td class="mono">2026-05-11T05:07:36Z</td>
+            <td class="source">events.jsonl</td>
+          </tr>
+          <tr>
+            <td class="mono">classic.oc_login_ok</td>
+            <td class="mono">52m 27s</td>
+            <td class="mono">2026-05-11T05:08:22Z</td>
+            <td class="source">events.jsonl</td>
+          </tr>
+          <tr>
+            <td class="mono">classic.machine_pools_ready</td>
+            <td class="mono">52m 31s</td>
+            <td class="mono">2026-05-11T05:08:26Z</td>
+            <td class="source">events.jsonl · same instant as <code>classic.workers_ready</code></td>
+          </tr>
+          <tr>
+            <td class="mono">classic.operators_ready</td>
+            <td class="mono">52m 48s</td>
+            <td class="mono">2026-05-11T05:08:44Z</td>
+            <td class="source">events.jsonl</td>
+          </tr>
+          <tr>
+            <td class="mono">classic.total</td>
+            <td class="mono">52m 49s</td>
+            <td class="mono">2026-05-11T05:08:44Z</td>
+            <td class="source">events.jsonl</td>
+          </tr>
+          <tr style="opacity:0.65">
+            <td class="mono">classic.create_submitted</td>
+            <td class="mono">1m 12s</td>
+            <td class="mono">2026-05-11T04:17:07Z</td>
+            <td class="source">events.jsonl · provisioning API call latency only</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="events-heading">
+      <h2 id="events-heading">Events &amp; findings</h2>
+      <ul class="findings">
+        <li>Clean install — no OCM errors, no Terraform retries, no operator degradation observed.</li>
+        <li>Operator roles and OIDC provider created successfully as part of <code>make create-classic</code> (automated, not manual).</li>
+        <li>State progression: <strong>waiting → pending → installing → ready</strong> — no unexpected state transitions.</li>
+        <li>Post-OCM-ready phases extremely fast: login 46s, workers already ready 4s after login, all operators 17s after workers — indicative of healthy cluster with no stragglers.</li>
+        <li>ROSA CLI 1.2.60 used (1.2.62 available; WARN emitted but non-blocking).</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="narrative-heading">
+      <h2 id="narrative-heading">Narrative</h2>
+      <div class="callout">
+        <p style="margin:0">This run completed in <strong>52m 49s</strong> — well within the expected 45–65 min range for ROSA Classic. The dominant phase was AWS infrastructure provisioning through OCM (51m 41s), which is normal for a multi-AZ classic cluster. Once the cluster reached <code>ready</code> state in OCM, post-ready steps were unusually fast: the API server was immediately reachable (oc login in 46s), all 3 default workers were already <code>Ready</code> (4s), and all ClusterOperators converged in under 20s. Compared to the previous run of this cluster on 2026-05-07 (163m 15s total), this run was 3× faster — the prior run's delay was in the <code>manual_operator_roles_and_oidc</code> phase (95m32s), which this run completed automatically in ~1 minute, suggesting the prior run had encountered a workflow issue. This run represents a clean baseline for the full benchmark suite.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="ref-heading">
+      <h2 id="ref-heading">Timing reference (expected vs actual)</h2>
+      <table class="ref">
+        <thead>
+          <tr>
+            <th scope="col">Phase</th>
+            <th scope="col">Expected (Classic)</th>
+            <th scope="col">Actual (this run)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Start → OCM cluster ready</td>
+            <td>bulk of install</td>
+            <td class="actual-ok">51m 41s</td>
+          </tr>
+          <tr>
+            <td>OCM ready → <code>oc login</code></td>
+            <td>2–10 min</td>
+            <td class="actual-ok">46s ✓ (faster than expected)</td>
+          </tr>
+          <tr>
+            <td>Login → all workers Ready (pools)</td>
+            <td>5–15 min</td>
+            <td class="actual-ok">4s ✓ (workers pre-ready)</td>
+          </tr>
+          <tr>
+            <td>Pools → all operators Available</td>
+            <td>5–15 min</td>
+            <td class="actual-ok">17s ✓ (operators converged quickly)</td>
+          </tr>
+          <tr>
+            <td><strong>Total (install)</strong></td>
+            <td><strong>45–65 min</strong></td>
+            <td class="actual-ok"><strong>52m 49s ✓</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer>
+      <p>ROSA autoscaling benchmark · Test 01 · Classic · run: <code>20260511T041449-classic</code></p>
+      <p style="margin-top:0.5rem">Report: <code>reports/20260511T041449-classic-01-classic-cluster-install.html</code></p>
+    </footer>
+  </main>
+</body>
+</html>

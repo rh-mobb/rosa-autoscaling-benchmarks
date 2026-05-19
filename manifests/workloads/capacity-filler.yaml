@@ -1,0 +1,59 @@
+---
+# manifests/workloads/capacity-filler.yaml
+#
+# A workload that consumes most of the cluster's available CPU and memory,
+# leaving insufficient headroom for new HPA-requested pods to schedule.
+#
+# Used by test 08 (benchmark-hpa-triggers-cas) to ensure that when the HPA
+# scales out cpu-burner, the new pods cannot schedule and must wait for CAS
+# to provision a new node — demonstrating the full HPA → CAS cascade latency.
+#
+# 10 replicas each requesting 400m CPU / 400Mi memory.
+# On a 2-node m5.xlarge cluster (~8 allocatable CPU), this consumes ~50% of
+# CPU headroom, leaving the rest for existing workloads and system pods, but
+# not enough for additional cpu-burner replicas.
+#
+# Uses the pause image so that no real CPU/memory is consumed — the benchmark
+# measures scheduling and provisioning latency, not workload warm-up.
+#
+# Applied by: benchmark-hpa-triggers-cas (test 08)
+# Scaled to 0 in cleanup after test 08 and test 09
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: benchmark
+  labels:
+    benchmark: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: capacity-filler
+  namespace: benchmark
+  labels:
+    app: capacity-filler
+    benchmark: "true"
+  annotations:
+    description: >
+      Fills cluster capacity to force HPA pods into Pending state,
+      triggering the Cluster Autoscaler to provision additional nodes.
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: capacity-filler
+  template:
+    metadata:
+      labels:
+        app: capacity-filler
+        benchmark: "true"
+    spec:
+      nodeSelector:
+        pool-type: standard
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.9
+          resources:
+            requests:
+              cpu: "400m"
+              memory: "400Mi"

@@ -1,0 +1,71 @@
+---
+# manifests/workloads/karpenter-trigger.yaml
+#
+# Mirror of cas-trigger.yaml for ROSA HCP AutoNode (Karpenter) clusters.
+#
+# 20 replicas — identical to cas-trigger.yaml — so that Tests 03 and 04 measure
+# an equivalent single-node scale event on both CAS (Classic) and Karpenter (AutoNode).
+# Same resource requests (500m CPU / 512Mi each) and pause image.
+# The only difference from cas-trigger.yaml is the nodeAffinity that pins pods to
+# the Karpenter-managed NodePool, preventing them from landing on default HCP workers
+# (which would never generate a NodeClaim).
+#
+# Applied by: run-test-03-autoscale-up.py / run-test-04-autoscale-down.py
+# Scaled to 0 after test 03; deleted by test 04.
+#
+# For mass-scale tests (10, 11, 13) that need 100 replicas, use
+# karpenter-trigger-100.yaml instead.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: benchmark
+  labels:
+    benchmark: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: karpenter-trigger
+  namespace: benchmark
+  labels:
+    app: karpenter-trigger
+    benchmark: "true"
+  annotations:
+    description: >
+      Intentionally over-replicated pause workload for Karpenter provisioning
+      benchmarks.  Requests exceed available Karpenter NodePool capacity to
+      trigger FailedScheduling → NodeClaim creation → node provisioning.
+      nodeAffinity ensures pods land on Karpenter-managed nodes only.
+spec:
+  replicas: 20
+  selector:
+    matchLabels:
+      app: karpenter-trigger
+  template:
+    metadata:
+      labels:
+        app: karpenter-trigger
+        benchmark: "true"
+    spec:
+      # Tolerate taints that Karpenter may apply to nodes during initialization.
+      tolerations:
+        - operator: Exists
+          effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: karpenter.sh/nodepool
+                    operator: In
+                    # Must match the NodePool name used in the benchmark run
+                    # (default: autonode-bench, set via --nodepool-name).
+                    values:
+                      - autonode-bench
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.9
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"

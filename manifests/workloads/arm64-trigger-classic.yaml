@@ -1,0 +1,63 @@
+---
+# manifests/workloads/arm64-trigger-classic.yaml
+#
+# Pause workload that triggers Cluster Autoscaler to scale up the ARM64
+# (Graviton) machine pool on a ROSA Classic or HCP cluster (test 16).
+#
+# 20 replicas, 500m CPU / 512Mi each — same sizing as cas-trigger.yaml and
+# spot-trigger-classic.yaml so the provisioning measurement is directly
+# comparable to tests 03 (on-demand) and 15 (spot).
+#
+# registry.k8s.io/pause:3.9 is a multi-arch image (amd64 + arm64), so it
+# runs without modification on Graviton nodes.
+#
+# The nodeSelector targets the bench-arm64 machine pool (pool-type=arm64)
+# created by machine-pools/add-arm64.sh.  Without this selector, pods would
+# land on the default x86_64 workers and FailedScheduling would never fire
+# against the ARM pool.
+#
+# Applied by: run-test-16-arm-nodes.py
+# Cleaned up: namespace deleted on test completion or SIGINT.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: arm64-test
+  labels:
+    benchmark: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arm64-trigger
+  namespace: arm64-test
+  labels:
+    app: arm64-trigger
+    benchmark: "true"
+  annotations:
+    description: >
+      Intentionally over-replicated pause workload for ARM64 machine pool
+      benchmarking (test 16).  Requests exceed capacity of the arm64 pool's
+      initial 0 replicas, triggering FailedScheduling and CAS scale-up.
+spec:
+  replicas: 20
+  selector:
+    matchLabels:
+      app: arm64-trigger
+  template:
+    metadata:
+      labels:
+        app: arm64-trigger
+        benchmark: "true"
+    spec:
+      nodeSelector:
+        pool-type: arm64
+      tolerations:
+        - operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.9
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"

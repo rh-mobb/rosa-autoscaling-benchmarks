@@ -1,0 +1,54 @@
+---
+# manifests/autonode/nodepool-arm64.yaml
+#
+# Karpenter NodePool for Test 16 (ARM / Graviton node benchmark).
+#
+# Requests arm64 architecture (Graviton2/3) nodes using AWS m6g.xlarge and
+# c6g.xlarge instance types.  Karpenter selects the AMI automatically via the
+# ec2nodeclass/default amiSelectorTerms, which already carries the RHCOS
+# aarch64 AMI alongside the x86_64 AMI.
+#
+# Instance type rationale:
+#   m6g.xlarge  — Graviton2, general-purpose, closest ARM equivalent to m5.xlarge
+#   c6g.xlarge  — Graviton2, compute-optimised fallback in the same AZ
+# Both types give Karpenter room to place the node even when one is unavailable.
+#
+# Pods land on this pool via nodeAffinity:
+#   karpenter.sh/nodepool=autonode-arm64
+#
+# Requires: AutoNode enabled on the cluster (rosa edit cluster --autonode=enabled)
+#           and ec2nodeclass/default READY=True with arm64 AMI in status.amis.
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: autonode-arm64
+spec:
+  template:
+    metadata:
+      labels:
+        autonode-arm64: "true"
+    spec:
+      requirements:
+        - key: node.kubernetes.io/instance-type
+          operator: In
+          values:
+            - m6g.xlarge
+            - c6g.xlarge
+        - key: kubernetes.io/arch
+          operator: In
+          values:
+            - arm64
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values:
+            - on-demand
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: default
+  limits:
+    cpu: "40"
+    memory: 160Gi
+  disruption:
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidateAfter: 30s

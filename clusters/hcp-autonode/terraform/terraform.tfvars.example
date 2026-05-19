@@ -1,0 +1,35 @@
+cluster_name = "rosa-bench-simple"
+region       = "us-east-1"
+
+# Must match check block in main.tf (public API + public network module)
+network_type = "public"
+private      = false
+zero_egress  = false
+
+vpc_cidr = "10.0.0.0/16"
+multi_az = true
+
+openshift_version     = "4.21.12"
+default_instance_type = "m5.large"
+
+# Multi-AZ → three default pools; replica fields are per AZ (e.g. 1–3 per AZ → 3–9 workers total)
+default_min_replicas = 1
+default_max_replicas = 3
+
+additional_machine_pools = {}
+
+persists_through_sleep = true
+
+enable_gitops_bootstrap              = false
+enable_persistent_dns_domain         = false
+enable_control_plane_log_forwarding  = false
+control_plane_log_s3_enabled       = false
+enable_audit_logging               = false
+enable_cloudwatch_logging          = false
+enable_cert_manager_iam            = false
+enable_termination_protection      = false
+
+tags = {
+  Terraform = "true"
+  Purpose   = "rosa-bench-hcp-simple"
+}

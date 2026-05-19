@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ROSA CAS vs AutoNode Comparison — 2026-05-15T01:58:29Z</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --border: #2a2d3a;
+      --text: #e2e4ed;
+      --muted: #8b8fa8;
+      --accent: #5b8dee;
+      --success: #3ecf8e;
+      --warning: #f0a500;
+      --danger: #e5484d;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 40px 24px;
+    }
+    .container { max-width: 1000px; margin: 0 auto; }
+    h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+    h2 { font-size: 16px; font-weight: 600; margin: 32px 0 12px; }
+    .meta { color: var(--muted); font-size: 12px; margin-bottom: 32px; }
+    .tag { color: var(--accent); }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .stat-value { font-size: 20px; font-weight: 700; }
+    .stat-value.success { color: var(--success); }
+    .stat-value.accent { color: var(--accent); }
+    .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+    th {
+      text-align: left; font-size: 11px; font-weight: 600;
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.06em; padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    td.kp-faster { color: var(--success); font-weight: 600; }
+    td.cas-faster { color: var(--warning); font-weight: 600; }
+    .note { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .scenario-title { font-weight: 600; }
+    .scenario-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+    .missing { color: var(--muted); font-style: italic; }
+    .callout {
+      background: var(--surface);
+      border-left: 3px solid var(--warning);
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin-bottom: 24px;
+      font-size: 13px;
+    }
+    footer { margin-top: 40px; color: var(--muted); font-size: 11px; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <h1>ROSA Classic CAS vs HCP AutoNode — Side-by-Side Comparison</h1>
+  <p class="meta">
+    Classic run: <span class="tag">20260511T225318-classic</span> &nbsp;·&nbsp;
+    AutoNode run: <span class="tag">20260511T223659-hcp-autonode</span> &nbsp;·&nbsp;
+    Generated: <span class="tag">2026-05-15T01:58:29Z</span>
+  </p>
+
+  <div class="callout">
+    Rows marked with "—" indicate the milestone was not recorded in that run's events.jsonl.
+    This can mean the test was not run, the script version pre-dates the milestone, or the run
+    was partial. Re-run the affected test with the updated scripts to populate missing metrics.
+  </div>
+
+  <!-- Summary stats -->
+  <h2>Summary</h2>
+  <div class="stats-grid">
+    <div class="stat">
+      <div class="stat-value accent">0</div>
+      <div class="stat-label">Scenarios where Karpenter is faster</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">0</div>
+      <div class="stat-label">Scenarios where CAS is faster</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">7</div>
+      <div class="stat-label">Scenarios with missing data</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value success">—</div>
+      <div class="stat-label">Best Karpenter speedup observed</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- Main comparison table -->
+  <h2>Scenario Comparison</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:26%">Scenario</th>
+        <th style="width:14%">Classic CAS</th>
+        <th style="width:14%">HCP AutoNode</th>
+        <th style="width:20%">Result</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><div class="scenario-title">Cluster install</div><div class="scenario-desc">Total time from provisioning start to ClusterOperators Available</div></td>
+        <td>82m 05s</td>
+        <td>—</td>
+        <td>—</td>
+        <td><div class="note">Different platforms — HCP hosts the control plane on Red Hat infra. HCP time shown is to ClusterOperators Available (hcp.operators_ready); hcp.total includes AutoNode IAM setup (~12min extra).</div></td>
+      </tr>
+      <tr>
+        <td><div class="scenario-title">Cold-start node provision</div><div class="scenario-desc">Unschedulable workload applied → FailedScheduling → scheduler decision → node Ready → pods Ready (serving)</div></td>
+        <td>—</td>
+        <td>—</td>
+        <td>—</td>
+        <td><div class="note">Test 10 uses --trigger-mode=pause-pods for parity with Test 03 FailedScheduling chain. Prefers pods_ready (readiness probe passed) over pods_running.</div></td>
+      </tr>
+      <tr>
+        <td><div class="scenario-title">Scheduler decision latency</div><div class="scenario-desc">FailedScheduling → CAS TriggeredScaleUp/ScaledUpGroup (CAS) or NodeClaim created (Karpenter)</div></td>
+        <td>—</td>
+        <td>—</td>
+        <td>—</td>
+        <td><div class="note">Sub-second for Karpenter; CAS polls on a loop (~10–30 s typical)</div></td>
+      </tr>
+      <tr>
+        <td><div class="scenario-title">HPA response (on existing capacity)</div><div class="scenario-desc">CPU metric breach → HPA desiredReplicas change → all new pods Ready (serving traffic)</div></td>
+        <td>—</td>
+        <td>—</td>
+        <td>—</td>
+        <td><div class="note">Same script, same flow — HPA/metrics-server latency dominates; scheduler has no role. Prefers pods_ready (readiness probe passed) over pods_running.</div></td>
+      </tr>
+      <tr>
+        <td><div class="scenario-title">HPA → autoscaler cascade (e2e)</div><div class="scenario-desc">HPA trigger → cluster full → scheduler decision → new node Ready → all pods Ready (serving)</div></td>
+        <td>—</td>
+        <td>—</td>
+        <td>—</td>
+        <td><div class="note">Same script; Test 08 uses NodeClaim watch for Karpenter, CAS event watch for Classic. Prefers pods_ready (readiness probe passed) over pods_running.</div></td>
+      </tr>
+      <tr>
+        <td><div class="scenario-title">Scale-down</div><div class="scenario-desc">Workload removed → autoscaler consolidates / removes idle node</div></td>
+        <td>—</td>
+        <td>—</td>
+        <td>—</td>
+        <td><div class="note">CAS: scale-down-delay-after-add 10m default (dominant factor). Karpenter: consolidateAfter 30s — acts almost immediately once node is idle.</div></td>
+      </tr>
+      <tr>
+        <td><div class="scenario-title">Overprovisioned HPA (balloon pods)</div><div class="scenario-desc">HPA fires on saturated cluster with pre-reserved headroom → pods Ready (serving) via preemption</div></td>
+        <td>0m 30s</td>
+        <td>—</td>
+        <td>—</td>
+        <td><div class="note">Shows whether Karpenter's faster provisioning reduces the benefit of balloon pods. Prefers pods_ready (readiness probe passed) over pods_running.</div></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider" />
+
+  <!-- Scale-down policy note -->
+  <h2>Scale-Down Policy Context</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Classic CAS</th>
+        <th>HCP AutoNode (Karpenter)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Idle node detection</td>
+        <td>scale-down-unneeded-time: 10m (default)</td>
+        <td>consolidateAfter: 30s</td>
+      </tr>
+      <tr>
+        <td>Post-scale-up cooldown</td>
+        <td>scale-down-delay-after-add: 10m (default)</td>
+        <td>No equivalent — Karpenter acts immediately when node is idle</td>
+      </tr>
+      <tr>
+        <td>Policy location</td>
+        <td>cluster-autoscaler Deployment flags</td>
+        <td>NodePool spec.disruption.consolidateAfter</td>
+      </tr>
+      <tr>
+        <td>Note</td>
+        <td colspan="2">The scale-down delta is almost entirely policy, not architecture.
+          Tuning CAS to 30s delays would produce similar results. Both are operator-configurable.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider" />
+
+  <footer>
+    Generated by scripts/generate-comparison-report.py &nbsp;·&nbsp;
+    Classic: 20260511T225318-classic &nbsp;·&nbsp;
+    AutoNode: 20260511T223659-hcp-autonode &nbsp;·&nbsp;
+    2026-05-15T01:58:29Z
+    &nbsp;·&nbsp; <a href="index.html">Back to index</a>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,67 @@
+---
+# manifests/workloads/spot-trigger-autonode.yaml
+#
+# Pause workload that triggers Karpenter (AutoNode) to provision a spot node on
+# a ROSA HCP AutoNode cluster (test 15 — spot instance support).
+#
+# 20 replicas, 500m CPU / 512Mi each — same sizing as karpenter-trigger.yaml so
+# the provisioning measurement is directly comparable to test 10 on-demand timing.
+#
+# nodeAffinity pins pods to the autonode-spot NodePool
+# (manifests/autonode/nodepool-spot.yaml) so that Karpenter creates a spot
+# NodeClaim rather than an on-demand one.
+#
+# Applied by: run-test-15-spot-instances.py
+# Cleaned up: namespace and NodePool deleted on test completion or SIGINT.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: spot-test
+  labels:
+    benchmark: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spot-trigger
+  namespace: spot-test
+  labels:
+    app: spot-trigger
+    benchmark: "true"
+  annotations:
+    description: >
+      Intentionally over-replicated pause workload for Karpenter spot
+      benchmarking (test 15).  nodeAffinity pins pods to the autonode-spot
+      NodePool so that Karpenter provisions an EC2 spot node.
+spec:
+  replicas: 20
+  selector:
+    matchLabels:
+      app: spot-trigger
+  template:
+    metadata:
+      labels:
+        app: spot-trigger
+        benchmark: "true"
+    spec:
+      tolerations:
+        - operator: Exists
+          effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: karpenter.sh/nodepool
+                    operator: In
+                    # Must match the NodePool name used in the benchmark run
+                    # (default: autonode-spot, set via --nodepool-name).
+                    values:
+                      - autonode-spot
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.9
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"

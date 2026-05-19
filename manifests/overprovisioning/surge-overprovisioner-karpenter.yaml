@@ -1,0 +1,64 @@
+---
+# manifests/overprovisioning/surge-overprovisioner-karpenter.yaml
+#
+# Karpenter variant of surge-overprovisioner.yaml for ROSA HCP AutoNode clusters.
+#
+# Identical to surge-overprovisioner.yaml except nodeAffinity pins the
+# balloon pods to the Karpenter NodePool (autonode-bench), preventing them
+# from scheduling on the default HCP worker nodes where they would not
+# contribute to Karpenter-managed capacity.
+#
+# Applied by: run-test-11-planned-surge.py (balloon-pods strategy, hcp-autonode)
+#             run-test-12-sudden-spike.py  (Phase 2, hcp-autonode)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: benchmark
+  labels:
+    benchmark: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: surge-overprovisioner
+  namespace: benchmark
+  labels:
+    app: surge-overprovisioner
+    benchmark: "true"
+  annotations:
+    description: >
+      Karpenter-pinned balloon pods for surge scenarios. Reserves capacity
+      in the Karpenter NodePool so balloon pods are preempted by cpu-burner
+      when a surge arrives, enabling instant scheduling without CAS/Karpenter wait.
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: surge-overprovisioner
+  template:
+    metadata:
+      labels:
+        app: surge-overprovisioner
+        benchmark: "true"
+    spec:
+      priorityClassName: cluster-overprovisioner
+      terminationGracePeriodSeconds: 0
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: karpenter.sh/nodepool
+                    operator: In
+                    values:
+                      - autonode-bench
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.9
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

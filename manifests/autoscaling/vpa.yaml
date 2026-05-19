@@ -1,0 +1,40 @@
+---
+# manifests/autoscaling/vpa.yaml
+#
+# VerticalPodAutoscaler for the cpu-burner deployment in "Off" (advise-only) mode.
+#
+# updateMode: "Off" means VPA generates recommendations but does NOT evict or
+# resize running pods. The benchmark-vpa-advise skill reads the
+# .status.recommendation field to show what VPA suggests.
+#
+# Requires the VPA operator to be installed:
+#   oc apply -f https://github.com/openshift/vertical-pod-autoscaler/...
+# or via OperatorHub: "Vertical Pod Autoscaler" operator.
+#
+# Applied by: benchmark-vpa-advise (test 07)
+# Also applied alongside HPA in benchmark-hpa (test 06) to observe recommendations
+# while the deployment is actively scaling.
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: cpu-burner-vpa
+  namespace: benchmark
+  labels:
+    benchmark: "true"
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: cpu-burner
+  updatePolicy:
+    updateMode: "Off"   # advise only — never evict or resize pods automatically
+  resourcePolicy:
+    containerPolicies:
+      - containerName: stress
+        minAllowed:
+          cpu: "100m"
+          memory: "64Mi"
+        maxAllowed:
+          cpu: "4"
+          memory: "2Gi"
+        controlledResources: ["cpu", "memory"]

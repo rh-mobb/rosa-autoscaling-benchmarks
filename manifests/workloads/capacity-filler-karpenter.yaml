@@ -1,0 +1,61 @@
+---
+# manifests/workloads/capacity-filler-karpenter.yaml
+#
+# Mirror of capacity-filler.yaml for ROSA HCP AutoNode (Karpenter) clusters.
+#
+# Identical resource requests (400m CPU / 400Mi) so cluster saturation is
+# comparable to the Classic run. nodeAffinity pins filler pods to the
+# Karpenter NodePool so they consume headroom on Karpenter-managed nodes,
+# not on default HCP workers — ensuring the saturation actually forces
+# new cpu-burner pods into Pending and triggers Karpenter provisioning.
+#
+# Applied by: run-test-08-hpa-triggers-cas.py when --cluster-type hcp-autonode
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: benchmark
+  labels:
+    benchmark: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: capacity-filler
+  namespace: benchmark
+  labels:
+    app: capacity-filler
+    benchmark: "true"
+  annotations:
+    description: >
+      Fills Karpenter NodePool capacity to force HPA pods into Pending state,
+      triggering Karpenter to provision additional nodes.
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: capacity-filler
+  template:
+    metadata:
+      labels:
+        app: capacity-filler
+        benchmark: "true"
+    spec:
+      tolerations:
+        - operator: Exists
+          effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: karpenter.sh/nodepool
+                    operator: In
+                    values:
+                      - autonode-bench
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.9
+          resources:
+            requests:
+              cpu: "400m"
+              memory: "400Mi"

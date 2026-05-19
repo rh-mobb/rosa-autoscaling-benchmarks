@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Benchmark reports — index</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --border: #2d3a4d;
+      --text: #e6edf3;
+      --muted: #8b9cb3;
+      --accent: #58a6ff;
+      --ok: #3fb950;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 15px;
+    }
+    main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+    h1 { font-size: 1.35rem; margin: 0 0 0.5rem; }
+    .subtitle { color: var(--muted); margin: 0 0 1.5rem; }
+    .grid-latest {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+    }
+    .card.muted { opacity: 0.75; }
+    .card-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+    .card-value { font-size: 1.1rem; font-weight: 600; margin: 0.35rem 0; font-variant-numeric: tabular-nums; }
+    .card-meta { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.5rem; }
+    .card-link { color: var(--accent); font-size: 0.9rem; }
+    .chart-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.25rem 1.5rem;
+      margin: 2rem 0;
+      min-height: 320px;
+    }
+    .chart-wrap h2 { font-size: 1.05rem; color: var(--accent); margin: 0 0 1rem; }
+    canvas { max-height: 340px; }
+    table.reports {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 0.5rem;
+    }
+    table.reports th, table.reports td {
+      text-align: left;
+      padding: 0.5rem 0.6rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    table.reports th { color: var(--muted); font-weight: 500; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    table.reports a { color: var(--accent); }
+    code { font-size: 0.85em; }
+    footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--muted); }
+    pre.data { display: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Benchmark HTML reports</h1>
+    <p class="subtitle">Generated <code>2026-05-19T01:58:49Z</code> · Lower install time (minutes) on the chart usually means faster runs — compare under similar conditions only.</p>
+
+    <div class="grid-latest">
+      
+        <div class="card">
+          <div class="card-label">Latest Classic cluster install (test 01)</div>
+          <div class="card-value">—</div>
+          <div class="card-meta">Run <code>—</code> · —</div>
+          <a class="card-link" href="20260519T010526-classic-01-classic-cluster-install.html">Open report</a>
+        </div>
+        <div class="card">
+          <div class="card-label">Latest HCP cluster install (test 01)</div>
+          <div class="card-value">0h 24m 11s (events.jsonl)</div>
+          <div class="card-meta">Run <code>20260507T232347-hcp</code> · 2026-05-08T00:02:00Z</div>
+          <a class="card-link" href="20260507T232347-hcp-01-hcp-cluster-install.html">Open report</a>
+        </div>
+    </div>
+    <p><strong>Latest suite HTML:</strong> <a href="20260511T041449-classic-suite-01-through-09.html">20260511T041449-classic-suite-01-through-09.html</a></p>
+
+    <div class="chart-wrap">
+      <h2>Cluster install total (minutes) over time</h2>
+      <p class="subtitle" style="margin-top:-0.25rem">Test 01 — uses <code>*.total</code> from <code>events.jsonl</code> when available, otherwise the &ldquo;Total (wall clock)&rdquo; stat from each HTML report.</p>
+      <canvas id="trendChart" aria-label="Install duration trend"></canvas>
+    </div>
+
+    <h2 style="font-size:1.05rem;color:var(--accent)">All reports (newest first)</h2>
+    <table class="reports">
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>Kind</th>
+          <th>Topology</th>
+          <th>Run ID</th>
+          <th>Report time (UTC)</th>
+          <th>Install total</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td><a href="20260518T234857-hcp-autonode-16-hcp-autonode-arm-nodes.html">20260518T234857-hcp-autonode-16-hcp-autonode-arm-nodes.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>20260518T234857-hcp-autonode</code></td>
+          <td>2026-05-19T01:14:44Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260518T234857-hcp-autonode-15-hcp-autonode-spot-instances.html">20260518T234857-hcp-autonode-15-hcp-autonode-spot-instances.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>20260518T234857-hcp-autonode</code></td>
+          <td>2026-05-19T01:07:41Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260519T010526-classic-01-classic-cluster-install.html">20260519T010526-classic-01-classic-cluster-install.html</a></td>
+          <td>01 · Cluster install</td>
+          <td>classic</td>
+          <td><code>—</code></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T225318-classic-09-classic-overprovisioning.html">20260511T225318-classic-09-classic-overprovisioning.html</a></td>
+          <td>09 · Overprovisioning</td>
+          <td>classic</td>
+          <td><code>20260511T225318-classic</code></td>
+          <td>2026-05-15T03:15:45Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260515T015837-comparison.html">20260515T015837-comparison.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>—</code></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260515T015829-comparison.html">20260515T015829-comparison.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>—</code></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T030113-hcp-autonode-09b-hcp-autonode-karpenter-overprovisioning.html">20260511T030113-hcp-autonode-09b-hcp-autonode-karpenter-overprovisioning.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>20260511T030113-hcp-autonode</code></td>
+          <td>2026-05-15T00:40:03Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T030113-hcp-autonode-04-hcp-autonode-autoscale-down.html">20260511T030113-hcp-autonode-04-hcp-autonode-autoscale-down.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>20260511T030113-hcp-autonode</code></td>
+          <td>2026-05-12T23:23:07Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T030113-hcp-autonode-03-hcp-autonode-autoscale-up.html">20260511T030113-hcp-autonode-03-hcp-autonode-autoscale-up.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>20260511T030113-hcp-autonode</code></td>
+          <td>2026-05-12T23:20:50Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T030113-hcp-autonode-05-hcp-autonode-unschedulable.html">20260511T030113-hcp-autonode-05-hcp-autonode-unschedulable.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>20260511T030113-hcp-autonode</code></td>
+          <td>2026-05-12T09:37:09Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T030113-hcp-autonode-05b-hcp-autonode-dynamic-instance.html">20260511T030113-hcp-autonode-05b-hcp-autonode-dynamic-instance.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>20260511T030113-hcp-autonode</code></td>
+          <td>2026-05-12T09:01:47Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T030113-hcp-autonode-09-hcp-autonode-overprovisioning.html">20260511T030113-hcp-autonode-09-hcp-autonode-overprovisioning.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>20260511T030113-hcp-autonode</code></td>
+          <td>2026-05-12T07:51:55Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T030113-hcp-autonode-08-hcp-autonode-hpa-triggers-cas.html">20260511T030113-hcp-autonode-08-hcp-autonode-hpa-triggers-cas.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>20260511T030113-hcp-autonode</code></td>
+          <td>2026-05-12T07:24:40Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T030113-hcp-autonode-06-hcp-autonode-hpa.html">20260511T030113-hcp-autonode-06-hcp-autonode-hpa.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>20260511T030113-hcp-autonode</code></td>
+          <td>2026-05-12T07:00:48Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T030113-hcp-autonode-13-hcp-autonode-parallel-nodes.html">20260511T030113-hcp-autonode-13-hcp-autonode-parallel-nodes.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>20260511T030113-hcp-autonode</code></td>
+          <td>2026-05-12T03:27:28Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260512T031206-comparison.html">20260512T031206-comparison.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>—</code></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T030113-hcp-autonode-12-hcp-autonode-sudden-spike.html">20260511T030113-hcp-autonode-12-hcp-autonode-sudden-spike.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>20260511T030113-hcp-autonode</code></td>
+          <td>2026-05-12T02:26:56Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T041449-classic-12-classic-sudden-spike.html">20260511T041449-classic-12-classic-sudden-spike.html</a></td>
+          <td>12 · test</td>
+          <td>classic</td>
+          <td><code>20260511T041449-classic</code></td>
+          <td>2026-05-12T01:55:55Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T030113-hcp-autonode-11-hcp-autonode-planned-surge.html">20260511T030113-hcp-autonode-11-hcp-autonode-planned-surge.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>20260511T030113-hcp-autonode</code></td>
+          <td>2026-05-12T01:45:24Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T041449-classic-11-classic-planned-surge.html">20260511T041449-classic-11-classic-planned-surge.html</a></td>
+          <td>11 · test</td>
+          <td>classic</td>
+          <td><code>20260511T041449-classic</code></td>
+          <td>2026-05-12T01:20:13Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T030113-hcp-autonode-10-hcp-autonode-autonode-scale.html">20260511T030113-hcp-autonode-10-hcp-autonode-autonode-scale.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>20260511T030113-hcp-autonode</code></td>
+          <td>2026-05-11T08:46:00Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T041449-classic-09-classic-overprovisioning.html">20260511T041449-classic-09-classic-overprovisioning.html</a></td>
+          <td>09 · Overprovisioning</td>
+          <td>classic</td>
+          <td><code>20260511T041449-classic</code></td>
+          <td>2026-05-11T07:26:36Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T041449-classic-08-classic-hpa-triggers-cas.html">20260511T041449-classic-08-classic-hpa-triggers-cas.html</a></td>
+          <td>08 · HPA → CAS</td>
+          <td>classic</td>
+          <td><code>20260511T041449-classic</code></td>
+          <td>2026-05-11T07:14:55Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T041449-classic-07-classic-vpa-advise.html">20260511T041449-classic-07-classic-vpa-advise.html</a></td>
+          <td>07 · VPA advise</td>
+          <td>classic</td>
+          <td><code>20260511T041449-classic</code></td>
+          <td>2026-05-11T07:09:02Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T041449-classic-06-classic-hpa.html">20260511T041449-classic-06-classic-hpa.html</a></td>
+          <td>06 · HPA</td>
+          <td>classic</td>
+          <td><code>20260511T041449-classic</code></td>
+          <td>2026-05-11T07:04:48Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T041449-classic-05-classic-unschedulable.html">20260511T041449-classic-05-classic-unschedulable.html</a></td>
+          <td>05 · Unschedulable</td>
+          <td>classic</td>
+          <td><code>20260511T041449-classic</code></td>
+          <td>2026-05-11T06:42:30Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T041449-classic-04-classic-autoscale-down.html">20260511T041449-classic-04-classic-autoscale-down.html</a></td>
+          <td>04 · CAS scale-down</td>
+          <td>classic</td>
+          <td><code>20260511T041449-classic</code></td>
+          <td>2026-05-11T06:27:52Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T041449-classic-03-classic-autoscale-up.html">20260511T041449-classic-03-classic-autoscale-up.html</a></td>
+          <td>03 · CAS scale-up</td>
+          <td>classic</td>
+          <td><code>20260511T041449-classic</code></td>
+          <td>2026-05-11T06:16:08Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T041449-classic-01-classic-cluster-install.html">20260511T041449-classic-01-classic-cluster-install.html</a></td>
+          <td>01 · Cluster install</td>
+          <td>classic</td>
+          <td><code>—</code></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T041449-classic-advanced-suite-10-through-13.html">20260511T041449-classic-advanced-suite-10-through-13.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>—</code></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T041449-classic-suite-01-through-09.html">20260511T041449-classic-suite-01-through-09.html</a></td>
+          <td>Suite · 01-09</td>
+          <td>—</td>
+          <td><code>—</code></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T030113-hcp-autonode-advanced-suite-10-through-13.html">20260511T030113-hcp-autonode-advanced-suite-10-through-13.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>—</code></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T030113-hcp-autonode-suite-01-through-10.html">20260511T030113-hcp-autonode-suite-01-through-10.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>—</code></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260510T192913-hcp-autonode-12-hcp-autonode-sudden-spike.html">20260510T192913-hcp-autonode-12-hcp-autonode-sudden-spike.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>20260510T192913-hcp-autonode</code></td>
+          <td>2026-05-11T02:11:38Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260510T193023-classic-12-classic-sudden-spike.html">20260510T193023-classic-12-classic-sudden-spike.html</a> <a href="20260510T193023-classic-01-classic-cluster-install.html" title="Cluster install report">↗ install</a></td>
+          <td>12 · test</td>
+          <td>classic</td>
+          <td><code>20260510T193023-classic</code></td>
+          <td>2026-05-11T01:48:26Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T013343-comparison.html">20260511T013343-comparison.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>—</code></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260510T192913-hcp-autonode-08-hcp-autonode-hpa-triggers-cas.html">20260510T192913-hcp-autonode-08-hcp-autonode-hpa-triggers-cas.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>20260510T192913-hcp-autonode</code></td>
+          <td>2026-05-11T01:21:36Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260511T001113-comparison.html">20260511T001113-comparison.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>—</code></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260510T192913-hcp-autonode-06-hcp-autonode-hpa.html">20260510T192913-hcp-autonode-06-hcp-autonode-hpa.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>20260510T192913-hcp-autonode</code></td>
+          <td>2026-05-10T23:51:14Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260510T225947-comparison.html">20260510T225947-comparison.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>—</code></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260510T193023-classic-09-classic-overprovisioning.html">20260510T193023-classic-09-classic-overprovisioning.html</a> <a href="20260510T193023-classic-01-classic-cluster-install.html" title="Cluster install report">↗ install</a></td>
+          <td>09 · Overprovisioning</td>
+          <td>classic</td>
+          <td><code>20260510T193023-classic</code></td>
+          <td>2026-05-10T22:50:39Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260510T193023-classic-08-classic-hpa-triggers-cas.html">20260510T193023-classic-08-classic-hpa-triggers-cas.html</a> <a href="20260510T193023-classic-01-classic-cluster-install.html" title="Cluster install report">↗ install</a></td>
+          <td>08 · HPA → CAS</td>
+          <td>classic</td>
+          <td><code>20260510T193023-classic</code></td>
+          <td>2026-05-10T22:44:40Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260510T192913-hcp-autonode-10-hcp-autonode-autonode-scale.html">20260510T192913-hcp-autonode-10-hcp-autonode-autonode-scale.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>20260510T192913-hcp-autonode</code></td>
+          <td>2026-05-10T22:36:48Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260510T193023-classic-07-classic-vpa-advise.html">20260510T193023-classic-07-classic-vpa-advise.html</a> <a href="20260510T193023-classic-01-classic-cluster-install.html" title="Cluster install report">↗ install</a></td>
+          <td>07 · VPA advise</td>
+          <td>classic</td>
+          <td><code>20260510T193023-classic</code></td>
+          <td>2026-05-10T22:10:42Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260510T193023-classic-06-classic-hpa.html">20260510T193023-classic-06-classic-hpa.html</a> <a href="20260510T193023-classic-01-classic-cluster-install.html" title="Cluster install report">↗ install</a></td>
+          <td>06 · HPA</td>
+          <td>classic</td>
+          <td><code>20260510T193023-classic</code></td>
+          <td>2026-05-10T22:08:47Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260510T193023-classic-05-classic-unschedulable.html">20260510T193023-classic-05-classic-unschedulable.html</a> <a href="20260510T193023-classic-01-classic-cluster-install.html" title="Cluster install report">↗ install</a></td>
+          <td>05 · Unschedulable</td>
+          <td>classic</td>
+          <td><code>20260510T193023-classic</code></td>
+          <td>2026-05-10T21:57:08Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260510T193023-classic-04-classic-autoscale-down.html">20260510T193023-classic-04-classic-autoscale-down.html</a> <a href="20260510T193023-classic-01-classic-cluster-install.html" title="Cluster install report">↗ install</a></td>
+          <td>04 · CAS scale-down</td>
+          <td>classic</td>
+          <td><code>20260510T193023-classic</code></td>
+          <td>2026-05-10T21:46:29Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260510T193023-classic-03-classic-autoscale-up.html">20260510T193023-classic-03-classic-autoscale-up.html</a> <a href="20260510T193023-classic-01-classic-cluster-install.html" title="Cluster install report">↗ install</a></td>
+          <td>03 · CAS scale-up</td>
+          <td>classic</td>
+          <td><code>20260510T193023-classic</code></td>
+          <td>2026-05-10T21:32:37Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260510T193023-classic-01-classic-cluster-install.html">20260510T193023-classic-01-classic-cluster-install.html</a></td>
+          <td>01 · Cluster install</td>
+          <td>classic</td>
+          <td><code>20260510T193023-classic</code></td>
+          <td>—</td>
+          <td>0h 47m 38s (events.jsonl)</td>
+        </tr>
+        <tr>
+          <td><a href="20260510T193023-classic-suite-01-through-09.html">20260510T193023-classic-suite-01-through-09.html</a></td>
+          <td>Suite · 01-09</td>
+          <td>—</td>
+          <td><code>—</code></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260508T202706-comparison.html">20260508T202706-comparison.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>—</code></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260508T031735-hcp-autonode-10-hcp-autonode-autonode-scale.html">20260508T031735-hcp-autonode-10-hcp-autonode-autonode-scale.html</a></td>
+          <td>Other</td>
+          <td>—</td>
+          <td><code>20260508T031735-hcp-autonode</code></td>
+          <td>2026-05-08T05:58:49Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260508T025316-classic-09-classic-overprovisioning.html">20260508T025316-classic-09-classic-overprovisioning.html</a></td>
+          <td>09 · Overprovisioning</td>
+          <td>classic</td>
+          <td><code>20260508T025316-classic</code></td>
+          <td>2026-05-08T05:52:25Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260508T025316-classic-08-classic-hpa-triggers-cas.html">20260508T025316-classic-08-classic-hpa-triggers-cas.html</a></td>
+          <td>08 · HPA → CAS</td>
+          <td>classic</td>
+          <td><code>20260508T025316-classic</code></td>
+          <td>2026-05-08T05:48:02Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260508T025316-classic-07-classic-vpa-advise.html">20260508T025316-classic-07-classic-vpa-advise.html</a></td>
+          <td>07 · VPA advise</td>
+          <td>classic</td>
+          <td><code>20260508T025316-classic</code></td>
+          <td>2026-05-08T05:22:05Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260508T025316-classic-06-classic-hpa.html">20260508T025316-classic-06-classic-hpa.html</a></td>
+          <td>06 · HPA</td>
+          <td>classic</td>
+          <td><code>20260508T025316-classic</code></td>
+          <td>2026-05-08T05:19:54Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260508T025316-classic-05-classic-unschedulable.html">20260508T025316-classic-05-classic-unschedulable.html</a></td>
+          <td>05 · Unschedulable</td>
+          <td>classic</td>
+          <td><code>20260508T025316-classic</code></td>
+          <td>2026-05-08T05:05:54Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260508T025316-classic-04-classic-autoscale-down.html">20260508T025316-classic-04-classic-autoscale-down.html</a></td>
+          <td>04 · CAS scale-down</td>
+          <td>classic</td>
+          <td><code>20260508T025316-classic</code></td>
+          <td>2026-05-08T04:58:56Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260508T025316-classic-03-classic-autoscale-up.html">20260508T025316-classic-03-classic-autoscale-up.html</a></td>
+          <td>03 · CAS scale-up</td>
+          <td>classic</td>
+          <td><code>20260508T025316-classic</code></td>
+          <td>2026-05-08T04:46:32Z</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260508T025316-classic-01-classic-cluster-install.html">20260508T025316-classic-01-classic-cluster-install.html</a></td>
+          <td>01 · Cluster install</td>
+          <td>classic</td>
+          <td><code>—</code></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260508T025316-classic-suite-01-through-09.html">20260508T025316-classic-suite-01-through-09.html</a></td>
+          <td>Suite · 01-09</td>
+          <td>—</td>
+          <td><code>—</code></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260507T232347-hcp-01-hcp-cluster-install.html">20260507T232347-hcp-01-hcp-cluster-install.html</a></td>
+          <td>01 · Cluster install</td>
+          <td>hcp</td>
+          <td><code>20260507T232347-hcp</code></td>
+          <td>2026-05-08T00:02:00Z</td>
+          <td>0h 24m 11s (events.jsonl)</td>
+        </tr>
+        <tr>
+          <td><a href="20260507T232337-classic-01-classic-cluster-install.html">20260507T232337-classic-01-classic-cluster-install.html</a></td>
+          <td>01 · Cluster install</td>
+          <td>classic</td>
+          <td><code>—</code></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260507T062102-hcp-01-hcp-cluster-install.html">20260507T062102-hcp-01-hcp-cluster-install.html</a></td>
+          <td>01 · Cluster install</td>
+          <td>hcp</td>
+          <td><code>20260507T062102-hcp</code></td>
+          <td>2026-05-07T06:49:00Z</td>
+          <td>0h 27m 13s (events.jsonl)</td>
+        </tr>
+        <tr>
+          <td><a href="20260507T024819-hcp-01-hcp-cluster-install.html">20260507T024819-hcp-01-hcp-cluster-install.html</a></td>
+          <td>01 · Cluster install</td>
+          <td>hcp</td>
+          <td><code>20260507T024819-hcp</code></td>
+          <td>2026-05-07T03:47:13Z</td>
+          <td>0h 58m 10s (events.jsonl)</td>
+        </tr>
+        <tr>
+          <td><a href="20260507T024839-classic-01-classic-cluster-install.html">20260507T024839-classic-01-classic-cluster-install.html</a></td>
+          <td>01 · Cluster install</td>
+          <td>classic</td>
+          <td><code>—</code></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><a href="20260506T063835Z-run-20260506T054151-hcp-01-hcp-cluster-install.html">20260506T063835Z-run-20260506T054151-hcp-01-hcp-cluster-install.html</a></td>
+          <td>01 · Cluster install</td>
+          <td>hcp</td>
+          <td><code>20260506T054151-hcp</code></td>
+          <td>2026-05-06T06:38:35Z</td>
+          <td>0h 56m 2s (events.jsonl)</td>
+        </tr>
+        <tr>
+          <td><a href="20260506T041740Z-run-20260506T035144-hcp-01-hcp-cluster-install.html">20260506T041740Z-run-20260506T035144-hcp-01-hcp-cluster-install.html</a></td>
+          <td>01 · Cluster install</td>
+          <td>hcp</td>
+          <td><code>20260506T035144-hcp</code></td>
+          <td>2026-05-06T04:17:40Z</td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <footer>
+      Regenerate after adding reports: <code>python3 scripts/update-reports-index.py</code> or <code>make reports-index</code>.
+    </footer>
+  </main>
+  <pre class="data" id="chart-data">{
+  "classic": {
+    "labels": [
+      "20260510T193023-classic"
+    ],
+    "data": [
+      47.64
+    ]
+  },
+  "hcp": {
+    "labels": [
+      "2026-05-06T06:38:35Z",
+      "2026-05-07T03:47:13Z",
+      "2026-05-07T06:49:00Z",
+      "2026-05-08T00:02:00Z"
+    ],
+    "data": [
+      56.04,
+      58.17,
+      27.23,
+      24.19
+    ]
+  }
+}</pre>
+  <pre class="data" id="rows-data">[
+  {
+    "file": "20260518T234857-hcp-autonode-16-hcp-autonode-arm-nodes.html",
+    "report_kind": "other",
+    "run_id": "20260518T234857-hcp-autonode",
+    "title": "Benchmark 16 \u2014 16-arm-nodes",
+    "cluster_name": "an-bench",
+    "topology": null,
+    "report_generated_iso": "2026-05-19T01:14:44Z",
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260518T234857-hcp-autonode-15-hcp-autonode-spot-instances.html",
+    "report_kind": "other",
+    "run_id": "20260518T234857-hcp-autonode",
+    "title": "Benchmark 15 \u2014 15-spot-instances",
+    "cluster_name": "an-bench",
+    "topology": null,
+    "report_generated_iso": "2026-05-19T01:07:41Z",
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260519T010526-classic-01-classic-cluster-install.html",
+    "report_kind": "01_cluster_install",
+    "run_id": null,
+    "title": "Benchmark 01 \u2014 Cluster install (ROSA Classic)",
+    "cluster_name": null,
+    "topology": "classic",
+    "report_generated_iso": null,
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260511T225318-classic-09-classic-overprovisioning.html",
+    "report_kind": "test_09",
+    "run_id": "20260511T225318-classic",
+    "title": "Benchmark 09 \u2014 Overprovisioning with pause pods",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-15T03:15:45Z",
+    "total_install_seconds": 4925.48,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260515T015837-comparison.html",
+    "report_kind": "other",
+    "run_id": null,
+    "title": "ROSA Classic CAS vs HCP AutoNode \u2014 Side-by-Side Comparison",
+    "cluster_name": null,
+    "topology": null,
+    "report_generated_iso": null,
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260515T015829-comparison.html",
+    "report_kind": "other",
+    "run_id": null,
+    "title": "ROSA Classic CAS vs HCP AutoNode \u2014 Side-by-Side Comparison",
+    "cluster_name": null,
+    "topology": null,
+    "report_generated_iso": null,
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260511T030113-hcp-autonode-09b-hcp-autonode-karpenter-overprovisioning.html",
+    "report_kind": "other",
+    "run_id": "20260511T030113-hcp-autonode",
+    "title": "Benchmark 09b \u2014 09b-karpenter-overprovisioning",
+    "cluster_name": "an-bench",
+    "topology": null,
+    "report_generated_iso": "2026-05-15T00:40:03Z",
+    "total_install_seconds": 3474.797,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T030113-hcp-autonode-04-hcp-autonode-autoscale-down.html",
+    "report_kind": "other",
+    "run_id": "20260511T030113-hcp-autonode",
+    "title": "Benchmark 04 \u2014 Cluster Autoscaler scale-down",
+    "cluster_name": "an-bench",
+    "topology": null,
+    "report_generated_iso": "2026-05-12T23:23:07Z",
+    "total_install_seconds": 3474.797,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T030113-hcp-autonode-03-hcp-autonode-autoscale-up.html",
+    "report_kind": "other",
+    "run_id": "20260511T030113-hcp-autonode",
+    "title": "Benchmark 03 \u2014 Cluster Autoscaler scale-up",
+    "cluster_name": "an-bench",
+    "topology": null,
+    "report_generated_iso": "2026-05-12T23:20:50Z",
+    "total_install_seconds": 3474.797,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T030113-hcp-autonode-05-hcp-autonode-unschedulable.html",
+    "report_kind": "other",
+    "run_id": "20260511T030113-hcp-autonode",
+    "title": "Benchmark 05 \u2014 Unschedulable oversize workload",
+    "cluster_name": "an-bench",
+    "topology": null,
+    "report_generated_iso": "2026-05-12T09:37:09Z",
+    "total_install_seconds": 3474.797,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T030113-hcp-autonode-05b-hcp-autonode-dynamic-instance.html",
+    "report_kind": "other",
+    "run_id": "20260511T030113-hcp-autonode",
+    "title": "Benchmark 05b \u2014 05b-dynamic-instance",
+    "cluster_name": "an-bench",
+    "topology": null,
+    "report_generated_iso": "2026-05-12T09:01:47Z",
+    "total_install_seconds": 3474.797,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T030113-hcp-autonode-09-hcp-autonode-overprovisioning.html",
+    "report_kind": "other",
+    "run_id": "20260511T030113-hcp-autonode",
+    "title": "Benchmark 09 \u2014 Overprovisioning with pause pods",
+    "cluster_name": "an-bench",
+    "topology": null,
+    "report_generated_iso": "2026-05-12T07:51:55Z",
+    "total_install_seconds": 3474.797,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T030113-hcp-autonode-08-hcp-autonode-hpa-triggers-cas.html",
+    "report_kind": "other",
+    "run_id": "20260511T030113-hcp-autonode",
+    "title": "Benchmark 08 \u2014 HPA triggers Cluster Autoscaler",
+    "cluster_name": "an-bench",
+    "topology": null,
+    "report_generated_iso": "2026-05-12T07:24:40Z",
+    "total_install_seconds": 3474.797,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T030113-hcp-autonode-06-hcp-autonode-hpa.html",
+    "report_kind": "other",
+    "run_id": "20260511T030113-hcp-autonode",
+    "title": "Benchmark 06 \u2014 Horizontal Pod Autoscaler",
+    "cluster_name": "an-bench",
+    "topology": null,
+    "report_generated_iso": "2026-05-12T07:00:48Z",
+    "total_install_seconds": 3474.797,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T030113-hcp-autonode-13-hcp-autonode-parallel-nodes.html",
+    "report_kind": "other",
+    "run_id": "20260511T030113-hcp-autonode",
+    "title": "Benchmark 13 \u2014 Multi-node parallel provisioning",
+    "cluster_name": "an-bench",
+    "topology": null,
+    "report_generated_iso": "2026-05-12T03:27:28Z",
+    "total_install_seconds": 3474.797,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260512T031206-comparison.html",
+    "report_kind": "other",
+    "run_id": null,
+    "title": "ROSA Classic CAS vs HCP AutoNode \u2014 Side-by-Side Comparison",
+    "cluster_name": null,
+    "topology": null,
+    "report_generated_iso": null,
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260511T030113-hcp-autonode-12-hcp-autonode-sudden-spike.html",
+    "report_kind": "other",
+    "run_id": "20260511T030113-hcp-autonode",
+    "title": "Benchmark 12 \u2014 Sudden spike \u2014 reactive scale-up (degradation window)",
+    "cluster_name": "an-bench",
+    "topology": null,
+    "report_generated_iso": "2026-05-12T02:26:56Z",
+    "total_install_seconds": 3474.797,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T041449-classic-12-classic-sudden-spike.html",
+    "report_kind": "test_12",
+    "run_id": "20260511T041449-classic",
+    "title": "Benchmark 12 \u2014 Sudden spike \u2014 reactive scale-up (degradation window)",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-12T01:55:55Z",
+    "total_install_seconds": 3169.013,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T030113-hcp-autonode-11-hcp-autonode-planned-surge.html",
+    "report_kind": "other",
+    "run_id": "20260511T030113-hcp-autonode",
+    "title": "Benchmark 11 \u2014 Planned surge \u2014 proactive scale-up",
+    "cluster_name": "an-bench",
+    "topology": null,
+    "report_generated_iso": "2026-05-12T01:45:24Z",
+    "total_install_seconds": 3474.797,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T041449-classic-11-classic-planned-surge.html",
+    "report_kind": "test_11",
+    "run_id": "20260511T041449-classic",
+    "title": "Benchmark 11 \u2014 Planned surge \u2014 proactive scale-up",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-12T01:20:13Z",
+    "total_install_seconds": 3169.013,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T030113-hcp-autonode-10-hcp-autonode-autonode-scale.html",
+    "report_kind": "other",
+    "run_id": "20260511T030113-hcp-autonode",
+    "title": "Benchmark 10 \u2014 AutoNode (Karpenter) scale-up and consolidation",
+    "cluster_name": "an-bench",
+    "topology": null,
+    "report_generated_iso": "2026-05-11T08:46:00Z",
+    "total_install_seconds": 3474.797,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T041449-classic-09-classic-overprovisioning.html",
+    "report_kind": "test_09",
+    "run_id": "20260511T041449-classic",
+    "title": "Benchmark 09 \u2014 Overprovisioning with pause pods",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-11T07:26:36Z",
+    "total_install_seconds": 3169.013,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T041449-classic-08-classic-hpa-triggers-cas.html",
+    "report_kind": "test_08",
+    "run_id": "20260511T041449-classic",
+    "title": "Benchmark 08 \u2014 HPA triggers Cluster Autoscaler",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-11T07:14:55Z",
+    "total_install_seconds": 3169.013,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T041449-classic-07-classic-vpa-advise.html",
+    "report_kind": "test_07",
+    "run_id": "20260511T041449-classic",
+    "title": "Benchmark 07 \u2014 VPA advise-only recommendations",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-11T07:09:02Z",
+    "total_install_seconds": 3169.013,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T041449-classic-06-classic-hpa.html",
+    "report_kind": "test_06",
+    "run_id": "20260511T041449-classic",
+    "title": "Benchmark 06 \u2014 Horizontal Pod Autoscaler",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-11T07:04:48Z",
+    "total_install_seconds": 3169.013,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T041449-classic-05-classic-unschedulable.html",
+    "report_kind": "test_05",
+    "run_id": "20260511T041449-classic",
+    "title": "Benchmark 05 \u2014 Unschedulable oversize workload",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-11T06:42:30Z",
+    "total_install_seconds": 3169.013,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T041449-classic-04-classic-autoscale-down.html",
+    "report_kind": "test_04",
+    "run_id": "20260511T041449-classic",
+    "title": "Benchmark 04 \u2014 Cluster Autoscaler scale-down",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-11T06:27:52Z",
+    "total_install_seconds": 3169.013,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T041449-classic-03-classic-autoscale-up.html",
+    "report_kind": "test_03",
+    "run_id": "20260511T041449-classic",
+    "title": "Benchmark 03 \u2014 Cluster Autoscaler scale-up",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-11T06:16:08Z",
+    "total_install_seconds": 3169.013,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T041449-classic-01-classic-cluster-install.html",
+    "report_kind": "01_cluster_install",
+    "run_id": null,
+    "title": "Benchmark 01 \u2014 Cluster install (ROSA Classic)",
+    "cluster_name": null,
+    "topology": "classic",
+    "report_generated_iso": null,
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260511T041449-classic-advanced-suite-10-through-13.html",
+    "report_kind": "other",
+    "run_id": null,
+    "title": "Advanced Autoscaling Suite \u2014 Classic (Tests 10\u201313)",
+    "cluster_name": null,
+    "topology": null,
+    "report_generated_iso": null,
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260511T041449-classic-suite-01-through-09.html",
+    "report_kind": "suite_01_09",
+    "run_id": null,
+    "title": "ROSA Classic Benchmark Suite \u2014 Tests 01\u201309",
+    "cluster_name": null,
+    "topology": null,
+    "report_generated_iso": null,
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260511T030113-hcp-autonode-advanced-suite-10-through-13.html",
+    "report_kind": "other",
+    "run_id": null,
+    "title": "ROSA HCP + AutoNode \u2014 Advanced Autoscaling Suite",
+    "cluster_name": null,
+    "topology": null,
+    "report_generated_iso": null,
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260511T030113-hcp-autonode-suite-01-through-10.html",
+    "report_kind": "other",
+    "run_id": null,
+    "title": "ROSA HCP + AutoNode Benchmark Suite",
+    "cluster_name": null,
+    "topology": null,
+    "report_generated_iso": null,
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260510T192913-hcp-autonode-12-hcp-autonode-sudden-spike.html",
+    "report_kind": "other",
+    "run_id": "20260510T192913-hcp-autonode",
+    "title": "Benchmark 12 \u2014 Sudden spike \u2014 reactive scale-up (degradation window)",
+    "cluster_name": "an-bench",
+    "topology": null,
+    "report_generated_iso": "2026-05-11T02:11:38Z",
+    "total_install_seconds": 3220.637,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260510T193023-classic-12-classic-sudden-spike.html",
+    "report_kind": "test_12",
+    "run_id": "20260510T193023-classic",
+    "title": "Benchmark 12 \u2014 Sudden spike \u2014 reactive scale-up (degradation window)",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-11T01:48:26Z",
+    "total_install_seconds": 2858.416,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T013343-comparison.html",
+    "report_kind": "other",
+    "run_id": null,
+    "title": "ROSA Classic CAS vs HCP AutoNode \u2014 Side-by-Side Comparison",
+    "cluster_name": null,
+    "topology": null,
+    "report_generated_iso": null,
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260510T192913-hcp-autonode-08-hcp-autonode-hpa-triggers-cas.html",
+    "report_kind": "other",
+    "run_id": "20260510T192913-hcp-autonode",
+    "title": "Benchmark 08 \u2014 HPA triggers Cluster Autoscaler",
+    "cluster_name": "an-bench",
+    "topology": null,
+    "report_generated_iso": "2026-05-11T01:21:36Z",
+    "total_install_seconds": 3220.637,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260511T001113-comparison.html",
+    "report_kind": "other",
+    "run_id": null,
+    "title": "ROSA Classic CAS vs HCP AutoNode \u2014 Side-by-Side Comparison",
+    "cluster_name": null,
+    "topology": null,
+    "report_generated_iso": null,
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260510T192913-hcp-autonode-06-hcp-autonode-hpa.html",
+    "report_kind": "other",
+    "run_id": "20260510T192913-hcp-autonode",
+    "title": "Benchmark 06 \u2014 Horizontal Pod Autoscaler",
+    "cluster_name": "an-bench",
+    "topology": null,
+    "report_generated_iso": "2026-05-10T23:51:14Z",
+    "total_install_seconds": 3220.637,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260510T225947-comparison.html",
+    "report_kind": "other",
+    "run_id": null,
+    "title": "ROSA Classic CAS vs HCP AutoNode \u2014 Side-by-Side Comparison",
+    "cluster_name": null,
+    "topology": null,
+    "report_generated_iso": null,
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260510T193023-classic-09-classic-overprovisioning.html",
+    "report_kind": "test_09",
+    "run_id": "20260510T193023-classic",
+    "title": "Benchmark 09 \u2014 Overprovisioning with pause pods",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-10T22:50:39Z",
+    "total_install_seconds": 2858.416,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260510T193023-classic-08-classic-hpa-triggers-cas.html",
+    "report_kind": "test_08",
+    "run_id": "20260510T193023-classic",
+    "title": "Benchmark 08 \u2014 HPA triggers Cluster Autoscaler",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-10T22:44:40Z",
+    "total_install_seconds": 2858.416,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260510T192913-hcp-autonode-10-hcp-autonode-autonode-scale.html",
+    "report_kind": "other",
+    "run_id": "20260510T192913-hcp-autonode",
+    "title": "Benchmark 10 \u2014 AutoNode (Karpenter) scale-up and consolidation",
+    "cluster_name": "an-bench",
+    "topology": null,
+    "report_generated_iso": "2026-05-10T22:36:48Z",
+    "total_install_seconds": 3220.637,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260510T193023-classic-07-classic-vpa-advise.html",
+    "report_kind": "test_07",
+    "run_id": "20260510T193023-classic",
+    "title": "Benchmark 07 \u2014 VPA advise-only recommendations",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-10T22:10:42Z",
+    "total_install_seconds": 2858.416,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260510T193023-classic-06-classic-hpa.html",
+    "report_kind": "test_06",
+    "run_id": "20260510T193023-classic",
+    "title": "Benchmark 06 \u2014 Horizontal Pod Autoscaler",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-10T22:08:47Z",
+    "total_install_seconds": 2858.416,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260510T193023-classic-05-classic-unschedulable.html",
+    "report_kind": "test_05",
+    "run_id": "20260510T193023-classic",
+    "title": "Benchmark 05 \u2014 Unschedulable oversize workload",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-10T21:57:08Z",
+    "total_install_seconds": 2858.416,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260510T193023-classic-04-classic-autoscale-down.html",
+    "report_kind": "test_04",
+    "run_id": "20260510T193023-classic",
+    "title": "Benchmark 04 \u2014 Cluster Autoscaler scale-down",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-10T21:46:29Z",
+    "total_install_seconds": 2858.416,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260510T193023-classic-03-classic-autoscale-up.html",
+    "report_kind": "test_03",
+    "run_id": "20260510T193023-classic",
+    "title": "Benchmark 03 \u2014 Cluster Autoscaler scale-up",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-10T21:32:37Z",
+    "total_install_seconds": 2858.416,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260510T193023-classic-01-classic-cluster-install.html",
+    "report_kind": "01_cluster_install",
+    "run_id": "20260510T193023-classic",
+    "title": null,
+    "cluster_name": null,
+    "topology": "classic",
+    "report_generated_iso": null,
+    "total_install_seconds": 2858.416,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260510T193023-classic-suite-01-through-09.html",
+    "report_kind": "suite_01_09",
+    "run_id": null,
+    "title": "ROSA Classic Benchmark Suite \u2014 Tests 01\u201309",
+    "cluster_name": null,
+    "topology": null,
+    "report_generated_iso": null,
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260508T202706-comparison.html",
+    "report_kind": "other",
+    "run_id": null,
+    "title": "ROSA Classic CAS vs HCP AutoNode \u2014 Side-by-Side Comparison",
+    "cluster_name": null,
+    "topology": null,
+    "report_generated_iso": null,
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260508T031735-hcp-autonode-10-hcp-autonode-autonode-scale.html",
+    "report_kind": "other",
+    "run_id": "20260508T031735-hcp-autonode",
+    "title": "Benchmark 10 \u2014 AutoNode (Karpenter) scale-up and consolidation",
+    "cluster_name": "an-bench",
+    "topology": null,
+    "report_generated_iso": "2026-05-08T05:58:49Z",
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260508T025316-classic-09-classic-overprovisioning.html",
+    "report_kind": "test_09",
+    "run_id": "20260508T025316-classic",
+    "title": "Benchmark 09 \u2014 Overprovisioning with pause pods",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-08T05:52:25Z",
+    "total_install_seconds": 3649.134,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260508T025316-classic-08-classic-hpa-triggers-cas.html",
+    "report_kind": "test_08",
+    "run_id": "20260508T025316-classic",
+    "title": "Benchmark 08 \u2014 HPA triggers Cluster Autoscaler",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-08T05:48:02Z",
+    "total_install_seconds": 3649.134,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260508T025316-classic-07-classic-vpa-advise.html",
+    "report_kind": "test_07",
+    "run_id": "20260508T025316-classic",
+    "title": "Benchmark 07 \u2014 VPA advise-only recommendations",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-08T05:22:05Z",
+    "total_install_seconds": 3649.134,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260508T025316-classic-06-classic-hpa.html",
+    "report_kind": "test_06",
+    "run_id": "20260508T025316-classic",
+    "title": "Benchmark 06 \u2014 Horizontal Pod Autoscaler",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-08T05:19:54Z",
+    "total_install_seconds": 3649.134,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260508T025316-classic-05-classic-unschedulable.html",
+    "report_kind": "test_05",
+    "run_id": "20260508T025316-classic",
+    "title": "Benchmark 05 \u2014 Unschedulable oversize workload",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-08T05:05:54Z",
+    "total_install_seconds": 3649.134,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260508T025316-classic-04-classic-autoscale-down.html",
+    "report_kind": "test_04",
+    "run_id": "20260508T025316-classic",
+    "title": "Benchmark 04 \u2014 Cluster Autoscaler scale-down",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-08T04:58:56Z",
+    "total_install_seconds": 3649.134,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260508T025316-classic-03-classic-autoscale-up.html",
+    "report_kind": "test_03",
+    "run_id": "20260508T025316-classic",
+    "title": "Benchmark 03 \u2014 Cluster Autoscaler scale-up",
+    "cluster_name": "classic-bench",
+    "topology": "classic",
+    "report_generated_iso": "2026-05-08T04:46:32Z",
+    "total_install_seconds": 3649.134,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260508T025316-classic-01-classic-cluster-install.html",
+    "report_kind": "01_cluster_install",
+    "run_id": null,
+    "title": "Benchmark 01 \u2014 Cluster install (ROSA Classic)",
+    "cluster_name": null,
+    "topology": "classic",
+    "report_generated_iso": null,
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260508T025316-classic-suite-01-through-09.html",
+    "report_kind": "suite_01_09",
+    "run_id": null,
+    "title": "ROSA Classic Benchmark Suite \u2014 Tests 01\u201309",
+    "cluster_name": null,
+    "topology": null,
+    "report_generated_iso": null,
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260507T232347-hcp-01-hcp-cluster-install.html",
+    "report_kind": "01_cluster_install",
+    "run_id": "20260507T232347-hcp",
+    "title": "Benchmark 01 \u2014 Cluster install (ROSA HCP)",
+    "cluster_name": "hcp-bench",
+    "topology": "hcp",
+    "report_generated_iso": "2026-05-08T00:02:00Z",
+    "total_install_seconds": 1451.285,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260507T232337-classic-01-classic-cluster-install.html",
+    "report_kind": "01_cluster_install",
+    "run_id": null,
+    "title": "Benchmark 01 \u2014 Cluster install (ROSA Classic)",
+    "cluster_name": null,
+    "topology": "classic",
+    "report_generated_iso": null,
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260507T062102-hcp-01-hcp-cluster-install.html",
+    "report_kind": "01_cluster_install",
+    "run_id": "20260507T062102-hcp",
+    "title": null,
+    "cluster_name": "hcp-bench",
+    "topology": "hcp",
+    "report_generated_iso": "2026-05-07T06:49:00Z",
+    "total_install_seconds": 1633.566,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260507T024819-hcp-01-hcp-cluster-install.html",
+    "report_kind": "01_cluster_install",
+    "run_id": "20260507T024819-hcp",
+    "title": "Benchmark 01 \u2014 Cluster install (ROSA HCP)",
+    "cluster_name": "hcp-bench",
+    "topology": "hcp",
+    "report_generated_iso": "2026-05-07T03:47:13Z",
+    "total_install_seconds": 3490.423,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260507T024839-classic-01-classic-cluster-install.html",
+    "report_kind": "01_cluster_install",
+    "run_id": null,
+    "title": "Benchmark 01 \u2014 Cluster install (ROSA Classic)",
+    "cluster_name": null,
+    "topology": "classic",
+    "report_generated_iso": null,
+    "total_install_seconds": null,
+    "total_source": "none"
+  },
+  {
+    "file": "20260506T063835Z-run-20260506T054151-hcp-01-hcp-cluster-install.html",
+    "report_kind": "01_cluster_install",
+    "run_id": "20260506T054151-hcp",
+    "title": "Benchmark 01 \u2014 Cluster install (ROSA HCP)",
+    "cluster_name": "hcp-bench",
+    "topology": "hcp",
+    "report_generated_iso": "2026-05-06T06:38:35Z",
+    "total_install_seconds": 3362.436,
+    "total_source": "events.jsonl"
+  },
+  {
+    "file": "20260506T041740Z-run-20260506T035144-hcp-01-hcp-cluster-install.html",
+    "report_kind": "01_cluster_install",
+    "run_id": "20260506T035144-hcp",
+    "title": "Benchmark 01 \u2014 Cluster install (ROSA HCP)",
+    "cluster_name": "hcp-bench",
+    "topology": "hcp",
+    "report_generated_iso": "2026-05-06T04:17:40Z",
+    "total_install_seconds": null,
+    "total_source": "none"
+  }
+]</pre>
+  <script>
+    (function () {
+      const el = document.getElementById("chart-data");
+      const chartSpec = JSON.parse(el.textContent);
+      const classic = chartSpec.classic || { labels: [], data: [] };
+      const hcp = chartSpec.hcp || { labels: [], data: [] };
+      const allLabels = [...new Set([...classic.labels, ...hcp.labels])];
+      allLabels.sort();
+
+      const ctx = document.getElementById("trendChart");
+      const hasData =
+        (classic.labels && classic.labels.length > 0) ||
+        (hcp.labels && hcp.labels.length > 0);
+      if (!hasData) {
+        ctx.replaceWith(Object.assign(document.createElement("p"), {
+          className: "subtitle",
+          textContent: "No test 01 install reports with parseable totals yet — add HTML reports and re-run the index script.",
+        }));
+        return;
+      }
+
+      function alignSeries(series) {
+        const map = Object.fromEntries(series.labels.map((lb, i) => [lb, series.data[i]]));
+        return allLabels.map((lb) => (map[lb] !== undefined ? map[lb] : null));
+      }
+
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: allLabels,
+          datasets: [
+            {
+              label: "Classic · install total (min)",
+              data: alignSeries(classic),
+              borderColor: "#58a6ff",
+              backgroundColor: "rgba(88, 166, 255, 0.15)",
+              tension: 0.2,
+              spanGaps: true,
+            },
+            {
+              label: "HCP · install total (min)",
+              data: alignSeries(hcp),
+              borderColor: "#3fb950",
+              backgroundColor: "rgba(63, 185, 80, 0.12)",
+              tension: 0.2,
+              spanGaps: true,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              title: { display: true, text: "Report timestamp / id" },
+              ticks: { maxRotation: 45, minRotation: 0 },
+            },
+            y: {
+              title: { display: true, text: "Minutes" },
+              beginAtZero: true,
+            },
+          },
+          plugins: {
+            legend: { position: "bottom" },
+            tooltip: {
+              callbacks: {
+                label: (c) => c.dataset.label + ": " + (c.parsed.y != null ? c.parsed.y + " min" : "—"),
+              },
+            },
+          },
+        },
+      });
+    })();
+  </script>
+</body>
+</html>

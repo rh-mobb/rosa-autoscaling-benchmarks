@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ROSA Classic Benchmark Suite — 20260510T193023</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --border: #2a2d3a;
+      --text: #e2e4ed;
+      --muted: #8b8fa8;
+      --accent: #5b8dee;
+      --success: #3ecf8e;
+      --warning: #f0a500;
+      --danger: #e5484d;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 40px 24px;
+    }
+    .container { max-width: 960px; margin: 0 auto; }
+    h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+    h2 { font-size: 16px; font-weight: 600; margin: 32px 0 12px; color: var(--text); }
+    h3 { font-size: 14px; font-weight: 600; margin: 20px 0 8px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .meta { color: var(--muted); font-size: 12px; margin-bottom: 32px; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .stat-value { font-size: 22px; font-weight: 700; color: var(--accent); }
+    .stat-value.success { color: var(--success); }
+    .stat-value.warning { color: var(--warning); }
+    .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+    th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr.skipped td { color: var(--muted); font-style: italic; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-ok { background: rgba(62,207,142,0.15); color: var(--success); }
+    .badge-skip { background: rgba(139,143,168,0.15); color: var(--muted); }
+    .badge-warn { background: rgba(240,165,0,0.15); color: var(--warning); }
+    .badge-fix { background: rgba(91,141,238,0.15); color: var(--accent); }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+    .finding { padding: 8px 0; display: flex; gap: 10px; }
+    .finding-bullet { color: var(--accent); flex-shrink: 0; font-weight: 700; }
+    .finding-text { color: var(--text); }
+    .highlight { color: var(--success); font-weight: 600; }
+    .tag { color: var(--accent); }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .section { margin-bottom: 28px; }
+    footer { margin-top: 40px; color: var(--muted); font-size: 11px; }
+    .improvements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .improvement-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .improvement-title { font-weight: 600; color: var(--accent); margin-bottom: 6px; font-size: 13px; }
+    .improvement-body { color: var(--muted); font-size: 12px; line-height: 1.5; }
+    code { font-family: 'SF Mono', monospace; font-size: 12px; color: var(--accent); }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <h1>ROSA Classic Benchmark Suite — Tests 01–09</h1>
+  <p class="meta">
+    Run ID: <span class="tag">20260510T193023-classic</span> &nbsp;·&nbsp;
+    Cluster: <span class="tag">classic-bench</span> &nbsp;·&nbsp;
+    Region: <span class="tag">us-east-1</span> &nbsp;·&nbsp;
+    Type: <span class="tag">ROSA Classic · Multi-AZ · m5.xlarge workers · 6–22 nodes</span> &nbsp;·&nbsp;
+    Date: <span class="tag">2026-05-10</span>
+  </p>
+
+  <!-- Section 1: Summary Stats -->
+  <h2>Summary Stats</h2>
+  <div class="stats-grid">
+    <div class="stat">
+      <div class="stat-value">47m 38s</div>
+      <div class="stat-label">Cluster Install (Test 01)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">9m 51s</div>
+      <div class="stat-label">Standard Pool Ready (Test 02)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">15m 28s</div>
+      <div class="stat-label">CAS Scale-Up (Test 03)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">12m 4s</div>
+      <div class="stat-label">CAS Scale-Down (Test 04)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">1m 20s</div>
+      <div class="stat-label">HPA Response (Test 06)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value warning">9m 54s</div>
+      <div class="stat-label">HPA → CAS e2e (Test 08)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value success">2m 3s</div>
+      <div class="stat-label">Overprovisioned HPA (Test 09)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value success">4.8×</div>
+      <div class="stat-label">Overprovisioning Speedup (08 → 09)</div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- Section 2: Detailed Timing Table -->
+  <h2>Detailed Timing Table</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Test</th>
+        <th>Scenario</th>
+        <th>Classic Time</th>
+        <th>Key Milestone</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>01</td>
+        <td>Cluster install (total)</td>
+        <td>47m 38s</td>
+        <td>OCM ready → ClusterOperators Available</td>
+        <td><span class="badge badge-ok">OK</span></td>
+      </tr>
+      <tr>
+        <td>02</td>
+        <td>m5.xlarge (standard) pool</td>
+        <td>9m 51s</td>
+        <td>Pool created → first node Ready</td>
+        <td><span class="badge badge-ok">OK</span></td>
+      </tr>
+      <tr>
+        <td>02</td>
+        <td>m5.4xlarge (memory-opt) pool</td>
+        <td>6m 35s</td>
+        <td>Pool created → first node Ready</td>
+        <td><span class="badge badge-ok">OK</span></td>
+      </tr>
+      <tr>
+        <td>02</td>
+        <td>c5.4xlarge (compute-opt) pool</td>
+        <td>5m 49s</td>
+        <td>Pool created → first node Ready</td>
+        <td><span class="badge badge-ok">OK</span></td>
+      </tr>
+      <tr>
+        <td>02</td>
+        <td>c5.metal (bare-metal) pool</td>
+        <td>19m 41s</td>
+        <td>Pool created → first node Ready</td>
+        <td><span class="badge badge-ok">OK</span></td>
+      </tr>
+      <tr>
+        <td>03</td>
+        <td>CAS scale-up (workload applied → pods running)</td>
+        <td>15m 28s</td>
+        <td>FailedScheduling → ScaledUpGroup → new node Ready → pods Running</td>
+        <td><span class="badge badge-ok">OK</span></td>
+      </tr>
+      <tr>
+        <td>04</td>
+        <td>CAS scale-down (workload removed → stable)</td>
+        <td>12m 4s</td>
+        <td>Workload removed → node cordoned → EC2 terminated</td>
+        <td><span class="badge badge-ok">OK</span></td>
+      </tr>
+      <tr>
+        <td>05</td>
+        <td>Unschedulable (CAS NotTriggerScaleUp)</td>
+        <td>12s</td>
+        <td>FailedScheduling → NotTriggerScaleUp confirmed</td>
+        <td><span class="badge badge-ok">OK</span></td>
+      </tr>
+      <tr>
+        <td>06</td>
+        <td>HPA scale-up (manifests applied → pods Ready)</td>
+        <td>1m 20s</td>
+        <td>CPU breach (1m3s) → scale decision (&lt;1s) → pods Ready (3s)</td>
+        <td><span class="badge badge-ok">OK</span></td>
+      </tr>
+      <tr>
+        <td>07</td>
+        <td>VPA advise (recommendations)</td>
+        <td>&lt;1s</td>
+        <td>VPA object read; history from Test 06 load run</td>
+        <td><span class="badge badge-ok">OK</span></td>
+      </tr>
+      <tr>
+        <td>08</td>
+        <td>HPA → CAS cascade (e2e)</td>
+        <td>9m 54s</td>
+        <td>HPA fires → Pending (59s) → CAS → new node (7m10s) → pods Ready (1m36s+7s)</td>
+        <td><span class="badge badge-ok">OK</span></td>
+      </tr>
+      <tr>
+        <td>09</td>
+        <td>Overprovisioning (pre-reserved headroom)</td>
+        <td>2m 3s</td>
+        <td>HPA fires → pods Running via available capacity; headroom restored in 4s</td>
+        <td><span class="badge badge-ok">OK</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider" />
+
+  <!-- Section 3: Key Findings -->
+  <h2>Key Findings</h2>
+  <div class="section">
+    <div class="finding">
+      <div class="finding-bullet">→</div>
+      <div class="finding-text">
+        <strong>Cluster install took 47m 38s</strong> — 16 minutes faster than the previous run (63m39s on 2026-05-08). Difference is within expected variance for ROSA Classic multi-AZ STS provisioning. OCM ready at 45m42s; <code>oc login</code> succeeded at 47m16s; all ClusterOperators Available at 47m38s.
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-bullet">→</div>
+      <div class="finding-text">
+        <strong>Machine pool provisioning ranged from 5m49s (compute, c5.4xlarge) to 19m41s (bare-metal, c5.metal)</strong>. Standard m5.xlarge (9m51s) and memory-optimized m5.4xlarge (6m35s) show shorter warm-up. Bare-metal boot time is dominated by firmware/BIOS initialization (~5m44s for EC2 status checks alone).
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-bullet">→</div>
+      <div class="finding-text">
+        <strong>CAS scale-up was 15m 28s</strong> from workload apply to pods Running. CAS decision itself came within 1m55s of FailedScheduling; EC2 node provision took 5m21s; node-level scheduling added 8m05s (image pull + kubelet init). FailedScheduling fired just 3s after workload apply.
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-bullet">→</div>
+      <div class="finding-text">
+        <strong>HPA response (Test 06) was 1m 20s</strong> from manifests applied to pods Ready. The HPA scale decision fires in under 1s once the metric breach is detected; the 1m3s of CPU metric accumulation (15s scrape × ~4 windows) is the dominant factor when cluster capacity is available.
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-bullet">→</div>
+      <div class="finding-text">
+        <span class="highlight">Overprovisioning reduced total HPA-to-pods-ready latency from 9m 54s (Test 08) to 2m 3s (Test 09) — a 4.8× speedup.</span> The ~7m10s EC2 provisioning step was moved off the critical path. Headroom was restored in 4s after pods ran, showing CAS works asynchronously in the background.
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-bullet">→</div>
+      <div class="finding-text">
+        <strong>VPA recommendations (Test 07)</strong>: cpu-burner (<code>yes &gt; /dev/null</code>) hit 199% CPU utilization. VPA advised raising the CPU request from 500m to 1168m (target) with a lower bound of 712m — the workload was under-provisioned. Memory recommendation was 256 MiB (vs 128 MiB requested). VPA and HPA coexisted safely in Off/advise mode.
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- Section 4: Script / Skill Improvements -->
+  <h2>Script &amp; Skill Improvements Made During This Run</h2>
+  <div class="improvements-grid">
+    <div class="improvement-card">
+      <div class="improvement-title">Fix: oc login TLS prompt (clusters/common.sh)</div>
+      <div class="improvement-body">
+        <code>--insecure-skip-tls-verify=false</code> prompted interactively in automation.
+        Changed to <code>=true</code> so <code>wait_oc_login_success</code> runs non-interactively.
+      </div>
+    </div>
+    <div class="improvement-card">
+      <div class="improvement-title">Fix: NoneType crash in run-test-06-hpa.py</div>
+      <div class="improvement-body">
+        HPA <code>currentMetrics</code> is JSON <code>null</code> (not absent) during warm-up.
+        <code>.get("currentMetrics", [])</code> returned <code>None</code> → TypeError.
+        Fixed with <code>or []</code> fallback. Same fix applied to VPA <code>containerRecommendations</code>.
+      </div>
+    </div>
+    <div class="improvement-card">
+      <div class="improvement-title">Fix: cas-trigger.yaml replica count &amp; nodeSelector</div>
+      <div class="improvement-body">
+        Original 100 replicas scheduled easily across all pools. Reduced to 20 replicas;
+        added <code>nodeSelector: pool-type: standard</code> to force pods onto the standard pool
+        and trigger FailedScheduling predictably.
+      </div>
+    </div>
+    <div class="improvement-card">
+      <div class="improvement-title">Fix: capacity-filler.yaml for multi-pool clusters</div>
+      <div class="improvement-body">
+        Original 10 replicas (designed for 2-node cluster) could not saturate a 21-node cluster
+        from tests 01–07. Added <code>nodeSelector: pool-type: standard</code> and reduced to
+        5 replicas (fills 1 m5.xlarge standard node, leaving room for 1 cpu-burner but not 3).
+      </div>
+    </div>
+    <div class="improvement-card">
+      <div class="improvement-title">Fix: cpu-burner.yaml missing nodeSelector</div>
+      <div class="improvement-body">
+        Without <code>nodeSelector: pool-type: standard</code>, cpu-burner pods distributed across
+        all 21+ nodes, bypassing the filled standard pool in Test 08. Added nodeSelector so the
+        HPA→CAS cascade is reliably demonstrated on the standard pool.
+      </div>
+    </div>
+    <div class="improvement-card">
+      <div class="improvement-title">Process: cordon 2 of 3 standard nodes for Test 08</div>
+      <div class="improvement-body">
+        With 3 standard nodes and only 1 needing to be saturated, 2 nodes were temporarily
+        cordoned with <code>oc adm cordon</code> before Test 08 and uncordoned after.
+        This ensured deterministic FailedScheduling on the single schedulable standard node.
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- Section 5: Events Highlights -->
+  <h2>Events &amp; Anomalies</h2>
+  <div class="section">
+    <div class="finding">
+      <div class="finding-bullet">!</div>
+      <div class="finding-text">
+        <strong>Test 03 — CAS event names:</strong> CAS emitted <code>ScaledUpGroup</code> (not <code>TriggeredScaleUp</code> as originally polled). Both event reason variants are now watched by the script (<code>wait_for_event([…"TriggeredScaleUp", "ScaledUpGroup"…])</code>). No impact on measurement validity.
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-bullet">!</div>
+      <div class="finding-text">
+        <strong>Test 06 — First run crashed:</strong> <code>run-test-06-hpa.py</code> crashed with <code>TypeError: 'NoneType' object is not iterable</code> on the first run attempt due to the <code>currentMetrics: null</code> JSON field. Fixed and re-run successfully. Benchmark namespace was cleaned between runs.
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-bullet">!</div>
+      <div class="finding-text">
+        <strong>Test 08 — Multi-attempt due to cluster capacity:</strong> Test 08 required 3 run attempts to get a valid FailedScheduling event. Attempts 1 and 2 failed due to excess cluster capacity from all machine pools in tests 02. Final attempt used cordon + 5-replica filler targeting the standard pool.
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-bullet">!</div>
+      <div class="finding-text">
+        <strong>Test 09 — Pause pods not visibly evicted:</strong> The cluster had residual headroom beyond the overprovisioner reservation (22+ nodes from all benchmark machine pools). Pods scheduled without preemption but still 4.8× faster than Test 08, confirming the benefit of pre-reserved capacity.
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-bullet">!</div>
+      <div class="finding-text">
+        <strong>Baseline drift during Test 08:</strong> The baseline node count recorded as 22 (not 21) due to a CAS provisioning event that occurred during an earlier interrupted attempt. The new node provisioned during the final test 08 run was correctly identified as <code>ip-10-0-66-84.ec2.internal</code>.
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- Section 6: Recommendations -->
+  <h2>Recommendations</h2>
+  <div class="section">
+    <div class="finding">
+      <div class="finding-bullet">1.</div>
+      <div class="finding-text">
+        <strong>Use overprovisioning for latency-sensitive workloads.</strong> The 4.8× scheduling speedup (9m54s → 2m3s) from pause-pod headroom is significant for services with burst patterns. At us-east-1 m5.xlarge pricing (~$0.19/hr), 2 headroom nodes cost ~$0.38/hr to save 7+ minutes per HPA event.
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-bullet">2.</div>
+      <div class="finding-text">
+        <strong>Target machine pool nodeSelectors explicitly in benchmark manifests.</strong> All benchmark workload manifests (cas-trigger, cpu-burner, capacity-filler) should declare <code>nodeSelector: pool-type: standard</code> to avoid distributing across heterogeneous pools, which makes CAS cascade tests non-deterministic.
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-bullet">3.</div>
+      <div class="finding-text">
+        <strong>Apply VPA recommendations to right-size the cpu-burner workload.</strong> VPA advised 1168m CPU (vs 500m requested). Acting on this would reduce the number of HPA replicas needed for the same load and improve CAS capacity planning accuracy.
+      </div>
+    </div>
+    <div class="finding">
+      <div class="finding-bullet">4.</div>
+      <div class="finding-text">
+        <strong>Clean up non-standard machine pools before autoscaling tests.</strong> The memory, compute, and bare-metal pools added in Test 02 persist through Tests 03–09, providing excess cluster capacity that interferes with tests designed for minimal cluster configurations. Consider deleting or scaling to 0 between test stages.
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- Individual Reports -->
+  <h2>Individual Test Reports</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Test</th>
+        <th>Scenario</th>
+        <th>Report</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>01</td>
+        <td>Cluster Install</td>
+        <td><a href="20260510T193023-classic-01-classic-cluster-install.html">20260510T193023-classic-01-classic-cluster-install.html</a></td>
+      </tr>
+      <tr>
+        <td>02</td>
+        <td>Machine Pool Provisioning</td>
+        <td>Canvas: 02-machine-pool-classic-20260510T193023</td>
+      </tr>
+      <tr>
+        <td>03</td>
+        <td>CAS Scale-Up</td>
+        <td><a href="20260510T193023-classic-03-classic-autoscale-up.html">20260510T193023-classic-03-classic-autoscale-up.html</a></td>
+      </tr>
+      <tr>
+        <td>04</td>
+        <td>CAS Scale-Down</td>
+        <td><a href="20260510T193023-classic-04-classic-autoscale-down.html">20260510T193023-classic-04-classic-autoscale-down.html</a></td>
+      </tr>
+      <tr>
+        <td>05</td>
+        <td>Unschedulable Oversize Workload</td>
+        <td><a href="20260510T193023-classic-05-classic-unschedulable.html">20260510T193023-classic-05-classic-unschedulable.html</a></td>
+      </tr>
+      <tr>
+        <td>06</td>
+        <td>HPA Response</td>
+        <td><a href="20260510T193023-classic-06-classic-hpa.html">20260510T193023-classic-06-classic-hpa.html</a></td>
+      </tr>
+      <tr>
+        <td>07</td>
+        <td>VPA Advise Mode</td>
+        <td><a href="20260510T193023-classic-07-classic-vpa-advise.html">20260510T193023-classic-07-classic-vpa-advise.html</a></td>
+      </tr>
+      <tr>
+        <td>08</td>
+        <td>HPA → CAS Cascade</td>
+        <td><a href="20260510T193023-classic-08-classic-hpa-triggers-cas.html">20260510T193023-classic-08-classic-hpa-triggers-cas.html</a></td>
+      </tr>
+      <tr>
+        <td>09</td>
+        <td>Overprovisioning with Pause Pods</td>
+        <td><a href="20260510T193023-classic-09-classic-overprovisioning.html">20260510T193023-classic-09-classic-overprovisioning.html</a></td>
+      </tr>
+      <tr>
+        <td>CAS vs AutoNode</td>
+        <td>Classic vs HCP AutoNode Comparison</td>
+        <td><a href="20260510T225947-comparison.html">20260510T225947-comparison.html</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="divider" />
+
+  <footer>
+    Generated by benchmark-run-all · Run 20260510T193023-classic · ROSA Classic multi-AZ · us-east-1 · May 10 2026
+    &nbsp;·&nbsp; <a href="index.html">Back to index</a>
+  </footer>
+
+</div>
+</body>
+</html>

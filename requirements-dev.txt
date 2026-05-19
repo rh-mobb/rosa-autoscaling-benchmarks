@@ -1,0 +1,19 @@
+# Development, linting, and testing dependencies.
+#
+# Install alongside runtime deps:
+#   pip install -r requirements.txt -r requirements-dev.txt
+
+-r requirements.txt
+
+# ── Linting ───────────────────────────────────────────────────────────────────
+# Fast Python linter and formatter (replaces flake8, isort, pyupgrade, etc.)
+ruff==0.11.9
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+pytest==8.3.5
+pytest-cov==6.1.0
+
+# ── Type checking ──────────────────────────────────────────────────────────────
+mypy==1.15.0
+# Boto3 type stubs for mypy
+boto3-stubs[essential]==1.38.8

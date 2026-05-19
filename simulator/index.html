@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ROSA Autoscaling Simulator</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --border: #2d3a4d;
+      --text: #e6edf3;
+      --muted: #8b9cb3;
+      --accent: #58a6ff;
+      --ok: #3fb950;
+      --warn: #d29922;
+      --bad: #f85149;
+      --rh-red: #ee0000;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+    #root { min-height: 100vh; padding: 1rem 1.25rem 2rem; max-width: 1400px; margin: 0 auto; }
+    h1 { font-size: 1.35rem; margin: 0 0 0.25rem; font-weight: 650; }
+    .subtitle { color: var(--muted); margin: 0 0 1rem; font-size: 0.9rem; }
+    .header-row {
+      display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+      gap: 1rem; margin-bottom: 1rem;
+    }
+    .mode-tabs { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    .mode-tab {
+      padding: 0.4rem 0.75rem; border: 1px solid var(--border);
+      background: var(--surface); color: var(--text); border-radius: 6px;
+      cursor: pointer; font-size: 0.8rem;
+    }
+    .mode-tab:hover { border-color: var(--accent); }
+    .mode-tab.active {
+      border-color: var(--rh-red); box-shadow: 0 0 0 1px var(--rh-red);
+      background: #251418;
+    }
+    .layout-main {
+      display: grid; grid-template-columns: 280px 1fr; gap: 1rem;
+    }
+    @media (max-width: 960px) { .layout-main { grid-template-columns: 1fr; } }
+    .panel {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 1rem;
+    }
+    .panel h2 { margin: 0 0 0.75rem; font-size: 0.95rem; color: var(--muted); font-weight: 600; }
+    label.control { display: block; margin-bottom: 1rem; }
+    label.control span.label { display: flex; justify-content: space-between; margin-bottom: 0.35rem; font-size: 0.8rem; color: var(--muted); }
+    input[type="range"] { width: 100%; accent-color: var(--rh-red); }
+    .btn-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+    button {
+      padding: 0.45rem 0.9rem; border-radius: 6px; border: 1px solid var(--border);
+      background: var(--bg); color: var(--text); cursor: pointer; font-size: 0.85rem;
+    }
+    button:hover { border-color: var(--accent); }
+    button.primary { background: var(--rh-red); border-color: var(--rh-red); color: #fff; }
+    button.primary:hover { filter: brightness(1.08); }
+    .cluster-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+    .node-card {
+      border: 1px solid var(--border); border-radius: 8px; padding: 0.65rem;
+      background: #121920;
+      min-height: 120px;
+    }
+    .node-card h3 { margin: 0 0 0.35rem; font-size: 0.75rem; color: var(--muted); display: flex; justify-content: space-between; }
+    .node-card.provisioning h3 { color: var(--warn); }
+    .node-card.draining h3 { color: var(--bad); }
+    .prog-bar {
+      height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 0.5rem;
+    }
+    .prog-bar > i { display: block; height: 100%; background: var(--accent); transition: width 0.05s linear; }
+    .prog-bar.drain > i { background: var(--bad); }
+    .slots { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .slot {
+      flex: 1 1 calc(50% - 0.2rem);
+      min-width: 3.25rem; min-height: 36px; border-radius: 4px; border: 1px dashed var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.03em;
+      color: var(--muted);
+    }
+    .slot.app { background: rgba(63, 185, 80, 0.2); border-color: var(--ok); color: var(--ok); }
+    .slot.balloon { background: rgba(210, 153, 34, 0.2); border-color: var(--warn); color: var(--warn); }
+    .slot.pending { background: rgba(248, 81, 73, 0.2); border-color: var(--bad); color: var(--bad); }
+    .metrics-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;
+    }
+    @media (max-width: 900px) { .metrics-row { grid-template-columns: 1fr; } }
+    .cost-dash {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1rem;
+    }
+    @media (max-width: 700px) { .cost-dash { grid-template-columns: 1fr; } }
+    .cost-compare-footnote {
+      grid-column: 1 / -1;
+      margin: 0;
+      padding: 0.75rem 0.85rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.45;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #121920;
+    }
+    .cost-tile {
+      border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; background: #121920;
+    }
+    .cost-tile .v { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .cost-tile .k { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.25rem; }
+    .event-log {
+      max-height: 220px; overflow-y: auto; font-family: ui-monospace, monospace;
+      font-size: 0.72rem; margin-top: 1rem; border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.5rem; background: #0a0e12;
+    }
+    .ev { display: flex; gap: 0.5rem; padding: 0.2rem 0; border-bottom: 1px solid #1f2836; }
+    .ev:last-child { border-bottom: none; }
+    .badge {
+      flex-shrink: 0; padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.65rem;
+      font-weight: 600; text-transform: uppercase;
+    }
+    .badge.hpa { background: #1f3d5c; color: var(--accent); }
+    .badge.scale { background: #3d2a1f; color: var(--warn); }
+    .badge.node { background: #1f3d2a; color: var(--ok); }
+    .badge.drop { background: #3d1f1f; color: var(--bad); }
+    .badge.mode { background: #2a1f3d; color: #c4a0ff; }
+    .hint { font-size: 0.75rem; color: var(--muted); margin-top: 0.75rem; }
+    .checkbox-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .checkbox-row input { width: auto; accent-color: var(--rh-red); }
+    select.control-select {
+      width: 100%; padding: 0.45rem 0.5rem; border-radius: 6px; border: 1px solid var(--border);
+      background: var(--bg); color: var(--text); font-size: 0.85rem;
+    }
+    select.control-select:disabled { opacity: 0.5; cursor: not-allowed; }
+    details.scenario-about {
+      font-size: 0.75rem; color: var(--muted); margin-bottom: 0.75rem;
+      border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem 0.65rem; background: #121920;
+    }
+    details.scenario-about summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+    details.scenario-about ul { margin: 0.5rem 0 0; padding-left: 1.1rem; }
+    details.scenario-about a { color: var(--accent); }
+  </style>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+  <script crossorigin src="https://cdn.jsdelivr.net/npm/recharts@2.12.7/umd/Recharts.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"><p style="margin:2rem;font-family:system-ui,sans-serif;color:#8b9cb3">Loading simulator… (needs network for CDN scripts)</p></div>
+  <script type="text/babel" data-presets="react">
+    const { useReducer, useEffect, useMemo } = React;
+    const {
+      ComposedChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+      AreaChart, ResponsiveContainer,
+    } = Recharts;
+
+    const MIN_NODES = 3;
+    const MIN_APP_REPLICAS = 2;
+    const SLOTS_PER_NODE = 4;
+
+    function emptyNodeSlots() {
+      return Array(SLOTS_PER_NODE).fill(null);
+    }
+    const POD_CAPACITY_RPS = 100;
+    const HPA_TARGET_RPS = 70;
+    const HPA_STABILIZE_SEC = 4;
+    const M5XLARGE_USD_PER_HOUR = 0.192;
+    const TICK_SIM_SEC = 1;
+    /** Default: 10× — 100ms wall clock ≈ 1s simulated per TICK. */
+    const DEFAULT_SIM_SPEED_X = 10;
+
+    function clampSimSpeedX(x) {
+      const n = Number(x);
+      if (!Number.isFinite(n)) return DEFAULT_SIM_SPEED_X;
+      return Math.max(1, Math.min(40, Math.round(n)));
+    }
+
+    function tickIntervalMsFromSpeedX(speedX) {
+      const s = clampSimSpeedX(speedX);
+      return Math.max(25, Math.round(1000 / s));
+    }
+    const MAX_EVENTS = 80;
+    const MAX_SERIES = 180;
+    const TRAFFIC_SLIDER_MAX = 4000;
+
+    /*
+     * Traffic scenario shapes (illustrative req/s, not production RPS).
+     * Daily rhythm: purchase skew ~6–7pm, quieter overnight ~2–7am, mid-morning activity
+     *   https://blog.punchup.live/when-do-fans-actually-buy-tickets/
+     *   https://www.showpass.com/sell/when-do-people-actually-buy-tickets-showpass-ticket-sales-trend-report/
+     * On-sale spike: sudden load at posted time, sustained queue, decay
+     *   https://business.ticketmaster.com/press-release/taylor-swift-the-eras-tour-onsale-explained/
+     * Viral: social-driven ramp slower than on-sale; long tail qualitative only
+     */
+    const ONSALE_DELAY_SIM_SEC = 120;
+    const ONSALE_RAMP_SIM_SEC = 60;
+    const ONSALE_SUSTAIN_SIM_SEC = 360;
+    const ONSALE_DECAY_SIM_SEC = 480;
+    const VIRAL_RAMP_SIM_SEC = 220;
+    const VIRAL_PLATEAU_SIM_SEC = 500;
+    const VIRAL_DECAY_SIM_SEC = 720;
+
+    function clampTraffic(rps) {
+      const n = Number(rps);
+      const r = Number.isFinite(n) ? Math.round(n) : 0;
+      return Math.max(0, Math.min(TRAFFIC_SLIDER_MAX, r));
+    }
+
+    function normalize01(x) {
+      return Math.max(0, Math.min(1, x));
+    }
+
+    function smoothstep01(t) {
+      const u = normalize01(t);
+      return u * u * (3 - 2 * u);
+    }
+
+    function scenarioBaselineReqs(peak) {
+      return Math.min(TRAFFIC_SLIDER_MAX, Math.max(10, peak * 0.06));
+    }
+
+    /** Synthetic 24h shaped into periodSimSec. h = hour of synthetic day 0..24 */
+    function dailyReqs(simTime, periodSimSec, peak) {
+      if (periodSimSec <= 0) return scenarioBaselineReqs(peak);
+      const t = ((simTime % periodSimSec) + periodSimSec) % periodSimSec;
+      const h = (t / periodSimSec) * 24;
+      const sigma = 1.35;
+      const bump = (center, w) => {
+        const d = Math.abs(h - center);
+        const dist = Math.min(d, 24 - d);
+        return Math.exp(-(dist * dist) / (2 * w * w));
+      };
+      const overnight = h >= 2 && h <= 7 ? 0.35 : 1;
+      const wMorning = 0.34 * bump(7.5, sigma);
+      const wLunch = 0.4 * bump(12, sigma * 0.95);
+      const wEvening = 0.95 * bump(17.5, sigma * 0.88) * overnight;
+      const wLate = 0.52 * bump(21.5, sigma) * overnight;
+      const accent = Math.max(wMorning, wLunch, wEvening, wLate);
+      const floor = 0.08 * peak;
+      return clampTraffic(floor + (peak - floor) * accent);
+    }
+
+    function onsaleReqs(simTime, t0, rampSec, sustainSec, decaySec, baseline, peak) {
+      const b = clampTraffic(Math.min(baseline, peak));
+      const p = Math.max(b, peak);
+      if (simTime < t0) return clampTraffic(b);
+      const t1 = t0 + Math.max(1, rampSec);
+      const t2 = t1 + Math.max(0, sustainSec);
+      const t3 = t2 + Math.max(1, decaySec);
+      if (simTime < t1) {
+        const u = smoothstep01((simTime - t0) / (t1 - t0));
+        return clampTraffic(b + (p - b) * u);
+      }
+      if (simTime < t2) return clampTraffic(p);
+      if (simTime < t3) {
+        const u = (simTime - t2) / (t3 - t2);
+        return clampTraffic(p + (b - p) * u);
+      }
+      return clampTraffic(b);
+    }
+
+    function viralReqs(simTime, anchorSim, rampSec, plateauSec, decaySec, baseline, peak) {
+      const anchor = anchorSim ?? 0;
+      const t = simTime - anchor;
+      const b = clampTraffic(Math.min(baseline, peak));
+      const p = Math.max(b, peak);
+      const r0 = Math.max(1, rampSec);
+      const r1 = Math.max(0, plateauSec);
+      const r2 = Math.max(1, decaySec);
+      if (t <= 0) return clampTraffic(b);
+      if (t < r0) {
+        const k = 6;
+        const u = 1 / (1 + Math.exp(-k * (t / r0 - 0.5)));
+        return clampTraffic(b + (p - b) * u);
+      }
+      if (t < r0 + r1) return clampTraffic(p);
+      if (t < r0 + r1 + r2) {
+        const u = (t - r0 - r1) / r2;
+        return clampTraffic(p + (b - p) * u * u);
+      }
+      return clampTraffic(b);
+    }
+
+    /** Demand from preset curve at sim time (manual: uses state.reqsPerSec). */
+    function scenarioReqs(activeScenario, simTime, ctx) {
+      const peak = ctx.scenarioPeakReqs ?? 2000;
+      const baseline = scenarioBaselineReqs(peak);
+      switch (activeScenario) {
+        case 'daily':
+          return dailyReqs(simTime, ctx.dayPeriodSimSec ?? 1800, peak);
+        case 'onsale': {
+          const anchor = ctx.scenarioAnchorSim ?? 0;
+          const t0 = anchor + (ctx.onsaleDelaySimSec ?? ONSALE_DELAY_SIM_SEC);
+          return onsaleReqs(
+            simTime,
+            t0,
+            ctx.onsaleRampSimSec ?? ONSALE_RAMP_SIM_SEC,
+            ctx.onsaleSustainSimSec ?? ONSALE_SUSTAIN_SIM_SEC,
+            ctx.onsaleDecaySimSec ?? ONSALE_DECAY_SIM_SEC,
+            baseline,
+            peak,
+          );
+        }
+        case 'viral':
+          return viralReqs(
+            simTime,
+            ctx.scenarioAnchorSim,
+            ctx.viralRampSimSec ?? VIRAL_RAMP_SIM_SEC,
+            ctx.viralPlateauSimSec ?? VIRAL_PLATEAU_SIM_SEC,
+            ctx.viralDecaySimSec ?? VIRAL_DECAY_SIM_SEC,
+            baseline,
+            peak,
+          );
+        default:
+          return clampTraffic(ctx.reqsPerSec ?? 40);
+      }
+    }
+
+    function liveReqsForTick(state, simTime) {
+      if (state.activeScenario === 'manual' || !state.playing) {
+        return clampTraffic(state.reqsPerSec);
+      }
+      return clampTraffic(scenarioReqs(state.activeScenario, simTime, state));
+    }
+
+    function simStateWithScenarioBaseline(state) {
+      if (state.activeScenario === 'manual') {
+        return { ...state, ...baselineFromSliders(state) };
+      }
+      const reqs0 = clampTraffic(
+        scenarioReqs(state.activeScenario, 0, { ...state, scenarioAnchorSim: state.scenarioAnchorSim }),
+      );
+      const s1 = { ...state, reqsPerSec: reqs0 };
+      return { ...s1, ...baselineFromSliders(s1) };
+    }
+
+    const MODES = {
+      classic: {
+        key: 'classic',
+        short: 'Classic',
+        label: 'ROSA Classic (CAS)',
+        decisionDelay: 34,
+        provisionDuration: 398,
+        scaleDownDuration: 596,
+        pack: 'spread',
+      },
+      hcp: {
+        key: 'hcp',
+        short: 'HCP',
+        label: 'ROSA HCP (CAS)',
+        decisionDelay: 20,
+        provisionDuration: 317,
+        scaleDownDuration: 596,
+        pack: 'spread',
+      },
+      autonode: {
+        key: 'autonode',
+        short: 'HCP + AutoNode',
+        label: 'ROSA HCP + AutoNode',
+        decisionDelay: 8,
+        provisionDuration: 270,
+        scaleDownDuration: 114,
+        pack: 'pack',
+      },
+    };
+
+    function placeWorkload(nodes, D, B, pack) {
+      const ready = nodes.filter((n) => n.state === 'ready').sort((a, b) => a.id.localeCompare(b.id));
+      for (const n of ready) {
+        n.slots = emptyNodeSlots();
+      }
+
+      let placedApps = 0;
+      const order =
+        pack === 'pack'
+          ? ready
+          : [...ready].sort((a, b) => a.id.localeCompare(b.id));
+
+      const placeAppBinPack = () => {
+        for (const n of order) {
+          for (let s = 0; s < SLOTS_PER_NODE && placedApps < D; s++) {
+            n.slots[s] = 'app';
+            placedApps++;
+          }
+        }
+      };
+
+      const placeAppRoundRobin = () => {
+        let added = true;
+        while (placedApps < D && added) {
+          added = false;
+          for (const n of order) {
+            if (placedApps >= D) break;
+            for (let s = 0; s < SLOTS_PER_NODE; s++) {
+              if (placedApps >= D) break;
+              if (n.slots[s] === null) {
+                n.slots[s] = 'app';
+                placedApps++;
+                added = true;
+                break;
+              }
+            }
+          }
+          if (!added && placedApps < D) break;
+        }
+      };
+
+      const placeAppSpread = () => {
+        let wave = 0;
+        while (placedApps < D) {
+          let progressed = false;
+          for (const n of order) {
+            const appsOnNode = n.slots.filter((x) => x === 'app').length;
+            if (appsOnNode === wave) {
+              for (let s = 0; s < SLOTS_PER_NODE; s++) {
+                if (n.slots[s] === null && placedApps < D) {
+                  n.slots[s] = 'app';
+                  placedApps++;
+                  progressed = true;
+                  break;
+                }
+              }
+            }
+          }
+          if (!progressed) {
+            wave++;
+            if (wave > SLOTS_PER_NODE) break;
+          }
+        }
+        if (placedApps < D) placeAppRoundRobin();
+      };
+
+      if (pack === 'pack') placeAppBinPack();
+      else placeAppSpread();
+
+      let placedBalloons = 0;
+      for (const n of ready) {
+        for (let s = 0; s < SLOTS_PER_NODE; s++) {
+          if (placedBalloons >= B) break;
+          if (n.slots[s] === null) {
+            n.slots[s] = 'balloon';
+            placedBalloons++;
+          }
+        }
+      }
+
+      const appPending = Math.max(0, D - placedApps);
+      const balloonPending = Math.max(0, B - placedBalloons);
+      return { appPending, balloonPending, runningApps: placedApps, runningBalloons: placedBalloons };
+    }
+
+    function countReady(nodes) {
+      return nodes.filter((n) => n.state === 'ready').length;
+    }
+
+    function countProvisioning(nodes) {
+      return nodes.filter((n) => n.state === 'provisioning').length;
+    }
+
+    function cloneNodes(nodes) {
+      return nodes.map((n) => ({
+        ...n,
+        slots: [...n.slots],
+      }));
+    }
+
+    function pushEvent(events, simTime, type, msg) {
+      const row = {
+        id: `${simTime}-${Math.random().toString(36).slice(2, 7)}`,
+        t: simTime,
+        type,
+        msg,
+      };
+      const next = [row, ...events];
+      return next.slice(0, MAX_EVENTS);
+    }
+
+    function idealPodsFromReqs(reqs) {
+      return Math.max(MIN_APP_REPLICAS, Math.ceil(reqs / HPA_TARGET_RPS));
+    }
+
+    function fleetNodeCount(desiredApps, balloonCount) {
+      const slotsNeeded = desiredApps + balloonCount;
+      return Math.max(MIN_NODES, Math.ceil(slotsNeeded / SLOTS_PER_NODE));
+    }
+
+    function initialNodes(modeKey, desiredApps, balloonCount) {
+      const mode = MODES[modeKey];
+      const count = fleetNodeCount(desiredApps, balloonCount);
+      const nodes = [];
+      for (let i = 0; i < count; i++) {
+        nodes.push({
+          id: `node-${i + 1}`,
+          state: 'ready',
+          provisionStarted: null,
+          drainStartedAt: null,
+          drainCompletesAt: null,
+          slots: emptyNodeSlots(),
+        });
+      }
+      placeWorkload(nodes, desiredApps, balloonCount, mode.pack);
+      return nodes;
+    }
+
+    function createInitial(modeKey, overrides = {}) {
+      const activeScenario = overrides.activeScenario ?? 'manual';
+      const scenarioPeakReqs = clampTraffic(overrides.scenarioPeakReqs ?? 2000);
+      const dayPeriodSimSec = Math.max(300, overrides.dayPeriodSimSec ?? 1800);
+      const scenarioAnchorSim = overrides.scenarioAnchorSim ?? null;
+
+      const scenarioCtx = {
+        activeScenario,
+        scenarioPeakReqs,
+        dayPeriodSimSec,
+        scenarioAnchorSim,
+        reqsPerSec: overrides.reqsPerSec ?? 40,
+        onsaleDelaySimSec: ONSALE_DELAY_SIM_SEC,
+        onsaleRampSimSec: ONSALE_RAMP_SIM_SEC,
+        onsaleSustainSimSec: ONSALE_SUSTAIN_SIM_SEC,
+        onsaleDecaySimSec: ONSALE_DECAY_SIM_SEC,
+        viralRampSimSec: VIRAL_RAMP_SIM_SEC,
+        viralPlateauSimSec: VIRAL_PLATEAU_SIM_SEC,
+        viralDecaySimSec: VIRAL_DECAY_SIM_SEC,
+      };
+
+      let reqs = clampTraffic(overrides.reqsPerSec ?? 40);
+      if (activeScenario !== 'manual') {
+        reqs = clampTraffic(scenarioReqs(activeScenario, 0, scenarioCtx));
+      }
+
+      const ideal0 = idealPodsFromReqs(reqs);
+      const B0 = (overrides.balloonPodsEnabled ?? false) ? (overrides.balloonPodCount ?? 3) : 0;
+      const nodes = initialNodes(modeKey, ideal0, B0);
+      return {
+        simTime: 0,
+        modeKey,
+        activeScenario,
+        scenarioPeakReqs,
+        dayPeriodSimSec,
+        scenarioAnchorSim,
+        reqsPerSec: reqs,
+        balloonPodsEnabled: overrides.balloonPodsEnabled ?? false,
+        balloonPodCount: overrides.balloonPodCount ?? 3,
+        centsPerSession: overrides.centsPerSession ?? 5,
+        simSpeedX: clampSimSpeedX(overrides.simSpeedX ?? DEFAULT_SIM_SPEED_X),
+        playing: false,
+        nodes,
+        hpaStabilizingIdeal: ideal0,
+        hpaCommitAt: 0,
+        committedDesiredPods: ideal0,
+        pending: { apps: 0, balloons: 0 },
+        scaleUpPhase: 'idle',
+        scaleUpDecisionAt: null,
+        nextNodeId: nodes.length + 1,
+        drainJobs: {},
+        metrics: {
+          droppedTotal: 0,
+          nodeCostUsd: 0,
+          sessionCostUsd: 0,
+        },
+        timeseries: [],
+        lastConsolidationHintSim: -999,
+        events: pushEvent(
+          [],
+          0,
+          'mode',
+          `Simulator ready — ${MODES[modeKey].label} · ${nodes.length} worker(s) (≥${MIN_NODES} floor)`
+        ),
+      };
+    }
+
+    function baselineFromSliders(state) {
+      const mode = MODES[state.modeKey];
+      const ideal0 = idealPodsFromReqs(state.reqsPerSec);
+      const B = state.balloonPodsEnabled ? state.balloonPodCount : 0;
+      const nodes = initialNodes(state.modeKey, ideal0, B);
+      const placement = placeWorkload(nodes, ideal0, B, mode.pack);
+      return {
+        nodes,
+        hpaStabilizingIdeal: ideal0,
+        hpaCommitAt: 0,
+        committedDesiredPods: ideal0,
+        pending: { apps: placement.appPending, balloons: placement.balloonPending },
+        scaleUpPhase: 'idle',
+        scaleUpDecisionAt: null,
+        nextNodeId: nodes.length + 1,
+        drainJobs: {},
+        lastConsolidationHintSim: -999,
+      };
+    }
+
+    function reducer(state, action) {
+      const mode = MODES[state.modeKey];
+      switch (action.type) {
+        case 'SET_MODE':
+          return createInitial(action.modeKey, {
+            reqsPerSec: state.reqsPerSec,
+            balloonPodsEnabled: state.balloonPodsEnabled,
+            balloonPodCount: state.balloonPodCount,
+            centsPerSession: state.centsPerSession,
+            activeScenario: state.activeScenario,
+            scenarioPeakReqs: state.scenarioPeakReqs,
+            dayPeriodSimSec: state.dayPeriodSimSec,
+            scenarioAnchorSim: null,
+            simSpeedX: state.simSpeedX,
+          });
+        case 'SET_SIM_SPEED':
+          return { ...state, simSpeedX: clampSimSpeedX(action.value) };
+        case 'SET_SCENARIO': {
+          if (action.scenario === 'manual') {
+            return { ...state, activeScenario: 'manual', scenarioAnchorSim: null };
+          }
+          const next = {
+            ...state,
+            activeScenario: action.scenario,
+            scenarioAnchorSim: state.simTime,
+          };
+          const reqsNow = clampTraffic(scenarioReqs(action.scenario, state.simTime, next));
+          const withReqs = { ...next, reqsPerSec: reqsNow };
+          if (state.simTime === 0) {
+            return { ...withReqs, ...baselineFromSliders(withReqs) };
+          }
+          return withReqs;
+        }
+        case 'SET_SCENARIO_PEAK': {
+          const v = clampTraffic(action.value);
+          let s0 = { ...state, scenarioPeakReqs: v };
+          if (state.activeScenario === 'manual') return s0;
+          const rNow = clampTraffic(scenarioReqs(state.activeScenario, state.simTime, s0));
+          s0 = { ...s0, reqsPerSec: rNow };
+          if (state.simTime === 0) {
+            return { ...s0, ...baselineFromSliders(s0) };
+          }
+          return s0;
+        }
+        case 'SET_DAY_PERIOD': {
+          const p = Math.max(300, action.value);
+          let s0 = { ...state, dayPeriodSimSec: p };
+          if (state.activeScenario !== 'daily') return s0;
+          const rNow = clampTraffic(scenarioReqs('daily', state.simTime, s0));
+          s0 = { ...s0, reqsPerSec: rNow };
+          if (state.simTime === 0) {
+            return { ...s0, ...baselineFromSliders(s0) };
+          }
+          return s0;
+        }
+        case 'SET_REQS': {
+          if (state.activeScenario !== 'manual') return state;
+          const v = clampTraffic(action.value);
+          if (state.simTime !== 0) return { ...state, reqsPerSec: v };
+          const s1 = { ...state, reqsPerSec: v };
+          return { ...s1, ...baselineFromSliders(s1) };
+        }
+        case 'SET_BALLOON_ENABLED': {
+          if (state.simTime !== 0) return { ...state, balloonPodsEnabled: action.value };
+          const s1 = { ...state, balloonPodsEnabled: action.value };
+          return simStateWithScenarioBaseline(s1);
+        }
+        case 'SET_BALLOON_COUNT': {
+          if (state.simTime !== 0) return { ...state, balloonPodCount: action.value };
+          const s1 = { ...state, balloonPodCount: action.value };
+          return simStateWithScenarioBaseline(s1);
+        }
+        case 'SET_CENTS':
+          return { ...state, centsPerSession: action.value };
+        case 'TOGGLE_PLAY':
+          return { ...state, playing: !state.playing };
+        case 'SET_PLAYING':
+          return { ...state, playing: action.value };
+        case 'RESET':
+          return createInitial(state.modeKey, {
+            reqsPerSec: 40,
+            balloonPodsEnabled: state.balloonPodsEnabled,
+            balloonPodCount: state.balloonPodCount,
+            centsPerSession: state.centsPerSession,
+            activeScenario: 'manual',
+            scenarioPeakReqs: 2000,
+            dayPeriodSimSec: 1800,
+            scenarioAnchorSim: null,
+            simSpeedX: state.simSpeedX,
+          });
+        case 'TICK': {
+          const simTime = state.simTime + TICK_SIM_SEC;
+          const liveReqs = liveReqsForTick(state, simTime);
+          const committedComingIn = state.committedDesiredPods;
+          let nodes = cloneNodes(state.nodes);
+          let events = state.events;
+          let nextNodeId = state.nextNodeId;
+          let lastConsolidationHintSim = state.lastConsolidationHintSim ?? -999;
+
+          for (const n of nodes) {
+            if (n.state === 'provisioning' && n.provisionStarted != null) {
+              const elapsed = simTime - n.provisionStarted;
+              if (elapsed >= mode.provisionDuration) {
+                n.state = 'ready';
+                n.provisionStarted = null;
+                n.drainStartedAt = null;
+                n.drainCompletesAt = null;
+                n.slots = emptyNodeSlots();
+                events = pushEvent(events, simTime, 'node', `${n.id} Ready (provision complete)`);
+              }
+            }
+          }
+
+          const idealNow = idealPodsFromReqs(liveReqs);
+          let hpaStabilizingIdeal = state.hpaStabilizingIdeal;
+          let hpaCommitAt = state.hpaCommitAt;
+          let committedDesiredPods = state.committedDesiredPods;
+
+          if (idealNow !== hpaStabilizingIdeal) {
+            hpaStabilizingIdeal = idealNow;
+            hpaCommitAt = simTime + HPA_STABILIZE_SEC;
+            events = pushEvent(
+              events,
+              simTime,
+              'hpa',
+              `HPA desired → ${idealNow} replicas (${HPA_STABILIZE_SEC}s stabilization)`
+            );
+          }
+          if (simTime >= hpaCommitAt && committedDesiredPods !== hpaStabilizingIdeal) {
+            committedDesiredPods = hpaStabilizingIdeal;
+            events = pushEvent(events, simTime, 'hpa', `HPA committed replicas = ${committedDesiredPods}`);
+          }
+
+          const hpaScaledDown = committedDesiredPods < committedComingIn;
+
+          const B = state.balloonPodsEnabled ? state.balloonPodCount : 0;
+          const placement = placeWorkload(nodes, committedDesiredPods, B, mode.pack);
+          const runningApps = placement.runningApps;
+
+          if (mode.pack === 'pack' && hpaScaledDown) {
+            const appEmptyReady = nodes.filter(
+              (n) => n.state === 'ready' && n.slots.every((s) => s !== 'app')
+            ).length;
+            if (appEmptyReady > 0 && simTime - lastConsolidationHintSim >= 5) {
+              lastConsolidationHintSim = simTime;
+              events = pushEvent(
+                events,
+                simTime,
+                'scale',
+                `Consolidation (bin-pack): ${appEmptyReady} worker(s) have no app pods — tail capacity can be reclaimed after ~${mode.scaleDownDuration}s cooldown`
+              );
+            }
+          }
+
+          const capacityRps = runningApps * POD_CAPACITY_RPS;
+          const demand = liveReqs;
+          const droppedThisSec = Math.max(0, demand - capacityRps);
+          const metrics = { ...state.metrics };
+          metrics.droppedTotal += droppedThisSec;
+          metrics.sessionCostUsd = (metrics.droppedTotal * state.centsPerSession) / 100;
+
+          const nodeCountForCost = nodes.filter(
+            (n) => n.state === 'ready' || n.state === 'provisioning' || n.state === 'draining'
+          ).length;
+          metrics.nodeCostUsd += (nodeCountForCost * M5XLARGE_USD_PER_HOUR) / 3600;
+
+          const needSlots = placement.appPending + placement.balloonPending;
+          let scaleUpPhase = state.scaleUpPhase;
+          let scaleUpDecisionAt = state.scaleUpDecisionAt;
+          const provBusy = countProvisioning(nodes) > 0;
+
+          if (needSlots > 0 && !provBusy) {
+            if (scaleUpPhase === 'idle') {
+              scaleUpPhase = 'deciding';
+              scaleUpDecisionAt = simTime + mode.decisionDelay;
+              events = pushEvent(
+                events,
+                simTime,
+                'scale',
+                `Autoscaler evaluating (+${mode.decisionDelay}s) — pending scheduling`
+              );
+            }
+          }
+
+          if (scaleUpPhase === 'deciding' && needSlots > 0 && simTime >= scaleUpDecisionAt && !provBusy) {
+            const nodesToAdd = Math.max(1, Math.ceil(needSlots / SLOTS_PER_NODE));
+            const newIds = [];
+            for (let i = 0; i < nodesToAdd; i++) {
+              const id = `node-${nextNodeId}`;
+              nextNodeId += 1;
+              newIds.push(id);
+            nodes.push({
+              id,
+              state: 'provisioning',
+              provisionStarted: simTime,
+              drainStartedAt: null,
+              drainCompletesAt: null,
+              slots: emptyNodeSlots(),
+            });
+            }
+            const idPreview =
+              newIds.length <= 3 ? newIds.join(', ') : `${newIds.slice(0, 3).join(', ')} … +${newIds.length - 3} more`;
+            events = pushEvent(
+              events,
+              simTime,
+              'scale',
+              `Triggered scale-up → ${nodesToAdd} worker(s) [${idPreview}] (~${Math.round(mode.provisionDuration / 60)}m sim each)`
+            );
+            scaleUpPhase = 'idle';
+            scaleUpDecisionAt = null;
+          }
+
+          if (needSlots === 0 && scaleUpPhase !== 'idle') {
+            scaleUpPhase = 'idle';
+            scaleUpDecisionAt = null;
+          }
+
+          const slotsNeeded = committedDesiredPods + B;
+          const minNodesNeeded = Math.max(MIN_NODES, Math.ceil(slotsNeeded / SLOTS_PER_NODE));
+          const readyCount = countReady(nodes);
+
+          let drainJobs = { ...state.drainJobs };
+          const removableList = nodes
+            .filter((n) => n.state === 'ready')
+            .filter((n) => n.slots.every((s) => s !== 'app'))
+            .sort((a, b) => b.id.localeCompare(a.id));
+          const removableIds = new Set(removableList.slice(0, Math.max(0, readyCount - minNodesNeeded)).map((n) => n.id));
+
+          for (const id of Object.keys(drainJobs)) {
+            const dn = nodes.find((x) => x.id === id);
+            if (dn && dn.state === 'draining') continue;
+            if (!removableIds.has(id)) delete drainJobs[id];
+          }
+
+          if (readyCount > minNodesNeeded && needSlots === 0 && !provBusy) {
+            for (const id of removableIds) {
+              if (!drainJobs[id]) {
+                const nDr = nodes.find((x) => x.id === id);
+                const completes = simTime + mode.scaleDownDuration;
+                drainJobs[id] = completes;
+                if (nDr && nDr.state === 'ready') {
+                  nDr.state = 'draining';
+                  nDr.drainStartedAt = simTime;
+                  nDr.drainCompletesAt = completes;
+                  nDr.slots = emptyNodeSlots();
+                  nDr.provisionStarted = null;
+                }
+                events = pushEvent(
+                  events,
+                  simTime,
+                  'scale',
+                  `Scale-down started for ${id} — drain / terminate (~${mode.scaleDownDuration}s sim)`
+                );
+              }
+            }
+          }
+
+          const toRemove = [];
+          for (const id of Object.keys(drainJobs)) {
+            if (simTime < drainJobs[id]) continue;
+            const n = nodes.find((x) => x.id === id);
+            if (n && n.state === 'draining') {
+              toRemove.push(id);
+            }
+          }
+          for (const id of toRemove) {
+            delete drainJobs[id];
+            nodes = nodes.filter((n) => n.id !== id);
+            events = pushEvent(events, simTime, 'node', `Removed ${id} (scale-in)`);
+          }
+
+          if (droppedThisSec > 0 && simTime % 5 === 0) {
+            events = pushEvent(
+              events,
+              simTime,
+              'drop',
+              `Dropped ~${droppedThisSec.toFixed(0)} req/s (served ${capacityRps} · demand ${demand})`
+            );
+          }
+
+          return {
+            ...state,
+            simTime,
+            reqsPerSec: liveReqs,
+            nodes,
+            nextNodeId,
+            hpaStabilizingIdeal,
+            hpaCommitAt,
+            committedDesiredPods,
+            pending: { apps: placement.appPending, balloons: placement.balloonPending },
+            lastConsolidationHintSim,
+            scaleUpPhase,
+            scaleUpDecisionAt,
+            drainJobs,
+            metrics,
+            events,
+            timeseries: trimSeries([
+              ...state.timeseries,
+              {
+                t: simTime,
+                demand,
+                capacity: capacityRps,
+                gap: droppedThisSec,
+                dropped: droppedThisSec,
+                nodes: nodeCountForCost,
+                nodeCost: metrics.nodeCostUsd,
+                sessionCost: metrics.sessionCostUsd,
+              },
+            ]),
+          };
+        }
+        default:
+          return state;
+      }
+    }
+
+    function trimSeries(arr) {
+      if (arr.length <= MAX_SERIES) return arr;
+      return arr.slice(arr.length - MAX_SERIES);
+    }
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${m}m ${String(s).padStart(2, '0')}s`;
+    }
+
+    /** Hour of synthetic day 0..24 from compressed period (matches dailyReqs). */
+    function syntheticHourInDay(simTime, periodSimSec) {
+      const p = Math.max(1, periodSimSec);
+      const t = ((simTime % p) + p) % p;
+      return (t / p) * 24;
+    }
+
+    function syntheticDayClock24(simTime, periodSimSec) {
+      const h = syntheticHourInDay(simTime, periodSimSec);
+      const totalMin = Math.min(24 * 60 - 1, Math.max(0, Math.round(h * 60)));
+      const hh = Math.floor(totalMin / 60);
+      const mm = totalMin % 60;
+      return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+    }
+
+    function onsaleScenarioPhaseLabel(state) {
+      const anchor = state.scenarioAnchorSim ?? 0;
+      const t0 = anchor + ONSALE_DELAY_SIM_SEC;
+      const sim = state.simTime;
+      if (sim < t0) {
+        return `Pre-burst · ramp in ${t0 - sim}s (at ${formatTime(t0)} sim)`;
+      }
+      const t1 = t0 + ONSALE_RAMP_SIM_SEC;
+      const t2 = t1 + ONSALE_SUSTAIN_SIM_SEC;
+      const t3 = t2 + ONSALE_DECAY_SIM_SEC;
+      if (sim < t1) return `Ramp · ${sim - t0}s since t0`;
+      if (sim < t2) return `Plateau · ${sim - t1}s`;
+      if (sim < t3) return `Decay · ${sim - t2}s`;
+      return 'Tail — baseline';
+    }
+
+    function viralSinceAnchorSec(state) {
+      const anchor = state.scenarioAnchorSim ?? 0;
+      return Math.max(0, state.simTime - anchor);
+    }
+
+    function App() {
+      const [state, dispatch] = useReducer(reducer, null, () =>
+        createInitial('classic', {
+          reqsPerSec: 40,
+          balloonPodsEnabled: false,
+          balloonPodCount: 3,
+          centsPerSession: 5,
+        })
+      );
+
+      const tickIntervalMs = tickIntervalMsFromSpeedX(state.simSpeedX);
+
+      useEffect(() => {
+        if (!state.playing) return undefined;
+        const id = setInterval(() => dispatch({ type: 'TICK' }), tickIntervalMs);
+        return () => clearInterval(id);
+      }, [state.playing, tickIntervalMs]);
+
+      const mode = MODES[state.modeKey];
+      const pending = state.pending || { apps: 0, balloons: 0 };
+      const chartData = useMemo(() => state.timeseries, [state.timeseries]);
+      const nodeCostUsd = state.metrics.nodeCostUsd;
+      const sessionCostUsd = state.metrics.sessionCostUsd;
+      const compareHint = useMemo(() => {
+        const n = nodeCostUsd;
+        const s = sessionCostUsd;
+        const eps = 1e-8;
+        if (n < eps && s < eps) return 'Run the simulation to compare the two series.';
+        if (s < eps && n >= eps) return 'So far, worker cost dominates in USD (no dropped throughput yet).';
+        if (n < eps && s >= eps) return 'So far, modeled session loss is visible; worker cost ramps as sim time runs.';
+        const r = s / n;
+        if (r > 1.02) return `So far, modeled session loss is larger in USD (~${r.toFixed(2)}× worker cost in this window).`;
+        if (r < 0.98) return `So far, worker cost is larger in USD (~${(1 / r).toFixed(2)}× modeled session loss in this window).`;
+        return 'So far, both are on a similar scale in USD — compare which lever hurts more for your org.';
+      }, [nodeCostUsd, sessionCostUsd]);
+
+      const clusterPanel = useMemo(() => {
+        return state.nodes.map((n) => {
+          let prog = 0;
+          if (n.state === 'provisioning' && n.provisionStarted != null) {
+            prog = Math.min(100, ((state.simTime - n.provisionStarted) / mode.provisionDuration) * 100);
+          }
+          let drainProg = 0;
+          if (
+            n.state === 'draining' &&
+            n.drainStartedAt != null &&
+            n.drainCompletesAt != null &&
+            n.drainCompletesAt > n.drainStartedAt
+          ) {
+            drainProg = Math.min(
+              100,
+              ((state.simTime - n.drainStartedAt) / (n.drainCompletesAt - n.drainStartedAt)) * 100
+            );
+          }
+          let statusLabel = n.state;
+          if (n.state === 'provisioning') statusLabel = 'Provisioning';
+          else if (n.state === 'draining') statusLabel = 'Draining';
+          else if (n.state === 'ready') statusLabel = 'Ready';
+
+          return (
+            <div
+              key={n.id}
+              className={`node-card ${n.state === 'provisioning' ? 'provisioning' : ''} ${
+                n.state === 'draining' ? 'draining' : ''
+              }`}
+            >
+              <h3>
+                <span>{n.id}</span>
+                <span>{statusLabel}</span>
+              </h3>
+              {n.state === 'provisioning' ? (
+                <div className="prog-bar">
+                  <i style={{ width: `${prog}%` }} />
+                </div>
+              ) : null}
+              {n.state === 'draining' ? (
+                <>
+                  <div className="prog-bar drain">
+                    <i style={{ width: `${drainProg}%` }} />
+                  </div>
+                  <p className="hint" style={{ marginBottom: '0.35rem' }}>
+                    Cordon · drain · instance terminate (mode cooldown)
+                  </p>
+                </>
+              ) : null}
+              {n.state === 'ready' ? (
+                <div className="slots">
+                  {n.slots.map((s, i) => (
+                    <div
+                      key={i}
+                      className={`slot ${s === 'app' ? 'app' : s === 'balloon' ? 'balloon' : ''}`}
+                    >
+                      {s === 'app' ? 'App' : s === 'balloon' ? 'Balloon' : 'empty'}
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+              {n.state === 'provisioning' ? (
+                <div className="hint">Worker bootstrapping (m5.xlarge)</div>
+              ) : null}
+            </div>
+          );
+        });
+      }, [state.nodes, state.simTime, mode.provisionDuration, mode.scaleDownDuration]);
+
+      return (
+        <div>
+          <div className="header-row">
+            <div>
+              <h1>ROSA Autoscaling Simulator</h1>
+              <p className="subtitle">
+                Java ticket service on OpenShift — drag traffic, compare CAS vs AutoNode timings from the benchmark deck.
+                Sim speed is set in Controls (default <strong>{DEFAULT_SIM_SPEED_X}×</strong> ≈ 100ms real per 1s simulated).
+              </p>
+            </div>
+            <div className="mode-tabs">
+              {Object.keys(MODES).map((k) => (
+                <button
+                  type="button"
+                  key={k}
+                  className={`mode-tab ${state.modeKey === k ? 'active' : ''}`}
+                  onClick={() => dispatch({ type: 'SET_MODE', modeKey: k })}
+                >
+                  {MODES[k].short}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="layout-main">
+            <div className="panel">
+              <h2>Controls</h2>
+              <div className="btn-row">
+                <button type="button" className="primary" onClick={() => dispatch({ type: 'TOGGLE_PLAY' })}>
+                  {state.playing ? 'Pause' : 'Play'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    dispatch({ type: 'SET_PLAYING', value: false });
+                    dispatch({ type: 'RESET' });
+                  }}
+                >
+                  Reset
+                </button>
+              </div>
+
+              <label className="control">
+                <span className="label">
+                  <span>Sim speed (× wall clock)</span>
+                  <span>
+                    {state.simSpeedX}× (~{tickIntervalMs}ms → 1s sim)
+                  </span>
+                </span>
+                <input
+                  type="range"
+                  min={1}
+                  max={40}
+                  step={1}
+                  value={state.simSpeedX}
+                  onChange={(e) => dispatch({ type: 'SET_SIM_SPEED', value: Number(e.target.value) })}
+                />
+              </label>
+
+              <label className="control">
+                <span className="label">
+                  <span>Traffic scenario</span>
+                </span>
+                <select
+                  className="control-select"
+                  value={state.activeScenario}
+                  onChange={(e) => dispatch({ type: 'SET_SCENARIO', scenario: e.target.value })}
+                >
+                  <option value="manual">Manual (slider)</option>
+                  <option value="daily">24h day cycle</option>
+                  <option value="onsale">On-sale burst</option>
+                  <option value="viral">Viral surge</option>
+                </select>
+              </label>
+
+              {state.activeScenario !== 'manual' ? (
+                <div
+                  className="hint"
+                  style={{
+                    marginTop: '-0.35rem',
+                    marginBottom: '0.85rem',
+                    padding: '0.5rem 0.6rem',
+                    border: '1px solid var(--border)',
+                    borderRadius: '6px',
+                    background: '#121920',
+                  }}
+                >
+                  <strong style={{ color: 'var(--text)' }}>Scenario sim time</strong>
+                  <br />
+                  Clock: <strong>{formatTime(state.simTime)}</strong> ({state.simTime}s){' '}
+                  {state.activeScenario === 'daily' ? (
+                    <>
+                      <br />
+                      Synthetic day (24h in {state.dayPeriodSimSec}s):{' '}
+                      <strong>{syntheticDayClock24(state.simTime, state.dayPeriodSimSec)}</strong>
+                    </>
+                  ) : null}
+                  {state.activeScenario === 'onsale' ? (
+                    <>
+                      <br />
+                      {onsaleScenarioPhaseLabel(state)}
+                    </>
+                  ) : null}
+                  {state.activeScenario === 'viral' ? (
+                    <>
+                      <br />
+                      Time since surge anchor: <strong>{viralSinceAnchorSec(state)}s</strong> sim
+                    </>
+                  ) : null}
+                </div>
+              ) : null}
+
+              <label className="control">
+                <span className="label">
+                  <span>Preset peak traffic (req/s)</span>
+                  <span>{state.scenarioPeakReqs}</span>
+                </span>
+                <input
+                  type="range"
+                  min={100}
+                  max={TRAFFIC_SLIDER_MAX}
+                  step={50}
+                  value={state.scenarioPeakReqs}
+                  onChange={(e) => dispatch({ type: 'SET_SCENARIO_PEAK', value: Number(e.target.value) })}
+                />
+              </label>
+
+              <label className="control">
+                <span className="label">
+                  <span>Day length (sim s, daily only)</span>
+                  <span>{state.dayPeriodSimSec}</span>
+                </span>
+                <input
+                  type="range"
+                  min={600}
+                  max={7200}
+                  step={60}
+                  value={state.dayPeriodSimSec}
+                  disabled={state.activeScenario !== 'daily'}
+                  onChange={(e) => dispatch({ type: 'SET_DAY_PERIOD', value: Number(e.target.value) })}
+                />
+              </label>
+
+              <details className="scenario-about">
+                <summary>About these traffic shapes</summary>
+                <ul>
+                  <li>
+                    <strong>Daily:</strong> Illustrative bumps (morning, lunch, evening peak, late leisure) with a quieter overnight — not literal ticket RPS; see{' '}
+                    <a href="https://blog.punchup.live/when-do-fans-actually-buy-tickets/" target="_blank" rel="noreferrer">
+                      Punchup
+                    </a>
+                    ,{' '}
+                    <a href="https://www.showpass.com/sell/when-do-people-actually-buy-tickets-showpass-ticket-sales-trend-report/" target="_blank" rel="noreferrer">
+                      Showpass
+                    </a>
+                    .
+                  </li>
+                  <li>
+                    <strong>On-sale:</strong> Sharp ramp at a fixed sim time, plateau, then decay — qualitatively like major on-sales; see{' '}
+                    <a href="https://business.ticketmaster.com/press-release/taylor-swift-the-eras-tour-onsale-explained/" target="_blank" rel="noreferrer">
+                      Ticketmaster (Eras tour)
+                    </a>
+                    .
+                  </li>
+                  <li>
+                    <strong>Viral:</strong> Slower ramp and longer plateau than on-sale (social-discovery style); absolute scale stays your peak setting.
+                  </li>
+                  <li>Charts use <strong>normalized shapes × peak req/s</strong> — relative timing matters for the demo, not real-world load numbers.</li>
+                </ul>
+              </details>
+
+              <label className="control">
+                <span className="label">
+                  <span>
+                    Traffic (req/s)
+                    {state.activeScenario !== 'manual' ? (
+                      <span style={{ fontWeight: 400 }}> — overridden by scenario while playing</span>
+                    ) : null}
+                  </span>
+                  <span>{state.reqsPerSec}</span>
+                </span>
+                <input
+                  type="range"
+                  min={0}
+                  max={TRAFFIC_SLIDER_MAX}
+                  step={5}
+                  value={state.reqsPerSec}
+                  disabled={state.activeScenario !== 'manual'}
+                  onChange={(e) => dispatch({ type: 'SET_REQS', value: Number(e.target.value) })}
+                />
+              </label>
+
+              <div className="checkbox-row">
+                <input
+                  type="checkbox"
+                  id="ball"
+                  checked={state.balloonPodsEnabled}
+                  onChange={(e) => dispatch({ type: 'SET_BALLOON_ENABLED', value: e.target.checked })}
+                />
+                <label htmlFor="ball">Balloon / overprovisioning pods</label>
+              </div>
+
+              <label className="control">
+                <span className="label">
+                  <span>Target balloon pods (scheduling slack)</span>
+                  <span>{state.balloonPodCount}</span>
+                </span>
+                <input
+                  type="range"
+                  min={0}
+                  max={12}
+                  step={1}
+                  value={state.balloonPodCount}
+                  onChange={(e) => dispatch({ type: 'SET_BALLOON_COUNT', value: Number(e.target.value) })}
+                  disabled={!state.balloonPodsEnabled}
+                />
+              </label>
+
+              <label className="control">
+                <span className="label">
+                  <span>Cost per dropped session (cents)</span>
+                  <span>{state.centsPerSession}¢</span>
+                </span>
+                <input
+                  type="range"
+                  min={0}
+                  max={50}
+                  step={1}
+                  value={state.centsPerSession}
+                  onChange={(e) => dispatch({ type: 'SET_CENTS', value: Number(e.target.value) })}
+                />
+              </label>
+
+              <div className="hint">
+                <strong>{mode.label}</strong>
+                <br />
+                Decision ~{mode.decisionDelay}s · Provision ~{Math.round(mode.provisionDuration / 60)}m ·
+                Scale-in ~{Math.round(mode.scaleDownDuration / 60)}m (simulated)
+                <br />
+                Sim time: <strong>{formatTime(state.simTime)}</strong> · Nodes: <strong>{state.nodes.length}</strong>
+              </div>
+            </div>
+
+            <div className="panel">
+              <h2>
+                Cluster — {state.nodes.length} worker(s) · min {MIN_NODES} floor · m5.xlarge ·{' '}
+                {SLOTS_PER_NODE} app slots/node
+              </h2>
+              <p className="hint" style={{ marginTop: 0 }}>
+                Scheduler queue:{' '}
+                <strong style={{ color: pending.apps ? 'var(--bad)' : 'var(--muted)' }}>
+                  {pending.apps} app
+                </strong>
+                {', '}
+                <strong style={{ color: pending.balloons ? 'var(--warn)' : 'var(--muted)' }}>
+                  {pending.balloons} balloon
+                </strong>{' '}
+                pods unschedulable (need capacity)
+              </p>
+              <div className="cluster-grid">{clusterPanel}</div>
+              <p className="hint">
+                <strong>Starting fleet (sim time 0):</strong> Worker count is{' '}
+                <code>
+                  max({MIN_NODES}, ⌈(HPA replicas + balloon pods) / {SLOTS_PER_NODE}⌉)
+                </code>
+                — all <code>Ready</code>. Moving sliders at t=0 grows or shrinks this baseline so everything fits (floor {MIN_NODES} workers).
+                <br />
+                <strong>Scale-up:</strong> Classic &amp; HCP <em>spread</em> replicas across nodes; AutoNode <em>bin-packs</em> onto the first workers (same order every tick).
+                <br />
+                <strong>Scale-down:</strong> Workers are removed only once they hold <strong>no app pods</strong> (balloons ok). After HPA lowers replicas, bin-packing stacks apps on fewer nodes, so <strong>tail workers often go app-empty immediately</strong> — then the mode&apos;s cooldown (~CAS long vs AutoNode short) delays termination. Spread scheduling tends to keep <strong>≥1 app on more nodes</strong>, so extra workers can linger until replica count drops further (no live migration / drain animation in this toy model).
+                <br />
+                HPA targets ~{HPA_TARGET_RPS} req/s per pod (min {MIN_APP_REPLICAS} replicas); each pod serves up to {POD_CAPACITY_RPS} req/s.
+              </p>
+            </div>
+          </div>
+
+          <div className="metrics-row">
+            <div className="panel">
+              <h2>Demand vs capacity (req/s)</h2>
+              <div style={{ width: '100%', height: 280 }}>
+                <ResponsiveContainer>
+                  <ComposedChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#2d3a4d" />
+                    <XAxis dataKey="t" tick={{ fill: '#8b9cb3', fontSize: 11 }} label={{ value: 'Sim time (s)', fill: '#8b9cb3', fontSize: 11, position: 'insideBottomRight', offset: -4 }} />
+                    <YAxis tick={{ fill: '#8b9cb3', fontSize: 11 }} />
+                    <Tooltip
+                      contentStyle={{ background: '#1a2332', border: '1px solid #2d3a4d' }}
+                      labelFormatter={(v) => `t=${v}s`}
+                    />
+                    <Legend />
+                    <Area type="monotone" dataKey="gap" name="Unserved (drops)" stroke="#f85149" fill="rgba(248, 81, 73, 0.25)" isAnimationActive={false} />
+                    <Line type="monotone" dataKey="demand" name="Demand" stroke="#58a6ff" strokeWidth={2} dot={false} isAnimationActive={false} />
+                    <Line type="monotone" dataKey="capacity" name="Capacity" stroke="#3fb950" strokeWidth={2} dot={false} isAnimationActive={false} />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+            <div className="panel">
+              <h2>Two cost tracks (USD) — compare, do not add</h2>
+              <div style={{ width: '100%', height: 280 }}>
+                <ResponsiveContainer>
+                  <AreaChartSync data={chartData} />
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          <div className="cost-dash">
+            <div className="cost-tile">
+              <div className="k">Worker / infra (m5.xlarge @ ${M5XLARGE_USD_PER_HOUR}/hr, pro-rated to sim clock)</div>
+              <div className="v">${state.metrics.nodeCostUsd.toFixed(4)}</div>
+            </div>
+            <div className="cost-tile">
+              <div className="k">
+                Modeled session impact ({state.metrics.droppedTotal.toLocaleString()} dropped req × {state.centsPerSession}¢)
+              </div>
+              <div className="v">${state.metrics.sessionCostUsd.toFixed(4)}</div>
+            </div>
+            <p className="cost-compare-footnote">
+              <strong style={{ color: 'var(--text)' }}>Same currency for scale only.</strong> These are different things: left is ongoing compute
+              for nodes you are running; right is a <em>what-if</em> using your cents-per-dropped-request assumption. Do not sum them into one
+              “total bill.” Use the chart and the line below to see which dominates your scenario.
+              <br />
+              <span style={{ color: 'var(--text)' }}>{compareHint}</span>
+            </p>
+          </div>
+
+          <div className="panel" style={{ marginTop: '1rem' }}>
+            <h2>Event log</h2>
+            <div className="event-log">
+              {state.events.map((ev) => (
+                <div key={ev.id} className="ev">
+                  <span
+                    className={`badge ${
+                      ev.type === 'hpa'
+                        ? 'hpa'
+                        : ev.type === 'scale'
+                        ? 'scale'
+                        : ev.type === 'node'
+                        ? 'node'
+                        : ev.type === 'drop'
+                        ? 'drop'
+                        : 'mode'
+                    }`}
+                  >
+                    {ev.type}
+                  </span>
+                  <span>
+                    <span style={{ color: '#8b9cb3' }}>t+{ev.t}s</span> — {ev.msg}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function AreaChartSync({ data }) {
+      const gid = React.useId().replace(/:/g, '');
+      const gNode = `gNode-${gid}`;
+      const gSes = `gSes-${gid}`;
+      return (
+        <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+          <defs>
+            <linearGradient id={gNode} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#58a6ff" stopOpacity={0.35} />
+              <stop offset="100%" stopColor="#58a6ff" stopOpacity={0} />
+            </linearGradient>
+            <linearGradient id={gSes} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#f85149" stopOpacity={0.35} />
+              <stop offset="100%" stopColor="#f85149" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="#2d3a4d" />
+          <XAxis dataKey="t" tick={{ fill: '#8b9cb3', fontSize: 11 }} />
+          <YAxis tick={{ fill: '#8b9cb3', fontSize: 11 }} />
+          <Tooltip contentStyle={{ background: '#1a2332', border: '1px solid #2d3a4d' }} labelFormatter={(v) => `t=${v}s`} />
+          <Legend />
+          <Area type="monotone" dataKey="nodeCost" name="Worker / infra" stroke="#58a6ff" fill={`url(#${gNode})`} isAnimationActive={false} />
+          <Area type="monotone" dataKey="sessionCost" name="Session impact (modeled)" stroke="#f85149" fill={`url(#${gSes})`} isAnimationActive={false} />
+        </AreaChart>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

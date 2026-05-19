@@ -1,0 +1,66 @@
+---
+# manifests/workloads/cpu-burner-karpenter.yaml
+#
+# Mirror of cpu-burner.yaml for ROSA HCP AutoNode (Karpenter) clusters.
+#
+# Identical workload and resource requests so HPA fires at the same threshold.
+# The only addition is nodeAffinity pinning pods to the Karpenter-managed
+# NodePool (autonode-bench), preventing them from scheduling on default HCP
+# workers and bypassing Karpenter entirely.
+#
+# Applied by: run-test-06-hpa.py and run-test-08-hpa-triggers-cas.py
+#             when --cluster-type hcp-autonode
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: benchmark
+  labels:
+    benchmark: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cpu-burner
+  namespace: benchmark
+  labels:
+    app: cpu-burner
+    benchmark: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cpu-burner
+  template:
+    metadata:
+      labels:
+        app: cpu-burner
+        benchmark: "true"
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: karpenter.sh/nodepool
+                    operator: In
+                    values:
+                      - autonode-bench
+      containers:
+        - name: stress
+          image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+          command:
+            - /bin/bash
+            - -c
+            - "yes > /dev/null"
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "128Mi"
+            limits:
+              cpu: "1000m"
+              memory: "256Mi"
+          readinessProbe:
+            exec:
+              command: ["/bin/bash", "-c", "true"]
+            initialDelaySeconds: 5
+            periodSeconds: 10

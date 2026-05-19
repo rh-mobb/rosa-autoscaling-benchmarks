@@ -1,0 +1,118 @@
+---
+# manifests/workloads/cas-scale-app.yaml
+#
+# CAS progressive scale benchmark app for test 14 (benchmark-cas-scale).
+# This is the CAS equivalent of autonode-app.yaml used in test 10.
+#
+# The Deployment uses nodeSelector: pool-type: standard so all pods land
+# exclusively on the standard machine-pool workers, keeping measurements
+# isolated from any other node pools.
+#
+# Node sizing rationale (m5.xlarge, ROSA Classic):
+#   3500m allocatable, ~450m DaemonSets → ~3050m available per node.
+#   floor(3050 / 1600) = 1 pod per node (at 1600m CPU/pod).
+#
+# Wave design (must trigger exactly 1 new CAS node per wave):
+#   PodAntiAffinity (required, hostname) forces 1 pod per node.
+#   Initial replicas = 3 fills all 3 baseline standard workers.
+#   Each +1 replica then requires CAS to provision a new node.
+#   Wave targets in run-test-14-cas-scale.py: [4, 5, 6] (3 waves × 1 new node each).
+#
+# Why this differs from test 10 (autonode-app.yaml):
+#   Karpenter bin-packs — initial pods land on fewest possible nodes, leaving
+#   almost zero headroom, so every +2 replica wave overflows.
+#   CAS + OCP scheduler spreads pods across nodes by default; without
+#   PodAntiAffinity, initial pods occupy separate nodes and leave headroom
+#   that absorbs waves before overflow occurs.
+#
+# Linked test: This manifest and run-test-14-cas-scale.py are the CAS
+# equivalents of autonode-app.yaml and run-test-10-autonode-scale.py.
+# Any changes to resource requests, replica counts, or wave sizing here
+# MUST be reflected in both scripts. See AGENTS.md for the coupling note.
+#
+# Applied by: benchmark-cas-scale (test 14)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cas-scale-test
+  labels:
+    benchmark: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cas-scale-app
+  namespace: cas-scale-test
+  labels:
+    app: cas-scale-app
+    benchmark: "true"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: cas-scale-app
+  template:
+    metadata:
+      labels:
+        app: cas-scale-app
+        benchmark: "true"
+    spec:
+      nodeSelector:
+        pool-type: standard
+      tolerations:
+        - operator: Exists
+          effect: NoSchedule
+      # Force 1 pod per node so each +1 replica wave requires exactly 1 new CAS node.
+      # Without this, the OCP scheduler spreads pods and leaves headroom that
+      # absorbs wave increments without triggering CAS (unlike Karpenter which bin-packs).
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: cas-scale-app
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - name: app
+          image: python:3.11-slim
+          command:
+            - python
+            - -c
+            - |
+              from http.server import HTTPServer, BaseHTTPRequestHandler
+              import math
+              class Handler(BaseHTTPRequestHandler):
+                  def do_GET(self):
+                      x = 0.0001
+                      for i in range(1000000):
+                          x += math.sqrt(x)
+                      self.send_response(200)
+                      self.end_headers()
+                      self.wfile.write(b"OK\n")
+                  def log_message(self, format, *args):
+                      pass
+              HTTPServer(("", 8080), Handler).serve_forever()
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              # 1600m: floor(3050/1600) = 1 pod per node (paired with PodAntiAffinity above).
+              # Ensures each +1 replica wave triggers exactly 1 new CAS node.
+              cpu: "1600m"
+              memory: "128Mi"
+            limits:
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cas-scale-app
+  namespace: cas-scale-test
+  labels:
+    app: cas-scale-app
+spec:
+  selector:
+    app: cas-scale-app
+  ports:
+    - port: 80
+      targetPort: 8080

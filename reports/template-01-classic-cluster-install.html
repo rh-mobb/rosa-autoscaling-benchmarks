@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Benchmark 01 — ROSA Classic cluster install</title>
+  <!--
+    Template — Test 01 (benchmark-cluster-install), Classic topology.
+    Do not commit over this file; copy to a RUN_ID-based report path first:
+
+      reports/<RUN_ID>-01-classic-cluster-install.html
+
+    Example: 20260506T153045-classic-01-classic-cluster-install.html
+    (UTC; basic ISO-8601 — sorts lexicographically by generation time.)
+
+    Fill from your run:
+      python3 scripts/record-event.py summary --run-id "<RUN_ID>"
+      python3 scripts/record-event.py list --run-id "<RUN_ID>"
+      results/<run-id>/metadata.json  (cluster name, version, etc.)
+
+    After saving a filled report, refresh reports/index.html + reports/index-data.json:
+      python3 scripts/update-reports-index.py   (or: make reports-index)
+
+    Audience — show progression (same order as create scripts):
+      1) OCM reports cluster ready: *.cluster_ready
+      2) Successful oc login: *.oc_login_ok (Classic: cluster-admin; HCP: htpasswd admin)
+      3) All default machine pools up (all worker nodes Ready): *.machine_pools_ready
+         Classic also emits classic.workers_ready (same instant, backward compat).
+      4) All ClusterOperators Available: *.operators_ready
+      5) Wall total: *.total
+      HCP: hcp.*  Classic: classic.*
+      Provisioning-only (optional footer): classic.create_submitted; hcp.terraform_*, hcp.create_submitted.
+ -->
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --border: #2d3a4d;
+      --text: #e6edf3;
+      --muted: #8b9cb3;
+      --accent: #58a6ff;
+      --warning: #d4a72c;
+      --ok: #3fb950;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 15px;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 3rem;
+    }
+    header.doc {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin: 0 0 0.35rem;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin: 0;
+    }
+    dl.meta {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.35rem 1.25rem;
+      margin: 1.25rem 0 0;
+      font-size: 0.9rem;
+    }
+    dl.meta dt {
+      color: var(--muted);
+      font-weight: 500;
+    }
+    dl.meta dd { margin: 0; }
+
+    h2 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 2rem 0 0.75rem;
+      color: var(--accent);
+    }
+    section:first-of-type h2 { margin-top: 0; }
+
+    /* Summary stats — parallels Canvas Stat row */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+    }
+    .stat.warning {
+      border-color: var(--warning);
+      box-shadow: 0 0 0 1px rgba(212, 167, 44, 0.25);
+    }
+    .stat .label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+    .stat .value {
+      font-size: 1.35rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat .hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+    }
+
+    /* Timeline table */
+    table.timeline {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    table.timeline th,
+    table.timeline td {
+      text-align: left;
+      padding: 0.55rem 0.65rem;
+      border-bottom: 1px solid var(--border);
+    }
+    table.timeline th {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    table.timeline tbody tr:hover td {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    td.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; }
+    td.source { color: var(--muted); font-size: 0.82rem; }
+
+    .callout {
+      background: var(--surface);
+      border-left: 3px solid var(--accent);
+      padding: 0.85rem 1rem;
+      border-radius: 0 8px 8px 0;
+      margin-top: 0.5rem;
+    }
+    .callout.warning {
+      border-left-color: var(--warning);
+    }
+    ul.findings {
+      margin: 0.5rem 0 0;
+      padding-left: 1.2rem;
+    }
+    ul.findings li { margin: 0.35rem 0; }
+
+    table.ref {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 0.5rem;
+    }
+    table.ref th,
+    table.ref td {
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.65rem;
+    }
+    table.ref th {
+      background: var(--surface);
+      color: var(--muted);
+      font-weight: 500;
+      text-align: left;
+    }
+
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    details.callout.warning summary {
+      cursor: pointer;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="doc">
+      <h1>Benchmark 01 — Cluster install (ROSA Classic)</h1>
+      <p class="subtitle">Test <code style="background:var(--surface);padding:0.12rem 0.35rem;border-radius:4px">01-cluster-install</code> — report the path from <strong>creation</strong> to <strong>OCM ready</strong>, <strong>oc login</strong>, <strong>default machine pools</strong> (all workers Ready), then <strong>all operators</strong> Available.</p>
+      <dl class="meta">
+        <dt>Run ID</dt>
+        <dd><span data-fill="run-id">[RUN_ID]</span></dd>
+        <dt>Cluster name</dt>
+        <dd><span data-fill="cluster-name">[CLUSTER_NAME]</span></dd>
+        <dt>Region</dt>
+        <dd><span data-fill="region">[AWS_REGION]</span></dd>
+        <dt>OpenShift / ROSA</dt>
+        <dd><span data-fill="version">[VERSION]</span></dd>
+        <dt>Report generated</dt>
+        <dd><span data-fill="generated">[YYYY-MM-DDTHH:MM:SSZ]</span> <span style="color:var(--muted);font-size:0.85em">(UTC; when this HTML was written)</span></dd>
+      </dl>
+    </header>
+
+    <section aria-labelledby="summary-heading">
+      <h2 id="summary-heading">Summary</h2>
+      <p class="subtitle" style="margin:-0.25rem 0 0.75rem">Cumulative time from benchmark start (<code>metadata.json</code> <code>started_at</code>) to each milestone. Use class <code>warning</code> when a value is inferred or partial.</p>
+      <div class="stats">
+        <div class="stat" id="stat-cluster-ready">
+          <div class="label">1 · OCM cluster ready</div>
+          <div class="value" data-fill="classic.cluster_ready">[ Xm Ys ]</div>
+          <div class="hint"><code>classic.cluster_ready</code></div>
+        </div>
+        <div class="stat" id="stat-login">
+          <div class="label">2 · oc login OK</div>
+          <div class="value" data-fill="classic.oc_login_ok">[ Xm Ys ]</div>
+          <div class="hint"><code>classic.oc_login_ok</code> · cluster-admin</div>
+        </div>
+        <div class="stat" id="stat-pools">
+          <div class="label">3 · Machine pools (workers)</div>
+          <div class="value" data-fill="classic.machine_pools_ready">[ Xm Ys ]</div>
+          <div class="hint"><code>classic.machine_pools_ready</code> · all workers Ready</div>
+        </div>
+        <div class="stat" id="stat-operators">
+          <div class="label">4 · All operators Available</div>
+          <div class="value" data-fill="classic.operators_ready">[ Xm Ys ]</div>
+          <div class="hint"><code>classic.operators_ready</code></div>
+        </div>
+        <div class="stat" id="stat-total">
+          <div class="label">Total (install script)</div>
+          <div class="value" data-fill="classic.total">[ Xm Ys ]</div>
+          <div class="hint"><code>classic.total</code></div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="segments-heading">
+      <h2 id="segments-heading">Phase durations</h2>
+      <p class="subtitle" style="margin:-0.25rem 0 0.5rem">Subtract consecutive cumulative times from the timeline (or compute from <code>end_ms</code> in <code>events.jsonl</code>).</p>
+      <table class="ref">
+        <thead>
+          <tr>
+            <th scope="col">Segment</th>
+            <th scope="col">Duration</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Benchmark start → OCM cluster ready</td>
+            <td data-fill="seg-ready">[ Xm Ys ]</td>
+          </tr>
+          <tr>
+            <td>OCM ready → successful <code>oc login</code></td>
+            <td data-fill="seg-login">[ Xm Ys ]</td>
+          </tr>
+          <tr>
+            <td>Login → all worker nodes Ready (default pools)</td>
+            <td data-fill="seg-pools">[ Xm Ys ]</td>
+          </tr>
+          <tr>
+            <td>Pools ready → all ClusterOperators Available</td>
+            <td data-fill="seg-operators">[ Xm Ys ]</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="timeline-heading">
+      <h2 id="timeline-heading">Timeline</h2>
+      <p class="subtitle" style="margin:-0.25rem 0 0.75rem">Keep rows in this order (outcomes). Optional: provisioning rows at the bottom.</p>
+      <table class="timeline">
+        <thead>
+          <tr>
+            <th scope="col">Milestone</th>
+            <th scope="col">Elapsed from start</th>
+            <th scope="col">End (ISO UTC)</th>
+            <th scope="col">Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">classic.cluster_ready</td>
+            <td class="mono">[Xm Ys]</td>
+            <td class="mono">[yyyy-mm-ddThh:mm:ssZ]</td>
+            <td class="source">events.jsonl</td>
+          </tr>
+          <tr>
+            <td class="mono">classic.oc_login_ok</td>
+            <td class="mono">[Xm Ys]</td>
+            <td class="mono">[yyyy-mm-ddThh:mm:ssZ]</td>
+            <td class="source">events.jsonl</td>
+          </tr>
+          <tr>
+            <td class="mono">classic.machine_pools_ready</td>
+            <td class="mono">[Xm Ys]</td>
+            <td class="mono">[yyyy-mm-ddThh:mm:ssZ]</td>
+            <td class="source">events.jsonl · same instant as <code>classic.workers_ready</code></td>
+          </tr>
+          <tr>
+            <td class="mono">classic.operators_ready</td>
+            <td class="mono">[Xm Ys]</td>
+            <td class="mono">[yyyy-mm-ddThh:mm:ssZ]</td>
+            <td class="source">events.jsonl</td>
+          </tr>
+          <tr>
+            <td class="mono">classic.total</td>
+            <td class="mono">[Xm Ys]</td>
+            <td class="mono">[yyyy-mm-ddThh:mm:ssZ]</td>
+            <td class="source">events.jsonl</td>
+          </tr>
+          <tr>
+            <td class="mono">classic.create_submitted</td>
+            <td class="mono">[Xm Ys]</td>
+            <td class="mono">[yyyy-mm-ddThh:mm:ssZ]</td>
+            <td class="source">events.jsonl · provisioning only</td>
+          </tr>
+          <tr>
+            <td class="mono">01.all_operators_available</td>
+            <td class="mono">[Xm Ys]</td>
+            <td class="mono">[optional]</td>
+            <td class="source">manual / MCP</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="events-heading">
+      <h2 id="events-heading">Events &amp; findings</h2>
+      <p class="subtitle" style="margin:-0.25rem 0 1rem">e.g. <code>openshift-machine-api</code> watch, Terraform or OCM stderr, MCP <code>FailedScheduling</code>, quota warnings.</p>
+      <ul class="findings">
+        <li>[Finding or event 1]</li>
+        <li>[Finding or event 2]</li>
+      </ul>
+      <details class="callout warning" id="partial-run-callout">
+        <summary>Partial run / inferred timings (expand if applicable)</summary>
+        <p style="margin:0.5rem 0 0">Summarize persisted vs inferred milestones (session logs, timestamps). Remove this <code>&lt;details&gt;</code> block for a clean success-only report.</p>
+      </details>
+    </section>
+
+    <section aria-labelledby="narrative-heading">
+      <h2 id="narrative-heading">Narrative</h2>
+      <div class="callout">
+        <p style="margin:0">Interpret results vs the timing reference below. Flag anomalies (&gt;1.5× expected phase duration), reconcile steps, or operator slowness. Replace this paragraph.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="ref-heading">
+      <h2 id="ref-heading">Timing reference (expected)</h2>
+      <p class="subtitle" style="margin:-0.25rem 0 0.5rem">From <code>benchmark-cluster-install</code> skill — ROSA Classic column.</p>
+      <table class="ref">
+        <thead>
+          <tr>
+            <th scope="col">Phase</th>
+            <th scope="col">Expected (Classic)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Start → OCM cluster ready</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>OCM ready → <code>oc login</code></td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>Login → all workers Ready (pools)</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>Pools → all operators Available</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><strong>Total (install)</strong></td>
+            <td><strong>45–65 min</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer>
+      <p>ROSA autoscaling benchmark · Test 01 · Classic · template (copy, do not overwrite): <code>reports/template-01-classic-cluster-install.html</code></p>
+      <p style="margin-top:0.5rem">Saved report path pattern: <code>reports/&lt;RUN_ID&gt;-01-classic-cluster-install.html</code></p>
+    </footer>
+  </main>
+</body>
+</html>

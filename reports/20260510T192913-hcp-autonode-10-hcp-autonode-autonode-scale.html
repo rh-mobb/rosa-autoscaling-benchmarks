@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Benchmark 10 — AutoNode (Karpenter) scale-up and consolidation (hcp-autonode)</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --border: #2d3a4d;
+      --text: #e6edf3;
+      --muted: #8b9cb3;
+      --accent: #58a6ff;
+      --warning: #d4a72c;
+      --ok: #3fb950;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 15px;
+    }
+    main { max-width: 920px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+    header.doc {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+    h1 { font-size: 1.35rem; font-weight: 600; margin: 0 0 0.35rem; letter-spacing: -0.02em; }
+    .subtitle { color: var(--muted); font-size: 0.95rem; margin: 0; }
+    dl.meta {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.35rem 1.25rem;
+      margin: 1.25rem 0 0;
+      font-size: 0.9rem;
+    }
+    dl.meta dt { color: var(--muted); font-weight: 500; }
+    dl.meta dd { margin: 0; }
+    h2 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 2rem 0 0.75rem;
+      color: var(--accent);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+    }
+    .stat .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+    .stat .value { font-size: 1.4rem; font-weight: 700; margin-top: 0.2rem; font-variant-numeric: tabular-nums; }
+    table.timeline {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 0.5rem;
+    }
+    table.timeline th, table.timeline td {
+      text-align: left;
+      padding: 0.45rem 0.6rem;
+      border-bottom: 1px solid var(--border);
+    }
+    table.timeline th { color: var(--muted); font-weight: 500; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .badge-ok { color: var(--ok); }
+    .badge-warn { color: var(--warning); }
+    .badge-fail { color: #f85149; }
+    pre.json-extra { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; font-size: 0.82rem; overflow-x: auto; white-space: pre-wrap; }
+    footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--muted); }
+    a { color: var(--accent); }
+</style>
+</head>
+<body>
+  <main>
+    <header class="doc">
+      <h1>Benchmark 10 — AutoNode (Karpenter) scale-up and consolidation</h1>
+      <p class="subtitle">ROSA HCP-AUTONODE · an-bench</p>
+      <dl class="meta">
+        <dt>Run ID</dt>  <dd><code>20260510T192913-hcp-autonode</code></dd>
+        <dt>Cluster name</dt>  <dd><code>an-bench</code></dd>
+        <dt>Cluster type</dt>  <dd>hcp-autonode</dd>
+        <dt>Status</dt>  <dd><span class="badge-ok">✓ ok</span></dd>
+        <dt>Total elapsed</dt>  <dd>88m52s</dd>
+        <dt>Report generated</dt>  <dd><code>2026-05-10T22:36:48Z</code></dd>
+        <dt>Cluster install report</dt>  <dd><code>20260510T192913-hcp-autonode-01-hcp-autonode-cluster-install.html</code> (not yet written)</dd>
+      </dl>
+    </header>
+
+    <section>
+      <h2>Milestones</h2>
+      <table class="timeline">
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Elapsed</th>
+            <th>Elapsed (ms)</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          <tr>
+            <td>10-autonode-scale.initial.workload_applied_to_failed_scheduling</td>
+            <td style="font-variant-numeric:tabular-nums">0m3s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">3,418 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.initial.failed_scheduling_to_nodeclaim</td>
+            <td style="font-variant-numeric:tabular-nums">0m2s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">2,323 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.initial.pending_to_nodeclaim</td>
+            <td style="font-variant-numeric:tabular-nums">0m5s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">5,741 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.initial.nodeclaim_to_node_ready</td>
+            <td style="font-variant-numeric:tabular-nums">3m51s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">231,129 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.initial.node_ready_to_pods_running</td>
+            <td style="font-variant-numeric:tabular-nums">4m49s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">289,503 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.initial.pending_to_pods_running</td>
+            <td style="font-variant-numeric:tabular-nums">8m46s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">526,373 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.initial.pods_running_to_pods_ready</td>
+            <td style="font-variant-numeric:tabular-nums">0m1s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">1,430 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.initial.pending_to_pods_ready</td>
+            <td style="font-variant-numeric:tabular-nums">8m47s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">527,803 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.wave_1.scale_to_nodeclaim</td>
+            <td style="font-variant-numeric:tabular-nums">0m7s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">7,949 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.wave_1.nodeclaim_to_node_ready</td>
+            <td style="font-variant-numeric:tabular-nums">4m8s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">248,209 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.wave_1.node_ready_to_pods_running</td>
+            <td style="font-variant-numeric:tabular-nums">0m42s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">42,292 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.wave_1.scale_to_pods_running</td>
+            <td style="font-variant-numeric:tabular-nums">4m58s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">298,450 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.wave_1.pods_running_to_pods_ready</td>
+            <td style="font-variant-numeric:tabular-nums">0m1s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">1,088 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.wave_1.scale_to_pods_ready</td>
+            <td style="font-variant-numeric:tabular-nums">4m59s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">299,538 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.wave_2.scale_to_pods_running</td>
+            <td style="font-variant-numeric:tabular-nums">10m2s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">602,391 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.wave_2.pods_running_to_pods_ready</td>
+            <td style="font-variant-numeric:tabular-nums">0m1s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">1,246 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.wave_2.scale_to_pods_ready</td>
+            <td style="font-variant-numeric:tabular-nums">10m3s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">603,637 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.wave_3.scale_to_nodeclaim</td>
+            <td style="font-variant-numeric:tabular-nums">0m8s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">8,104 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.wave_3.nodeclaim_to_node_ready</td>
+            <td style="font-variant-numeric:tabular-nums">4m57s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">297,073 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.wave_3.node_ready_to_pods_running</td>
+            <td style="font-variant-numeric:tabular-nums">0m24s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">24,301 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.wave_3.scale_to_pods_running</td>
+            <td style="font-variant-numeric:tabular-nums">5m29s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">329,478 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.wave_3.pods_running_to_pods_ready</td>
+            <td style="font-variant-numeric:tabular-nums">0m1s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">1,508 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.wave_3.scale_to_pods_ready</td>
+            <td style="font-variant-numeric:tabular-nums">5m30s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">330,986 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.rollback_3.scale_to_consolidated</td>
+            <td style="font-variant-numeric:tabular-nums">2m44s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">164,776 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.rollback_3.scale_to_pods_stable</td>
+            <td style="font-variant-numeric:tabular-nums">12m47s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">767,359 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.rollback_2.scale_to_consolidated_partial</td>
+            <td style="font-variant-numeric:tabular-nums">10m2s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">602,345 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.rollback_2.scale_to_pods_stable</td>
+            <td style="font-variant-numeric:tabular-nums">20m4s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">1,204,781 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.rollback_1.scale_to_consolidated</td>
+            <td style="font-variant-numeric:tabular-nums">2m43s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">163,433 ms</td>
+          </tr>
+          <tr>
+            <td>10-autonode-scale.rollback_1.scale_to_pods_stable</td>
+            <td style="font-variant-numeric:tabular-nums">12m45s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">765,865 ms</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    
+
+    <section><h2>Extra data</h2><pre class="json-extra">{
+  "trigger_mode": "pause-pods",
+  "scale_down_policy": {
+    "scheduler": "karpenter",
+    "consolidate_after": "30s (nodepool.yaml consolidateAfter)",
+    "consolidation_policy": "WhenEmptyOrUnderutilized",
+    "note": "t_start = moment oc scale command is issued; t_end = node no longer in oc get nodes"
+  },
+  "cas_baseline_ms": {},
+  "first_karpenter_node": "ip-10-1-50-152.ec2.internal",
+  "peak_nodeclaim_count": 3,
+  "final_nodeclaim_count": 1,
+  "final_node_count": 3,
+  "nodepool_name": "autonode-bench"
+}</pre></section>
+
+    <footer>
+      Run ID: <code>20260510T192913-hcp-autonode</code> ·
+      Generated: <code>2026-05-10T22:36:48Z</code> ·
+      Regenerate index: <code>python3 scripts/update-reports-index.py</code>
+    </footer>
+  </main>
+</body>
+</html>

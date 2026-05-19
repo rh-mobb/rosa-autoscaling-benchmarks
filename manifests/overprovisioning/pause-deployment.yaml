@@ -1,0 +1,55 @@
+---
+# manifests/overprovisioning/pause-deployment.yaml
+#
+# Placeholder ("pause") pods that reserve cluster capacity as headroom.
+#
+# Each pause pod requests 1 CPU and 2 GiB of memory but does nothing —
+# the container runs the OpenShift pause image which just sleeps forever.
+# Because they use the cluster-overprovisioner PriorityClass (value: -1),
+# they are evicted the moment a real workload needs to be scheduled.
+#
+# When HPA fires and needs to place new pods:
+#   1. Scheduler evicts pause pods to make room (immediate — no node wait)
+#   2. Real pods schedule on the freed capacity
+#   3. Cluster Autoscaler sees the evicted pause pods as unschedulable
+#   4. CAS provisions new nodes to replace the headroom (asynchronously)
+#
+# This breaks the HPA → CAS → schedule wait loop shown in test 08.
+#
+# Applied by: benchmark-overprovisioning (test 09)
+# Requires: priority-class.yaml to be applied first
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cluster-overprovisioner
+  namespace: benchmark
+  labels:
+    app: cluster-overprovisioner
+    benchmark: "true"
+spec:
+  # Number of pause pods = amount of pre-reserved headroom.
+  # 4 pods × (1 CPU + 2 GiB) = 4 CPU + 8 GiB reserved across the cluster.
+  # Adjust to match expected HPA burst size.
+  replicas: 4
+  selector:
+    matchLabels:
+      app: cluster-overprovisioner
+  template:
+    metadata:
+      labels:
+        app: cluster-overprovisioner
+        benchmark: "true"
+    spec:
+      priorityClassName: cluster-overprovisioner
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: pause
+          # OpenShift infrastructure pause image — does nothing, uses ~1 MiB RAM
+          image: registry.k8s.io/pause:3.9
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "2Gi"
+            limits:
+              cpu: "1000m"
+              memory: "2Gi"

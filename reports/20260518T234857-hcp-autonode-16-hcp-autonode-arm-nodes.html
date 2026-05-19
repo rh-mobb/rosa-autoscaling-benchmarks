@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Benchmark 16 — 16-arm-nodes (hcp-autonode)</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --border: #2d3a4d;
+      --text: #e6edf3;
+      --muted: #8b9cb3;
+      --accent: #58a6ff;
+      --warning: #d4a72c;
+      --ok: #3fb950;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 15px;
+    }
+    main { max-width: 920px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+    header.doc {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+    h1 { font-size: 1.35rem; font-weight: 600; margin: 0 0 0.35rem; letter-spacing: -0.02em; }
+    .subtitle { color: var(--muted); font-size: 0.95rem; margin: 0; }
+    dl.meta {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.35rem 1.25rem;
+      margin: 1.25rem 0 0;
+      font-size: 0.9rem;
+    }
+    dl.meta dt { color: var(--muted); font-weight: 500; }
+    dl.meta dd { margin: 0; }
+    h2 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 2rem 0 0.75rem;
+      color: var(--accent);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+    }
+    .stat .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+    .stat .value { font-size: 1.4rem; font-weight: 700; margin-top: 0.2rem; font-variant-numeric: tabular-nums; }
+    table.timeline {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 0.5rem;
+    }
+    table.timeline th, table.timeline td {
+      text-align: left;
+      padding: 0.45rem 0.6rem;
+      border-bottom: 1px solid var(--border);
+    }
+    table.timeline th { color: var(--muted); font-weight: 500; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .badge-ok { color: var(--ok); }
+    .badge-warn { color: var(--warning); }
+    .badge-fail { color: #f85149; }
+    pre.json-extra { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; font-size: 0.82rem; overflow-x: auto; white-space: pre-wrap; }
+    footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--muted); }
+    a { color: var(--accent); }
+</style>
+</head>
+<body>
+  <main>
+    <header class="doc">
+      <h1>Benchmark 16 — 16-arm-nodes</h1>
+      <p class="subtitle">ROSA HCP-AUTONODE · an-bench</p>
+      <dl class="meta">
+        <dt>Run ID</dt>  <dd><code>20260518T234857-hcp-autonode</code></dd>
+        <dt>Cluster name</dt>  <dd><code>an-bench</code></dd>
+        <dt>Cluster type</dt>  <dd>hcp-autonode</dd>
+        <dt>Status</dt>  <dd><span class="badge-ok">✓ ok</span></dd>
+        <dt>Total elapsed</dt>  <dd>6m44s</dd>
+        <dt>Report generated</dt>  <dd><code>2026-05-19T01:14:44Z</code></dd>
+        <dt>Cluster install report</dt>  <dd><code>20260518T234857-hcp-autonode-01-hcp-autonode-cluster-install.html</code> (not yet written)</dd>
+      </dl>
+    </header>
+
+    <section>
+      <h2>Milestones</h2>
+      <table class="timeline">
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Elapsed</th>
+            <th>Elapsed (ms)</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          <tr>
+            <td>16-arm-nodes.workload_applied_to_failed_scheduling</td>
+            <td style="font-variant-numeric:tabular-nums">0m2s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">2,722 ms</td>
+          </tr>
+          <tr>
+            <td>16-arm-nodes.failed_scheduling_to_nodeclaim</td>
+            <td style="font-variant-numeric:tabular-nums">0m1s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">1,045 ms</td>
+          </tr>
+          <tr>
+            <td>16-arm-nodes.failed_scheduling_to_scheduler_triggered</td>
+            <td style="font-variant-numeric:tabular-nums">0m1s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">1,045 ms</td>
+          </tr>
+          <tr>
+            <td>16-arm-nodes.nodeclaim_to_node_ready</td>
+            <td style="font-variant-numeric:tabular-nums">3m50s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">230,146 ms</td>
+          </tr>
+          <tr>
+            <td>16-arm-nodes.scheduler_triggered_to_node_ready</td>
+            <td style="font-variant-numeric:tabular-nums">3m50s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">230,146 ms</td>
+          </tr>
+          <tr>
+            <td>16-arm-nodes.node_ready_to_pods_running</td>
+            <td style="font-variant-numeric:tabular-nums">2m50s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">170,495 ms</td>
+          </tr>
+          <tr>
+            <td>16-arm-nodes.workload_applied_to_pods_running</td>
+            <td style="font-variant-numeric:tabular-nums">6m44s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">404,408 ms</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    
+
+    <section><h2>Extra data</h2><pre class="json-extra">{
+  "arch": "arm64",
+  "instance_type": "m6g.xlarge",
+  "x86_baseline_ms": {},
+  "baseline_node_count": 6,
+  "nodeclaim_arch": "unknown",
+  "nodeclaim_instance_type": "unknown",
+  "first_arm_node": "ip-10-1-113-235.ec2.internal",
+  "final_node_count": 6,
+  "new_nodes": [
+    "ip-10-1-113-235.ec2.internal",
+    "ip-10-1-3-76.ec2.internal",
+    "ip-10-1-6-195.ec2.internal",
+    "ip-10-1-96-114.ec2.internal"
+  ],
+  "scheduler": "autonode",
+  "nodepool_name": "autonode-arm64"
+}</pre></section>
+
+    <footer>
+      Run ID: <code>20260518T234857-hcp-autonode</code> ·
+      Generated: <code>2026-05-19T01:14:44Z</code> ·
+      Regenerate index: <code>python3 scripts/update-reports-index.py</code>
+    </footer>
+  </main>
+</body>
+</html>

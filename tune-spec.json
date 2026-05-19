@@ -1,0 +1,17 @@
+{
+  "profile": [
+    {
+      "data": "[main]\nsummary=Disable algif_aead via ROSA CLI\n[bootloader]\ncmdline_disable_algif=initcall_blacklist=algif_aead_init\n",
+      "name": "disable-algif-profile"
+    }
+  ],
+  "recommend": [
+    {
+      "machineConfigLabels": {
+        "machineconfiguration.openshift.io/role": "worker"
+      },
+      "priority": 10,
+      "profile": "disable-algif-profile"
+    }
+  ]
+}

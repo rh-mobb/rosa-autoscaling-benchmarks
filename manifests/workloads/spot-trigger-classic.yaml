@@ -1,0 +1,58 @@
+---
+# manifests/workloads/spot-trigger-classic.yaml
+#
+# Pause workload that triggers Cluster Autoscaler to scale up the spot machine
+# pool on a ROSA Classic cluster (test 15 — spot instance support).
+#
+# 20 replicas, 500m CPU / 512Mi each — same sizing as cas-trigger.yaml so the
+# provisioning measurement is directly comparable to test 03 on-demand timing.
+#
+# The nodeSelector targets the bench-spot machine pool (pool-type=spot) created
+# by machine-pools/add-spot.sh.  Without this selector, pods would land on the
+# default workers and FailedScheduling would never fire against the spot pool.
+#
+# Applied by: run-test-15-spot-instances.py
+# Cleaned up: namespace deleted on test completion or SIGINT.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: spot-test
+  labels:
+    benchmark: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spot-trigger
+  namespace: spot-test
+  labels:
+    app: spot-trigger
+    benchmark: "true"
+  annotations:
+    description: >
+      Intentionally over-replicated pause workload for spot machine pool
+      benchmarking (test 15).  Requests exceed capacity of the spot pool's
+      initial 0 replicas, triggering FailedScheduling and CAS scale-up.
+spec:
+  replicas: 20
+  selector:
+    matchLabels:
+      app: spot-trigger
+  template:
+    metadata:
+      labels:
+        app: spot-trigger
+        benchmark: "true"
+    spec:
+      nodeSelector:
+        pool-type: spot
+      tolerations:
+        - operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: pause
+          image: registry.k8s.io/pause:3.9
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"

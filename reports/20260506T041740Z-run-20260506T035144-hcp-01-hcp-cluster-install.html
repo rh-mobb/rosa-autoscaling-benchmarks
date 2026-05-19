@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Benchmark 01 — ROSA HCP cluster install (partial Terraform)</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --border: #2d3a4d;
+      --text: #e6edf3;
+      --muted: #8b9cb3;
+      --accent: #58a6ff;
+      --warning: #d4a72c;
+      --ok: #3fb950;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 15px;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 3rem;
+    }
+    header.doc {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin: 0 0 0.35rem;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin: 0;
+    }
+    dl.meta {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.35rem 1.25rem;
+      margin: 1.25rem 0 0;
+      font-size: 0.9rem;
+    }
+    dl.meta dt { color: var(--muted); font-weight: 500; }
+    dl.meta dd { margin: 0; }
+    h2 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 2rem 0 0.75rem;
+      color: var(--accent);
+    }
+    section:first-of-type h2 { margin-top: 0; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+    }
+    .stat.warning {
+      border-color: var(--warning);
+      box-shadow: 0 0 0 1px rgba(212, 167, 44, 0.25);
+    }
+    .stat .label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+    .stat .value {
+      font-size: 1.35rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat .hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+    }
+    table.timeline {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    table.timeline th,
+    table.timeline td {
+      text-align: left;
+      padding: 0.55rem 0.65rem;
+      border-bottom: 1px solid var(--border);
+    }
+    table.timeline th {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem; }
+    td.source { color: var(--muted); font-size: 0.82rem; }
+    .callout {
+      background: var(--surface);
+      border-left: 3px solid var(--accent);
+      padding: 0.85rem 1rem;
+      border-radius: 0 8px 8px 0;
+      margin-top: 0.5rem;
+    }
+    .callout.warning { border-left-color: var(--warning); }
+    ul.findings { margin: 0.5rem 0 0; padding-left: 1.2rem; }
+    ul.findings li { margin: 0.35rem 0; }
+    table.ref {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 0.5rem;
+    }
+    table.ref th,
+    table.ref td {
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.65rem;
+    }
+    table.ref th {
+      background: var(--surface);
+      color: var(--muted);
+      font-weight: 500;
+      text-align: left;
+    }
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    details.callout.warning summary { cursor: pointer; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="doc">
+      <h1>Benchmark 01 — Cluster install (ROSA HCP)</h1>
+      <p class="subtitle">Test <code>01-cluster-install</code>. Timings follow the harness order: <strong>OCM ready → <code>oc login</code> → default machine pools (all workers Ready) → all operators Available</strong>. This run predates full <code>emit_timing</code> for some steps; several cells are inferred or marked N/A.</p>
+      <dl class="meta">
+        <dt>Run ID</dt>
+        <dd><code>20260506T035144-hcp</code></dd>
+        <dt>Cluster name</dt>
+        <dd><code>hcp-bench</code></dd>
+        <dt>Region</dt>
+        <dd><code>us-east-1</code></dd>
+        <dt>OpenShift / ROSA</dt>
+        <dd><code>4.21.12</code> (from <code>metadata.json</code>)</dd>
+        <dt>Report generated</dt>
+        <dd><code>2026-05-06T04:17:40Z</code> (matches filename <code>20260506T041740Z</code>)</dd>
+      </dl>
+    </header>
+
+    <section aria-labelledby="summary-heading">
+      <h2 id="summary-heading">Summary</h2>
+      <p class="subtitle" style="margin:-0.25rem 0 0.75rem">Cumulative from benchmark start <code>2026-05-06T03:51:44Z</code> (<code>metadata.json</code>).</p>
+      <div class="stats">
+        <div class="stat warning" id="stat-ocm">
+          <div class="label">1 · OCM cluster ready</div>
+          <div class="value">~23m 7s</div>
+          <div class="hint">Inferred · label <code>hcp.cluster_ready</code> not emitted · end ~<code>04:14:51Z</code></div>
+        </div>
+        <div class="stat warning" id="stat-login">
+          <div class="label">2 · oc login OK</div>
+          <div class="value">N/A</div>
+          <div class="hint"><code>hcp.oc_login_ok</code> not recorded · recovery used <code>rosa create admin</code> then login</div>
+        </div>
+        <div class="stat warning" id="stat-pools">
+          <div class="label">3 · Machine pools (workers)</div>
+          <div class="value">N/A</div>
+          <div class="hint"><code>hcp.machine_pools_ready</code> not recorded in this run · pools/IDP applied on later reconcile (~05:07 UTC)</div>
+        </div>
+        <div class="stat" id="stat-op">
+          <div class="label">4 · All operators Available</div>
+          <div class="value">25m 51s</div>
+          <div class="hint"><code>hcp.manual_operators_ready</code> · end <code>2026-05-06T04:17:36Z</code></div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="segments-heading">
+      <h2 id="segments-heading">Phase durations</h2>
+      <p class="subtitle" style="margin:-0.25rem 0 0.5rem">Wall time between consecutive milestones (where both endpoints exist).</p>
+      <table class="ref">
+        <thead>
+          <tr>
+            <th scope="col">Segment</th>
+            <th scope="col">Duration</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Start → OCM cluster ready</td>
+            <td>~23m 7s (inferred)</td>
+          </tr>
+          <tr>
+            <td>OCM ready → successful <code>oc login</code></td>
+            <td>N/A (not instrumented)</td>
+          </tr>
+          <tr>
+            <td>Login → all worker nodes Ready</td>
+            <td>N/A (not instrumented)</td>
+          </tr>
+          <tr>
+            <td>Pools → all operators Available</td>
+            <td>N/A (operators measured vs start, not vs pools)</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="timeline-heading">
+      <h2 id="timeline-heading">Timeline</h2>
+      <p class="subtitle" style="margin:-0.25rem 0 0.75rem">Target labels from <code>create.sh</code> (HCP). This partial run used manual <code>record-event</code> for step 4 only.</p>
+      <table class="timeline">
+        <thead>
+          <tr>
+            <th scope="col">Milestone</th>
+            <th scope="col">Elapsed from start</th>
+            <th scope="col">End (ISO UTC)</th>
+            <th scope="col">Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">hcp.cluster_ready</td>
+            <td class="mono">~23m 7s</td>
+            <td class="mono">~2026-05-06T04:14:51Z</td>
+            <td class="source">Inferred</td>
+          </tr>
+          <tr>
+            <td class="mono">hcp.oc_login_ok</td>
+            <td class="mono">—</td>
+            <td class="mono">—</td>
+            <td class="source">Not emitted</td>
+          </tr>
+          <tr>
+            <td class="mono">hcp.machine_pools_ready</td>
+            <td class="mono">—</td>
+            <td class="mono">—</td>
+            <td class="source">Not emitted</td>
+          </tr>
+          <tr>
+            <td class="mono">hcp.operators_ready</td>
+            <td class="mono">25m 51s</td>
+            <td class="mono">2026-05-06T04:17:36Z</td>
+            <td class="source"><code>hcp.manual_operators_ready</code> (manual)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <details class="callout" style="margin-top:1rem;border-left-color:var(--border)" id="tf-detail">
+        <summary style="cursor:pointer;font-weight:600">Provisioning internals (Terraform)</summary>
+        <p class="subtitle" style="margin:0.5rem 0 0.75rem">Optional detail — not part of the four outcome phases above.</p>
+        <table class="timeline">
+          <thead>
+            <tr>
+              <th scope="col">Milestone</th>
+              <th scope="col">Elapsed</th>
+              <th scope="col">End (ISO UTC)</th>
+              <th scope="col">Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">hcp.terraform_init</td>
+              <td class="mono">0m 2s</td>
+              <td class="mono">2026-05-06T03:51:50Z</td>
+              <td class="source">events.jsonl</td>
+            </tr>
+            <tr>
+              <td class="mono">terraform apply (pools / IDP) error</td>
+              <td class="mono">—</td>
+              <td class="mono">~2026-05-06T04:14:51Z</td>
+              <td class="source"><code>CLUSTERS-MGMT-403</code> · later reconciled</td>
+            </tr>
+          </tbody>
+        </table>
+      </details>
+    </section>
+
+    <section aria-labelledby="events-heading">
+      <h2 id="events-heading">Events &amp; findings</h2>
+      <ul class="findings">
+        <li><code>make create-hcp</code> ran Terraform; resources included VPC, EFS, and <code>rhcs_cluster_rosa_hcp</code>. Apply then failed updating <code>rhcs_hcp_machine_pool</code> (workers-0/1/2) and creating <code>rhcs_identity_provider.admin</code> with OCM code <code>CLUSTERS-MGMT-403</code> (Forbidden).</li>
+        <li>After failure, <code>rosa describe cluster -c hcp-bench</code> reported <code>state: ready</code> — cluster ID <code>2q46r3f7qd1plq1tae2md1u25fsv537e</code>.</li>
+        <li>Terraform-managed htpasswd IDP was not applied; <code>oc login</code> as <code>cluster-admin</code> with <code>hcp.env</code> password failed until <code>rosa create admin -c hcp-bench</code> was run.</li>
+        <li><code>oc wait clusteroperators --all --for=condition=Available=True --timeout=25m</code> completed successfully using <code>KUBECONFIG=$PWD/tmp/kubeconfig.hcp-bench.yaml</code>.</li>
+      </ul>
+      <details class="callout warning" open id="partial-run-callout">
+        <summary>Partial run / inferred timings</summary>
+        <p style="margin:0.5rem 0 0">Outcome timings above are primary. This block explains gaps in <code>events.jsonl</code>: no <code>hcp.cluster_ready</code> / <code>hcp.terraform_apply</code> from <code>create.sh</code>; <strong>fully ready</strong> used manual <code>record-event</code> after recovery.</p>
+      </details>
+    </section>
+
+    <section aria-labelledby="narrative-heading">
+      <h2 id="narrative-heading">Narrative</h2>
+      <div class="callout">
+        <p style="margin:0">The control plane and workers were provisioned quickly enough for OCM to report <code>ready</code>, but concurrent mutations (machine pools + identity provider) hit an OCM authorization error. This repository’s <code>clusters/hcp/lib-terraform.sh</code> supports a phased apply (<code>ROSA_HCP_POST_CLUSTER_SLEEP_SEC</code>, default 60s) to reduce transient 403s; confirm the run used a revision that enables it, and verify the <code>RHCS_TOKEN</code> / OCM role can modify the cluster resource. For a apples-to-apples install benchmark, retry <code>make create-hcp</code> after <code>make destroy-hcp</code> (or a fresh cluster name) once API access is stable; reconcile drift with <code>terraform apply</code> from <code>clusters/hcp/terraform</code> if state exists locally.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="ref-heading">
+      <h2 id="ref-heading">Timing reference (expected)</h2>
+      <p class="subtitle" style="margin:-0.25rem 0 0.5rem">From <code>benchmark-cluster-install</code> skill — ROSA HCP column.</p>
+      <table class="ref">
+        <thead>
+          <tr>
+            <th scope="col">Phase</th>
+            <th scope="col">Expected (HCP)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Start → OCM <strong>ready</strong></td><td>(bulk of create)</td></tr>
+          <tr><td>OCM ready → <code>oc login</code></td><td>~2–10 min</td></tr>
+          <tr><td>Login → all <strong>workers</strong> Ready (pools)</td><td>~5–15 min</td></tr>
+          <tr><td>Pools → all <strong>operators</strong> Available</td><td>~2–10 min</td></tr>
+          <tr><td><strong>Total (typical)</strong></td><td><strong>15–25 min</strong></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer>
+      <p>ROSA autoscaling benchmark · Test 01 · HCP · <code>reports/20260506T041740Z-run-20260506T035144-hcp-01-hcp-cluster-install.html</code></p>
+    </footer>
+  </main>
+</body>
+</html>

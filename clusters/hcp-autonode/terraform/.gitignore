@@ -1,0 +1,4 @@
+# Local state and cache
+.terraform/
+*.tfstate
+*.tfstate.*

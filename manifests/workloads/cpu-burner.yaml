@@ -1,0 +1,56 @@
+---
+# manifests/workloads/cpu-burner.yaml
+#
+# A CPU-intensive deployment used for HPA and cluster autoscaler benchmarks.
+# Uses the `stress-ng` tool to generate controllable CPU load.
+#
+# Applied by the benchmark-hpa, benchmark-hpa-triggers-cas, and
+# benchmark-overprovisioning skills.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: benchmark
+  labels:
+    benchmark: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cpu-burner
+  namespace: benchmark
+  labels:
+    app: cpu-burner
+    benchmark: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cpu-burner
+  template:
+    metadata:
+      labels:
+        app: cpu-burner
+        benchmark: "true"
+    spec:
+      nodeSelector:
+        pool-type: standard
+      containers:
+        - name: stress
+          image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+          command:
+            - /bin/bash
+            - -c
+            # Burn CPU by running a busy loop — triggers HPA at 50% threshold
+            - "yes > /dev/null"
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "128Mi"
+            limits:
+              cpu: "1000m"
+              memory: "256Mi"
+          readinessProbe:
+            exec:
+              command: ["/bin/bash", "-c", "true"]
+            initialDelaySeconds: 5
+            periodSeconds: 10

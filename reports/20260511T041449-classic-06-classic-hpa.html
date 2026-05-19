@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Benchmark 06 — Horizontal Pod Autoscaler (classic)</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --border: #2d3a4d;
+      --text: #e6edf3;
+      --muted: #8b9cb3;
+      --accent: #58a6ff;
+      --warning: #d4a72c;
+      --ok: #3fb950;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 15px;
+    }
+    main { max-width: 920px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+    header.doc {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+    h1 { font-size: 1.35rem; font-weight: 600; margin: 0 0 0.35rem; letter-spacing: -0.02em; }
+    .subtitle { color: var(--muted); font-size: 0.95rem; margin: 0; }
+    dl.meta {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.35rem 1.25rem;
+      margin: 1.25rem 0 0;
+      font-size: 0.9rem;
+    }
+    dl.meta dt { color: var(--muted); font-weight: 500; }
+    dl.meta dd { margin: 0; }
+    h2 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 2rem 0 0.75rem;
+      color: var(--accent);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+    }
+    .stat .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+    .stat .value { font-size: 1.4rem; font-weight: 700; margin-top: 0.2rem; font-variant-numeric: tabular-nums; }
+    table.timeline {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 0.5rem;
+    }
+    table.timeline th, table.timeline td {
+      text-align: left;
+      padding: 0.45rem 0.6rem;
+      border-bottom: 1px solid var(--border);
+    }
+    table.timeline th { color: var(--muted); font-weight: 500; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .badge-ok { color: var(--ok); }
+    .badge-warn { color: var(--warning); }
+    .badge-fail { color: #f85149; }
+    pre.json-extra { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; font-size: 0.82rem; overflow-x: auto; white-space: pre-wrap; }
+    footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--muted); }
+    a { color: var(--accent); }
+</style>
+</head>
+<body>
+  <main>
+    <header class="doc">
+      <h1>Benchmark 06 — Horizontal Pod Autoscaler</h1>
+      <p class="subtitle">ROSA CLASSIC · classic-bench</p>
+      <dl class="meta">
+        <dt>Run ID</dt>  <dd><code>20260511T041449-classic</code></dd>
+        <dt>Cluster name</dt>  <dd><code>classic-bench</code></dd>
+        <dt>Cluster type</dt>  <dd>classic</dd>
+        <dt>Status</dt>  <dd><span class="badge-ok">✓ ok</span></dd>
+        <dt>Total elapsed</dt>  <dd>0m43s</dd>
+        <dt>Report generated</dt>  <dd><code>2026-05-11T07:04:48Z</code></dd>
+        <dt>Cluster install report</dt>  <dd><a href="20260511T041449-classic-01-classic-cluster-install.html">20260511T041449-classic-01-classic-cluster-install.html</a></dd>
+      </dl>
+    </header>
+
+    <section>
+      <h2>Milestones</h2>
+      <table class="timeline">
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Elapsed</th>
+            <th>Elapsed (ms)</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          <tr>
+            <td>06-hpa.manifests_applied_to_workload_ready</td>
+            <td style="font-variant-numeric:tabular-nums">0m6s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">6,660 ms</td>
+          </tr>
+          <tr>
+            <td>06-hpa.workload_ready_to_metric_breach</td>
+            <td style="font-variant-numeric:tabular-nums">0m32s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">32,834 ms</td>
+          </tr>
+          <tr>
+            <td>06-hpa.metric_breach_to_scale_decision</td>
+            <td style="font-variant-numeric:tabular-nums">0m0s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">840 ms</td>
+          </tr>
+          <tr>
+            <td>06-hpa.scale_decision_to_pods_running</td>
+            <td style="font-variant-numeric:tabular-nums">0m1s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">1,813 ms</td>
+          </tr>
+          <tr>
+            <td>06-hpa.metric_breach_to_pods_running</td>
+            <td style="font-variant-numeric:tabular-nums">0m2s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">2,653 ms</td>
+          </tr>
+          <tr>
+            <td>06-hpa.pods_running_to_pods_ready</td>
+            <td style="font-variant-numeric:tabular-nums">0m1s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">1,054 ms</td>
+          </tr>
+          <tr>
+            <td>06-hpa.metric_breach_to_pods_ready</td>
+            <td style="font-variant-numeric:tabular-nums">0m3s</td>
+            <td style="font-variant-numeric:tabular-nums;color:var(--muted)">3,707 ms</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    
+
+    <section><h2>Extra data</h2><pre class="json-extra">{
+  "cpu_burner_manifest": "cpu-burner.yaml",
+  "initial_replicas": 1,
+  "baseline_cpu_pct": null,
+  "peak_desired_replicas": 4,
+  "peak_running_replicas": 4,
+  "hpa_events": [
+    {
+      "reason": "FailedGetResourceMetric",
+      "message": "failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API"
+    },
+    {
+      "reason": "FailedComputeMetricsReplicas",
+      "message": "invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource "
+    },
+    {
+      "reason": "SuccessfulRescale",
+      "message": "New size: 4; reason: cpu resource utilization (percentage of request) above target"
+    }
+  ],
+  "vpa_recommendations": {
+    "stress": {
+      "lowerBound": {
+        "cpu": "100m",
+        "memory": "262144k"
+      },
+      "target": {
+        "cpu": "1168m",
+        "memory": "262144k"
+      },
+      "upperBound": {
+        "cpu": "4",
+        "memory": "2Gi"
+      },
+      "uncappedTarget": {
+        "cpu": "1168m",
+        "memory": "262144k"
+      }
+    }
+  },
+  "current_requests": {
+    "cpu": "500m",
+    "memory": "128Mi"
+  }
+}</pre></section>
+
+    <footer>
+      Run ID: <code>20260511T041449-classic</code> ·
+      Generated: <code>2026-05-11T07:04:48Z</code> ·
+      Regenerate index: <code>python3 scripts/update-reports-index.py</code>
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,43 @@
+---
+# manifests/autoscaling/autonode-hpa.yaml
+#
+# HorizontalPodAutoscaler for the autonode-app benchmark workload (test 10).
+#
+# Mirrors the HPA configuration from the AutoNode test plan
+# (references/autonode/2026-04-07-autonode-karpenter-scaling-test.md, Task 5).
+# A short scaleUp stabilization window (15 s) makes bursts responsive so that
+# Karpenter's provisioning speed is the bottleneck being measured, not HPA lag.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: autonode-app-hpa
+  namespace: autonode-test
+  labels:
+    benchmark: "true"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: autonode-app
+  minReplicas: 2
+  maxReplicas: 30
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 15
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 30
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 25
+          periodSeconds: 60
