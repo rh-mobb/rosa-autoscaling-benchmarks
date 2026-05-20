@@ -1,6 +1,6 @@
 <script setup>
 /**
- * RhSpectrum — horizontal maturity / spectrum scale.
+ * RhSpectrum  -  horizontal maturity / spectrum scale.
  *
  * Props:
  *   stages       Array of { label: string, icon?: string, active?: boolean }

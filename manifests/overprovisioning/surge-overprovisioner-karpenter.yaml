@@ -3,10 +3,23 @@
 #
 # Karpenter variant of surge-overprovisioner.yaml for ROSA HCP AutoNode clusters.
 #
-# Identical to surge-overprovisioner.yaml except nodeAffinity pins the
-# balloon pods to the Karpenter NodePool (autonode-bench), preventing them
-# from scheduling on the default HCP worker nodes where they would not
+# nodeAffinity pins the balloon pods to the Karpenter NodePool (autonode-bench),
+# preventing them from scheduling on default HCP workers where they would not
 # contribute to Karpenter-managed capacity.
+#
+# Two Karpenter-specific design rules vs the CAS variant:
+#
+#   1. podAntiAffinity (one pod per node, required): forces Karpenter to
+#      provision one distinct headroom node per replica. Without this,
+#      Karpenter's bin-packing can land all replicas on a single node
+#      (5 × 500m = 2.5 CPU — easily fits on one m5.xlarge), reducing
+#      effective headroom from 5 nodes to 1. After eviction the consolidation
+#      loop would see room on existing nodes, pack the pending balloons
+#      together, and never restore the headroom nodes.
+#
+#   2. No karpenter.sh/do-not-disrupt annotation: we WANT Karpenter to allow
+#      preemption so real workloads can land instantly. The resulting Pending
+#      state signals Karpenter to re-provision the headroom node.
 #
 # Applied by: run-test-11-planned-surge.py (balloon-pods strategy, hcp-autonode)
 #             run-test-12-sudden-spike.py  (Phase 2, hcp-autonode)
@@ -44,6 +57,12 @@ spec:
       priorityClassName: cluster-overprovisioner
       terminationGracePeriodSeconds: 0
       affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: surge-overprovisioner
+              topologyKey: kubernetes.io/hostname
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:

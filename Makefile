@@ -532,7 +532,7 @@ run-test-16:
 .PHONY: deck
 deck:
 	@echo "==> Starting CAS vs AutoNode slide deck at http://localhost:3030"
-	$(MAKE) -C reports/classic-vs-hcp_autonode dev
+	$(MAKE) -C presentation dev
 
 # ── Python virtualenv ─────────────────────────────────────────────────────────
 .PHONY: venv

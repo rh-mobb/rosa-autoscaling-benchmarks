@@ -1,0 +1,18 @@
+---
+# Namespace for the OTel demo load-test harness.
+#
+# NOTE: Do NOT include openshift.io/sa.scc.* annotations here — OpenShift's
+# namespace controller auto-generates them (including the required mcs label)
+# when the namespace is first created via 'oc create namespace' or Helm
+# --create-namespace. Supplying partial SCC annotations prevents auto-generation
+# and causes FailedCreate errors on pod admission.
+#
+# This manifest is used ONLY to add labels after namespace creation.
+# The deploy.sh creates the namespace via 'oc create namespace' (idempotent)
+# before applying this patch.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: otel-demo
+  labels:
+    workload: otel-demo

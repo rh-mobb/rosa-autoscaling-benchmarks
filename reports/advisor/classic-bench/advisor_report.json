@@ -1,0 +1,34 @@
+{
+  "advisor_version": "0.1.0",
+  "generated_at": "2026-05-19T06:45:48.245958+00:00",
+  "run_id": "",
+  "cluster_type": "classic",
+  "autoscaler_type": "none",
+  "summary": {
+    "total_recommendations": 0,
+    "critical": 0,
+    "warning": 0,
+    "info": 0,
+    "performance_count": 0,
+    "cost_count": 0,
+    "workloads_with_findings": 0,
+    "prometheus_available": false
+  },
+  "topology": {
+    "node_count": 0,
+    "machine_pools": [],
+    "hpa_count": 0,
+    "vpa_count": 0,
+    "keda_count": 0,
+    "pdb_count": 0,
+    "structural_findings": []
+  },
+  "observations": {
+    "prometheus_available": false,
+    "provision_latency_s": 360.0,
+    "provision_latency_source": "estimate (classic default)",
+    "workloads": []
+  },
+  "recommendations": [],
+  "cluster_recommendations": []
+}

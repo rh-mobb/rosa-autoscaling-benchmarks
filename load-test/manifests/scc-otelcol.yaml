@@ -1,0 +1,100 @@
+---
+# Bind all OTel demo service accounts to the anyuid SCC.
+#
+# Why anyuid? The OTel demo container images bake in specific UIDs (101 for
+# Envoy, 472 for Grafana, 999 for Valkey, 1000/1001 for Go/Node services).
+# ROSA's restricted-v2 SCC only allows UIDs within the namespace-assigned
+# range (e.g., 1001070000–1001079999) — none of the upstream UIDs fall in
+# this range. anyuid lets pods run as their declared UID without privilege
+# escalation.
+#
+# Scope: these ClusterRoleBindings are namespace-scoped (subject.namespace
+# is set to otel-demo), so anyuid access is limited to this namespace only.
+#
+# Applied before Helm install so the chart's service accounts can be bound
+# immediately after creation. The deploy.sh applies this after 'oc create
+# namespace' and before 'helm install'.
+#
+# Service accounts bound:
+#   otel-demo   — all demo microservice pods
+#   grafana     — Grafana dashboard pod (UID 472)
+#   prometheus  — Prometheus server pod (UID 65534)
+#   otel-collector — OTel Collector pod
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: otel-demo-services-anyuid
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+subjects:
+  - kind: ServiceAccount
+    name: otel-demo
+    namespace: otel-demo
+roleRef:
+  kind: ClusterRole
+  name: system:openshift:scc:anyuid
+  apiGroup: rbac.authorization.k8s.io
+---
+# Grafana uses legacy seccomp annotations (container.seccomp.security.alpha.kubernetes.io/*)
+# that anyuid forbids. privileged SCC allows all seccomp policies.
+# Scoped to otel-demo namespace only.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: otel-demo-grafana-anyuid
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+subjects:
+  - kind: ServiceAccount
+    name: grafana
+    namespace: otel-demo
+roleRef:
+  kind: ClusterRole
+  name: system:openshift:scc:privileged
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: otel-demo-prometheus-anyuid
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+subjects:
+  - kind: ServiceAccount
+    name: prometheus
+    namespace: otel-demo
+roleRef:
+  kind: ClusterRole
+  name: system:openshift:scc:anyuid
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: otel-demo-otelcol-anyuid
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+subjects:
+  - kind: ServiceAccount
+    name: otel-collector
+    namespace: otel-demo
+roleRef:
+  kind: ClusterRole
+  name: system:openshift:scc:anyuid
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: otel-demo-postgresql-anyuid
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+subjects:
+  - kind: ServiceAccount
+    name: postgresql
+    namespace: otel-demo
+roleRef:
+  kind: ClusterRole
+  name: system:openshift:scc:anyuid
+  apiGroup: rbac.authorization.k8s.io

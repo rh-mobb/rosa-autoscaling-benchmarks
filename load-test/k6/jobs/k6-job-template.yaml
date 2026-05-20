@@ -1,0 +1,98 @@
+---
+# k6 load test Job template.
+#
+# Usage — deploy.sh renders this template with envsubst before applying:
+#
+#   SCENARIO=sudden-spike \
+#   TIMESTAMP=$(date +%Y%m%dT%H%M%S) \
+#   BASELINE_RPS=30 SPIKE_RPS=300 SPIKE_AT_S=60 TOTAL_S=480 \
+#   envsubst < load-test/k6/jobs/k6-job-template.yaml | oc apply -f -
+#
+# Results retrieval after Job completes:
+#   POD=$(oc get pods -n otel-demo -l job-name=k6-${SCENARIO}-${TIMESTAMP} \
+#         -o jsonpath='{.items[0].metadata.name}')
+#   oc cp otel-demo/${POD}:/results/ load-test/results/k6-${SCENARIO}-${TIMESTAMP}/
+#
+# The Job runs the scenario script from the k6-scenarios ConfigMap.
+# Scripts are mounted at /scripts/<scenario>.js.
+# Results (CSV + JSON summary) are written to /results/ via emptyDir.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: k6-${SCENARIO}-${TIMESTAMP}
+  namespace: otel-demo
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+    load-test/scenario: "${SCENARIO}"
+    load-test/timestamp: "${TIMESTAMP}"
+spec:
+  backoffLimit: 0           # do not retry on failure; re-run explicitly
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/part-of: otel-demo
+        load-test/scenario: "${SCENARIO}"
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      # k6 runs on any node — it generates outbound traffic, not inbound
+      # so it does not need to be on the otel-demo pool
+      containers:
+        - name: k6
+          image: grafana/k6:latest
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          args:
+            - run
+            - --out
+            - csv=/results/k6-output.csv
+            - /scripts/${SCENARIO}.js
+          env:
+            - name: TARGET_HOST
+              value: "frontend-proxy.otel-demo.svc:8080"
+            - name: BASELINE_RPS
+              value: "${BASELINE_RPS}"
+            - name: SPIKE_RPS
+              value: "${SPIKE_RPS}"
+            - name: SPIKE_AT_S
+              value: "${SPIKE_AT_S}"
+            - name: TOTAL_S
+              value: "${TOTAL_S}"
+            - name: PEAK_RPS
+              value: "${PEAK_RPS}"
+            - name: SUSTAINED_RPS
+              value: "${SUSTAINED_RPS}"
+            - name: BURST_RPS
+              value: "${BURST_RPS}"
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 1Gi
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+            - name: lib
+              mountPath: /scripts/lib
+              readOnly: true
+            - name: results
+              mountPath: /results
+      volumes:
+        - name: scripts
+          configMap:
+            name: k6-scenarios
+        - name: lib
+          configMap:
+            name: k6-lib
+        - name: results
+          emptyDir: {}

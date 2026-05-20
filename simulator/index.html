@@ -219,6 +219,23 @@
       return Math.max(0, Math.min(1, x));
     }
 
+    /** Modeled cost assumption — cents per dropped req/s tick (fractional cents allowed). */
+    const CENTS_PER_SESSION_MIN = 0.01;
+    const CENTS_PER_SESSION_MAX = 10;
+
+    function clampCentsPerSession(c) {
+      const x = Number(c);
+      if (!Number.isFinite(x)) return 0.5;
+      return Math.min(
+        CENTS_PER_SESSION_MAX,
+        Math.max(CENTS_PER_SESSION_MIN, Math.round(x * 100) / 100)
+      );
+    }
+
+    function formatCentsLabel(c) {
+      return `${Number.parseFloat(clampCentsPerSession(c).toFixed(4)).toString()}¢`;
+    }
+
     function smoothstep01(t) {
       const u = normalize01(t);
       return u * u * (3 - 2 * u);
@@ -550,7 +567,7 @@
         reqsPerSec: reqs,
         balloonPodsEnabled: overrides.balloonPodsEnabled ?? false,
         balloonPodCount: overrides.balloonPodCount ?? 3,
-        centsPerSession: overrides.centsPerSession ?? 5,
+        centsPerSession: clampCentsPerSession(overrides.centsPerSession ?? 0.5),
         simSpeedX: clampSimSpeedX(overrides.simSpeedX ?? DEFAULT_SIM_SPEED_X),
         playing: false,
         nodes,
@@ -671,7 +688,7 @@
           return simStateWithScenarioBaseline(s1);
         }
         case 'SET_CENTS':
-          return { ...state, centsPerSession: action.value };
+          return { ...state, centsPerSession: clampCentsPerSession(action.value) };
         case 'TOGGLE_PLAY':
           return { ...state, playing: !state.playing };
         case 'SET_PLAYING':
@@ -967,7 +984,7 @@
           reqsPerSec: 40,
           balloonPodsEnabled: true,
           balloonPodCount: 3,
-          centsPerSession: 5,
+          centsPerSession: 0.5,
         })
       );
 
@@ -1292,13 +1309,13 @@
               <label className="control">
                 <span className="label">
                   <span>Cost per dropped session (cents)</span>
-                  <span>{state.centsPerSession}¢</span>
+                  <span>{formatCentsLabel(state.centsPerSession)}</span>
                 </span>
                 <input
                   type="range"
-                  min={0}
-                  max={50}
-                  step={1}
+                  min={CENTS_PER_SESSION_MIN}
+                  max={CENTS_PER_SESSION_MAX}
+                  step={0.01}
                   value={state.centsPerSession}
                   onChange={(e) => dispatch({ type: 'SET_CENTS', value: Number(e.target.value) })}
                 />
@@ -1385,7 +1402,8 @@
             </div>
             <div className="cost-tile">
               <div className="k">
-                Modeled session impact ({state.metrics.droppedTotal.toLocaleString()} dropped req × {state.centsPerSession}¢)
+                Modeled session impact ({state.metrics.droppedTotal.toLocaleString()} dropped req ×{' '}
+                {formatCentsLabel(state.centsPerSession)})
               </div>
               <div className="v">${state.metrics.sessionCostUsd.toFixed(4)}</div>
             </div>

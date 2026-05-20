@@ -6,9 +6,18 @@
 # Same pause image, resource requests, and PriorityClass so the headroom
 # reservation and preemption behaviour is identical to the Classic run.
 #
-# The only addition is nodeAffinity pinning pods to the Karpenter-managed
-# NodePool (autonode-bench), so Karpenter provisions the headroom nodes and
-# also restores them after preemption — not the default HCP workers.
+# Two Karpenter-specific design rules vs the CAS variant:
+#
+#   1. podAntiAffinity (one pod per node, required): forces Karpenter to
+#      provision one distinct headroom node per replica. Without this,
+#      Karpenter's bin-packing can land all replicas on a single node,
+#      reducing effective headroom, and its consolidation loop can later
+#      eliminate spare nodes by packing the balloons together.
+#
+#   2. No karpenter.sh/do-not-disrupt annotation: we WANT Karpenter to
+#      allow these pods to be preempted/evicted when real workloads arrive.
+#      The resulting Pending state is what triggers Karpenter to re-provision
+#      the headroom node.
 #
 # Applied by: run-test-09b-karpenter-overprovisioning.py
 # Requires: priority-class.yaml to be applied first
@@ -37,6 +46,12 @@ spec:
         - operator: Exists
           effect: NoSchedule
       affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: cluster-overprovisioner
+              topologyKey: kubernetes.io/hostname
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:

@@ -1,0 +1,320 @@
+# OpenTelemetry Demo — ROSA-compatible Helm values
+#
+# Chart: open-telemetry/opentelemetry-demo v0.40.8 (app v2.2.0)
+#
+# Key changes from upstream defaults:
+#   - Heavy optional services disabled to fit on existing benchmark nodes
+#   - OTel Collector switched from DaemonSet to Deployment; host-level presets
+#     disabled (OpenShift already scrapes node/kubelet metrics)
+#   - Jaeger + OpenSearch disabled; Prometheus + Grafana kept for advisor queries
+#   - Load generator disabled; k6 Jobs are used instead
+#   - All service accounts are bound to anyuid SCC via scc-otelcol.yaml
+#     (applied before helm install by deploy.sh); no runAsUser overrides needed
+#
+# Deploy:
+#   CLUSTER_TYPE=classic ./load-test/deploy.sh install
+
+# ---------------------------------------------------------------------------
+# Global defaults applied to all components
+# ---------------------------------------------------------------------------
+default:
+  schedulingRules:
+    # Pin all OTel Demo microservices to the dedicated otel-demo node pool.
+    # deploy.sh provisions this pool (Karpenter NodePool or ROSA MachinePool) before
+    # Helm install. If provisioning fails or times out, deploy.sh overrides this with
+    # an empty nodeSelector so the chart still deploys on default worker nodes.
+    # k6 Job pods intentionally omit this nodeSelector and run on default workers.
+    nodeSelector:
+      workload: otel-demo
+    affinity: {}
+    tolerations:
+      - key: workload
+        value: otel-demo
+        effect: NoSchedule
+        operator: Equal
+  securityContext: {}
+
+# ---------------------------------------------------------------------------
+# Components
+# ---------------------------------------------------------------------------
+components:
+
+  # --- Disabled: heavy / optional services --------------------------------
+  accounting:
+    enabled: false
+
+  fraud-detection:
+    enabled: false
+
+  image-provider:
+    enabled: false
+
+  llm:
+    enabled: false
+
+  product-reviews:
+    enabled: false
+
+  kafka:
+    enabled: false
+
+  postgresql:
+    enabled: true     # required by product-catalog in v2.x
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 200m
+        memory: 512Mi
+
+  load-generator:
+    enabled: false     # use k6 Jobs instead
+
+  # --- Core services with resource tuning ---------------------------------
+  # No runAsUser overrides — anyuid SCC lets images use their built-in UIDs.
+
+  frontend:
+    replicas: 2
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+  frontend-proxy:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+
+  checkout:
+    replicas: 1
+    # Override the default wait-for-kafka init container — Kafka is disabled
+    initContainers: []
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 300m
+        memory: 256Mi
+
+  cart:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+  product-catalog:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+
+  recommendation:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+  payment:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+
+  shipping:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+
+  currency:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+
+  ad:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+  email:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+
+  flagd:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+
+  quote:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+
+  valkey-cart:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+
+# ---------------------------------------------------------------------------
+# OTel Collector — Deployment mode, no host-level presets
+# ---------------------------------------------------------------------------
+opentelemetry-collector:
+  enabled: true
+  mode: deployment
+  replicaCount: 1
+  fullnameOverride: otel-collector
+  image:
+    repository: "otel/opentelemetry-collector-contrib"
+  presets:
+    hostMetrics:
+      enabled: false
+    kubeletMetrics:
+      enabled: false
+    clusterMetrics:
+      enabled: false
+    kubernetesAttributes:
+      enabled: true
+    annotationDiscovery:
+      metrics:
+        enabled: true
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# ---------------------------------------------------------------------------
+# Jaeger — disabled; Prometheus+Grafana sufficient for advisor queries
+# ---------------------------------------------------------------------------
+jaeger:
+  enabled: false
+
+# ---------------------------------------------------------------------------
+# OpenSearch — disabled (Jaeger trace backend, not needed without Jaeger)
+# ---------------------------------------------------------------------------
+opensearch:
+  enabled: false
+
+# ---------------------------------------------------------------------------
+# Prometheus — bundled instance
+# ---------------------------------------------------------------------------
+prometheus:
+  enabled: true
+  alertmanager:
+    enabled: false
+  configmapReload:
+    prometheus:
+      enabled: false
+  kube-state-metrics:
+    enabled: false
+  prometheus-node-exporter:
+    enabled: false
+  prometheus-pushgateway:
+    enabled: false
+  server:
+    fullnameOverride: prometheus
+    extraFlags:
+      - "enable-feature=exemplar-storage"
+      - "web.enable-otlp-receiver"
+    retention: 7d
+    persistentVolume:
+      enabled: false
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+
+# ---------------------------------------------------------------------------
+# Grafana — bundled instance
+# ---------------------------------------------------------------------------
+grafana:
+  enabled: true
+  fullnameOverride: grafana
+  testFramework:
+    enabled: false
+  grafana.ini:
+    auth:
+      disable_login_form: true
+    auth.anonymous:
+      enabled: true
+      org_name: Main Org.
+      org_role: Admin
+    server:
+      root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
+      serve_from_sub_path: true
+  adminPassword: admin
+  plugins:
+    - grafana-opensearch-datasource
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 300m
+      memory: 512Mi

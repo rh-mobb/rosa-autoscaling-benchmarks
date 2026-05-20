@@ -51,6 +51,66 @@ Agents should **complete** those deliverables (not stop at **`make add-pool`**-s
 
 This means test runs are interactive and agent-interpreted, not silent log files.
 
+## Autoscaling Advisor
+
+Discovery-first agent that analyzes a running cluster and produces ranked,
+evidence-backed autoscaling recommendations. Runs three phases: topology
+discovery, workload observation (Prometheus 7d history + VPA), and reasoning
+(R0–R10 catalog). Outputs HTML and JSON reports.
+
+```bash
+cd advisor && pip install -r requirements.txt
+
+# Scope to the OTel demo namespace on the classic-bench cluster
+python3 agent.py --cluster-type classic --namespace otel-demo
+
+# Full cluster audit
+python3 agent.py --cluster-type hcp-autonode
+
+# Open the report
+open reports/advisor/advisor_report.html
+```
+
+See [`advisor/README.md`](advisor/README.md) for the full CLI reference and
+[`.cursor/skills/autoscaling-advisor/SKILL.md`](.cursor/skills/autoscaling-advisor/SKILL.md)
+for the interactive Cursor skill.
+
+---
+
+## Load-Test Harness
+
+A realistic HTTP load-testing environment for validating autoscaling behavior
+with real user-facing metrics (latency, error rate) rather than pod-readiness
+timings alone. Used by the autoscaling advisor to compare before/after states
+when recommendations are applied.
+
+Built on the **OpenTelemetry Demo App** (19 microservices across Go, .NET,
+Python, Node.js, Ruby, Java) with intentionally misconfigured HPAs and
+**k6** for controlled load scenarios.
+
+```bash
+# Deploy to an existing cluster
+CLUSTER_TYPE=classic ./load-test/deploy.sh install
+
+# Run a load scenario (creates a k6 Job, tails output)
+./load-test/deploy.sh run-k6 sudden-spike BASELINE_RPS=30 SPIKE_RPS=300
+./load-test/deploy.sh run-k6 ramp         BASELINE_RPS=30 PEAK_RPS=150
+./load-test/deploy.sh run-k6 burst-and-drop
+
+# Status check
+./load-test/deploy.sh status
+
+# Tear down (with confirmation)
+CLUSTER_TYPE=classic ./load-test/deploy.sh uninstall
+```
+
+**Scenarios:** `sudden-spike` (10× burst), `ramp` (linear to 5×), `daily-pattern`
+(compressed 24h), `sustained-high` (3× hold + scale-down observation),
+`burst-and-drop` (HPA stabilization tuning).
+
+Full documentation: **[load-test/README.md](load-test/README.md)**. Skill:
+**`benchmark-load-test`**.
+
 ## Browser autoscaling simulator
 
 For a **local, no-cluster demo**, open **`simulator/index.html`** in a browser. The page loads React and Recharts from public CDNs, so you need **network access** the first time you run it.
@@ -66,7 +126,7 @@ Architecture, constants, tick order, and limitations: **`simulator/README.md`**.
 
 ## GitHub Pages
 
-On every push to **`main`**, **Deploy GitHub Pages** (`.github/workflows/deploy-github-pages.yml`) builds the Slidev deck under **`reports/classic-vs-hcp_autonode/`** with the correct subpath base, copies **`simulator/index.html`** to **`/simulator/`**, renders **`pages/index.html`** as the site home page, and deploys the bundle to GitHub Pages. You can also run the workflow manually (**Actions → Deploy GitHub Pages → Run workflow**).
+On every push to **`main`**, **Deploy GitHub Pages** (`.github/workflows/deploy-github-pages.yml`) builds the Slidev deck under **`presentation/`** with the correct subpath base, copies **`simulator/index.html`** to **`/simulator/`**, renders **`pages/index.html`** as the site home page, and deploys the bundle to GitHub Pages. You can also run the workflow manually (**Actions → Deploy GitHub Pages → Run workflow**).
 
 **One-time setup:** in the GitHub repo, open **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions** (not “Deploy from a branch”). Until this is saved, **Deploy GitHub Pages** will fail at the deploy step with **404 Not Found** (“Creating Pages deployment failed”). After the first successful run, the site URL is:
 
@@ -90,6 +150,7 @@ The landing template lives in **`pages/index.html`** (placeholder `__GITHUB_REPO
 | [`oc`](https://docs.openshift.com/container-platform/latest/cli_reference/openshift_cli/getting-started-cli.html) | Cluster login and context switching |
 | [`aws`](https://aws.amazon.com/cli/) | EC2 instance type validation |
 | [`terraform`](https://www.terraform.io/) | **`make create-hcp`** default provisions **`clusters/hcp/terraform`** (RHCS + AWS providers) |
+| [`helm`](https://helm.sh/) ≥ 3 | Deploy the OTel demo load-test harness (`load-test/deploy.sh install`) |
 | `jq` | JSON parsing in bash scripts |
 | `python3` | Complex parsing and version detection |
 | `shellcheck` | Bash script linting |
@@ -195,6 +256,7 @@ Invoke them by name in chat. Most skills take **`CLUSTER_TYPE=classic`**, **`hcp
 | `benchmark-arm-nodes` | Test **16** |
 | `benchmark-advanced-autoscaling` | Run **10–16** with cluster-type skips + suite HTML |
 | `benchmark-run-all` | Core suite **01–09** in sequence; comparison HTML under **`reports/`** |
+| `benchmark-load-test` | Deploy OTel demo + k6 load scenarios on a running cluster; validate and tear down |
 
 ## Machine Types Tested
 
@@ -229,6 +291,11 @@ Invoke them by name in chat. Most skills take **`CLUSTER_TYPE=classic`**, **`hcp
 │   ├── autoscaling/      # HPA and VPA definitions
 │   └── overprovisioning/ # pause pod priority class + deployment
 ├── scripts/              # Python utility scripts
+├── load-test/            # OTel demo + k6 load-test harness (see load-test/README.md)
+│   ├── deploy.sh         # install / status / run-k6 / uninstall
+│   ├── helm/             # values-rosa.yaml — ROSA-compatible OTel demo Helm values
+│   ├── manifests/        # namespace, SCC bindings, HPA/VPA/KEDA configs
+│   └── k6/               # scenarios/, lib/, jobs/ — k6 load scripts and Job template
 └── .cursor/
     └── skills/           # Cursor Agent Skills (one per benchmark)
 ```

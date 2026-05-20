@@ -38,8 +38,8 @@ Measure end-to-end latency for autoscaling onto EC2 ARM64 (Graviton) instances.
 
 | Cluster type | Support |
 |---|---|
-| `classic` | **Run** — ROSA CAS with `m6g.xlarge` machine pool |
-| `hcp` | **Run** — ROSA HCP CAS with `m6g.xlarge` machine pool |
+| `classic` | **Skip** — OCM does not allow Graviton (`m6g`/`c6g`) worker machine pools on ROSA Classic (`CLUSTERS-MGMT-400`; multi-arch ARM is **HCP**-only). The harness skips with `checkpoint skip`. |
+| `hcp` | **Run** — ROSA HCP with Graviton machine pool when multi-arch workers are enabled for the shard |
 | `hcp-autonode` | **Run** — Karpenter NodePool with `kubernetes.io/arch: arm64`, m6g.xlarge / c6g.xlarge |
 
 ## Key insight: AutoNode already has the ARM64 AMI
@@ -225,9 +225,9 @@ Create a Canvas with:
    - For AutoNode: that switching between x86 and arm64 is a single NodePool
      field change; no custom NodeClass is needed
 
-## Classic / HCP: ARM machine pool details
+## HCP (`cluster-type=hcp`): ARM machine pool details
 
-The test creates a machine pool named `bench-arm64` with:
+ROSA Classic is skipped for test 16 (Graviton workers are **HCP**/multi-arch only). On **standard HCP**, the harness creates machine pool **`bench-arm64`** with:
 ```
 --instance-type m6g.xlarge
 --enable-autoscaling
@@ -263,12 +263,12 @@ is unavailable in the target AZ, following Graviton best-practice for resilience
 
 The test script deletes its own resources on completion and on SIGINT:
 - `arm64-test` namespace (all cluster types)
-- `bench-arm64` machine pool (Classic/HCP)
+- `bench-arm64` machine pool (**HCP** only — Classic cannot provision Graviton workers)
 - `autonode-arm64` NodePool (AutoNode)
 
 If the test exits mid-run without cleanup, run:
 ```bash
-# Classic / HCP
+# HCP CAS (when applicable)
 oc delete namespace arm64-test --ignore-not-found
 rosa delete machinepool -c <name> --machinepool bench-arm64 --yes
 

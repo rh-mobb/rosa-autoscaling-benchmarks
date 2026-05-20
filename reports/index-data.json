@@ -1,6 +1,17 @@
 {
-  "generated_at": "2026-05-19T01:58:49Z",
+  "generated_at": "2026-05-19T02:53:46Z",
   "reports": [
+    {
+      "file": "20260519T010526-classic-15-classic-spot-instances.html",
+      "report_kind": "test_15",
+      "run_id": "20260519T010526-classic",
+      "title": "Benchmark 15 \u2014 15-spot-instances",
+      "cluster_name": "classic-bench",
+      "topology": "classic",
+      "report_generated_iso": "2026-05-19T02:51:28Z",
+      "total_install_seconds": 3092.54,
+      "total_source": "events.jsonl"
+    },
     {
       "file": "20260518T234857-hcp-autonode-16-hcp-autonode-arm-nodes.html",
       "report_kind": "other",

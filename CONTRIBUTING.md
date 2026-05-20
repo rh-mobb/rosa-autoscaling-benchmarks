@@ -20,7 +20,7 @@ make lint              # shellcheck + ruff
 Slidev deck (optional):
 
 ```bash
-cd reports/classic-vs-hcp_autonode && npm ci && npm run dev
+cd presentation && npm ci && npm run dev
 ```
 
 ## Pull requests

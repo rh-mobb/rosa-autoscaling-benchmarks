@@ -1,0 +1,34 @@
+{
+  "advisor_version": "0.1.0",
+  "generated_at": "2026-05-19T06:46:22.362501+00:00",
+  "run_id": "",
+  "cluster_type": "hcp-autonode",
+  "autoscaler_type": "karpenter",
+  "summary": {
+    "total_recommendations": 0,
+    "critical": 0,
+    "warning": 0,
+    "info": 0,
+    "performance_count": 0,
+    "cost_count": 0,
+    "workloads_with_findings": 0,
+    "prometheus_available": true
+  },
+  "topology": {
+    "node_count": 2,
+    "machine_pools": [],
+    "hpa_count": 0,
+    "vpa_count": 0,
+    "keda_count": 0,
+    "pdb_count": 0,
+    "structural_findings": []
+  },
+  "observations": {
+    "prometheus_available": true,
+    "provision_latency_s": 150.0,
+    "provision_latency_source": "estimate (hcp-autonode default)",
+    "workloads": []
+  },
+  "recommendations": [],
+  "cluster_recommendations": []
+}

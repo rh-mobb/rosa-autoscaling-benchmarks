@@ -1,0 +1,32 @@
+---
+description: Always invoke the relevant benchmark-* or load-test skill before acting on any benchmark, test, deploy, run, teardown, or cluster task in this repo.
+alwaysApply: true
+---
+
+# Skill-First Policy for This Repo
+
+Before executing **any** benchmark, cluster lifecycle, load-test, or advisor task — including teardown, cleanup, and status checks — **read and follow the relevant skill file** under `.cursor/skills/`.
+
+Do **not** quote a script command or shell one-liner as a substitute for invoking the skill. The skill is the source of truth for what steps, checks, and deliverables are required.
+
+## Mapping common requests → skills
+
+| User asks about… | Skill to invoke first |
+|---|---|
+| Load-test deploy / run / teardown / status | `benchmark-load-test` |
+| Autoscaling advisor / recommendations | `autoscaling-advisor` |
+| AutoNode / Karpenter cluster provisioning | `benchmark-create-hcp-autonode` |
+| Cluster install timing (Classic or HCP) | `benchmark-cluster-install` |
+| CAS scale-up / scale-down | `benchmark-autoscale-up` / `benchmark-autoscale-down` |
+| HPA benchmark | `benchmark-hpa` |
+| HPA → CAS cascade | `benchmark-hpa-triggers-cas` |
+| Karpenter progressive scale | `benchmark-autonode-scale` |
+| CAS progressive scale | `benchmark-cas-scale` |
+| Parallel node provisioning | `benchmark-parallel-nodes` |
+| Surge / spike scenarios | `benchmark-planned-surge` / `benchmark-sudden-spike` |
+| Overprovisioning / balloon pods | `benchmark-overprovisioning` |
+| Spot instances | `benchmark-spot-instances` |
+| ARM64 / Graviton nodes | `benchmark-arm-nodes` |
+| Full suite (tests 01–09) | `benchmark-run-all` |
+| Advanced suite (tests 10–16) | `benchmark-advanced-autoscaling` |
+| ROSA CLI syntax / cluster ops | `rosa-cli` |

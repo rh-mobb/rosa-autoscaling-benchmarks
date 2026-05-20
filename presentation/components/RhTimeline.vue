@@ -1,6 +1,6 @@
 <script setup>
 /**
- * RhTimeline — horizontal milestone timeline.
+ * RhTimeline  -  horizontal milestone timeline.
  *
  * Props:
  *   milestones  Array of { date: string, label: string, color?: string }

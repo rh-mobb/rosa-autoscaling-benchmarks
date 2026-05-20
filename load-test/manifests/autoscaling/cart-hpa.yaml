@@ -1,0 +1,41 @@
+---
+# HPA for the OTel demo cart service (.NET).
+#
+# INTENTIONALLY MISCONFIGURED for advisor validation:
+#   - maxReplicas 2: far too low — .NET JIT warmup means each new replica
+#     takes 15-20s to become ready; capping at 2 creates a queue buildup
+#     during checkout spikes
+#
+# Advisor should produce:
+#   R2: raise maxReplicas to at least 6; consider balloon pods for .NET startup lag
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: cart-hpa
+  namespace: otel-demo
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+    load-test/config: misconfigured
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: cart
+  minReplicas: 1
+  maxReplicas: 2
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 30
+    scaleDown:
+      stabilizationWindowSeconds: 300

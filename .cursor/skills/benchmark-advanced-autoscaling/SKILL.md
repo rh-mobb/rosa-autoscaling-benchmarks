@@ -47,7 +47,7 @@ Do not silently work around missing prerequisites.
 |---|---|---|---|---|---|
 | `hcp-autonode` (Karpenter) | **run** | run | **skip** — use test 10 | **run** | **run** |
 | `hcp` (standard HCP, CAS) | **skip** — no NodeClaims | run | **run** | **skip** — no spot support | **run** |
-| `classic` (CAS) | **skip** — no NodeClaims | run | **run** | **run** | **run** |
+| `classic` (CAS) | **skip** — no NodeClaims | run | **run** | **run** | **skip** — arm64 pools not supported (OCM); script skips with checkpoint |
 
 Tests 10 and 14 are the Karpenter/CAS counterparts of the same benchmark.
 They share wave sizing, milestone naming conventions, and JSON output schema.
@@ -59,7 +59,7 @@ Check at the start of the run:
 [[ "${CLUSTER_TYPE}" == "hcp-autonode" ]] && RUN_T10=true  || RUN_T10=false
 [[ "${CLUSTER_TYPE}" != "hcp-autonode" ]] && RUN_T14=true  || RUN_T14=false
 [[ "${CLUSTER_TYPE}" != "hcp" ]]           && RUN_T15=true  || RUN_T15=false
-RUN_T16=true   # test 16 runs on all cluster types
+RUN_T16=true   # hcp-autonode + standard hcp · classic skipped inside run-test-16 (checkpoint skip)
 echo "Test 10: $RUN_T10   Test 14: $RUN_T14   Test 15: $RUN_T15   Test 16: $RUN_T16"
 ```
 
@@ -168,7 +168,7 @@ fi
 | 13 | Parallel node provisioning | `run-test-13-parallel-nodes.py` | all | 10–20 min |
 | 14 | CAS progressive scale (3 waves + scale-down) | `run-test-14-cas-scale.py` | classic, hcp only | 120–180 min |
 | 15 | Spot instance autoscaling | `run-test-15-spot-instances.py` | classic, hcp-autonode | 8–20 min |
-| 16 | ARM64 (Graviton) node provisioning | `run-test-16-arm-nodes.py` | all | 8–20 min |
+| 16 | ARM64 (Graviton) node provisioning | `run-test-16-arm-nodes.py` | hcp, hcp-autonode (**classic skips** in-script) | 8–20 min |
 
 Run sequentially unless resuming from a checkpoint. After each test completes, deliver its Canvas before starting the next.
 
@@ -273,7 +273,7 @@ fi
 
 Follow **`benchmark-spot-instances`** skill for milestone definitions and Canvas format.
 
-### Test 16 — ARM64 (Graviton) node provisioning *(all cluster types)*
+### Test 16 — ARM64 (Graviton) node provisioning *(hcp + hcp-autonode — classic skips inside script)*
 
 ```bash
 python3 scripts/run-test-16-arm-nodes.py $COMMON \

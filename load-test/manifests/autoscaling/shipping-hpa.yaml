@@ -1,0 +1,41 @@
+---
+# HPA for the OTel demo shipping service.
+#
+# INTENTIONALLY MISCONFIGURED for advisor validation:
+#   - threshold 90%: extremely high — pods will be fully saturated and
+#     dropping requests long before HPA fires
+#
+# Advisor should produce:
+#   R1: lower threshold to ~60%; threshold at 90% means 10% headroom
+#       which disappears instantly under any spike
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: shipping-hpa
+  namespace: otel-demo
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+    load-test/config: misconfigured
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: shipping
+  minReplicas: 1
+  maxReplicas: 8
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 90
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 300

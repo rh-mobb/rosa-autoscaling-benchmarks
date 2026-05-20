@@ -1,0 +1,36 @@
+---
+# HPA for the OTel demo product-catalog service — correctly configured.
+# Low-latency Go service; 60% CPU threshold with generous maxReplicas.
+#
+# Advisor should produce: no finding (or info-level confirmation)
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: product-catalog-hpa
+  namespace: otel-demo
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+    load-test/config: correct
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: product-catalog
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Pods
+          value: 4
+          periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 300

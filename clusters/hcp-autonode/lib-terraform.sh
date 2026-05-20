@@ -11,6 +11,13 @@ hcp_terraform_dir() {
 }
 
 ensure_rhcs_token() {
+  # When a service account is configured, let the RHCS provider use it directly.
+  # Exporting RHCS_TOKEN from 'rosa token' (personal login) alongside client credentials
+  # causes the provider to authenticate as the wrong identity, leading to 403s.
+  if [[ -n "${RHCS_CLIENT_ID:-}" && -n "${RHCS_CLIENT_SECRET:-}" ]]; then
+    info "RHCS_CLIENT_ID/RHCS_CLIENT_SECRET set — RHCS provider will use service account credentials."
+    return 0
+  fi
   if [[ -n "${RHCS_TOKEN:-}" ]]; then
     return 0
   fi

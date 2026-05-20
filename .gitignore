@@ -45,7 +45,7 @@ venv/
 node_modules/
 
 # Slidev / Vite — built on demand (CI builds for GitHub Pages)
-reports/classic-vs-hcp_autonode/dist/
+presentation/dist/
 
 # Slide / deck PDF exports (regenerate locally: deck `make pdf` / `npm run export`)
 *.pdf

@@ -1,0 +1,41 @@
+---
+# HPA for the OTel demo frontend service.
+#
+# INTENTIONALLY MISCONFIGURED for advisor validation:
+#   - threshold 80%: too high for a p99 < 200ms SLO — CPU will already be
+#     saturating request queues before HPA fires
+#   - maxReplicas 5: low ceiling, caps out quickly under spike
+#
+# Advisor should produce:
+#   R1: lower threshold to ~60%; R3: add balloon pods
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: frontend-hpa
+  namespace: otel-demo
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+    load-test/config: misconfigured   # advisor validation marker
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: frontend
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 300

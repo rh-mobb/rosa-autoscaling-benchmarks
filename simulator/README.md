@@ -38,7 +38,7 @@ There is **no bundled build step**. To run without CDNs you would need to vendor
 | Day length | Only **daily**: maps one synthetic “day” (24 hours of shape) onto this many **simulated seconds** (default 1800 s). |
 | Manual traffic slider | Active when scenario is **manual** and **sim time is 0**: rebuilding baseline fleet from `ceil((replicas + balloons) / slotsPerNode)` with minimum node floor. |
 | Balloon pods | Optional low-priority placeholders occupying slots until apps need them (qualitative overprovisioning). |
-| Cents per dropped session | Converts **unserved req/s** per tick into a **separate** illustrative USD track (not infra billing). |
+| Cents per dropped session | Converts **unserved req/s** per tick into a **separate** illustrative USD track (not infra billing). Slider **0.01¢–10¢**, fractional cents allowed (default **0.5¢**). |
 
 **Important:** Several controls only recompute the initial fleet when **`simTime === 0`** (see **Fleet sizing at sim time 0** and reducer actions like `SET_BALLOON_*` / `SET_REQS` in `index.html`). After time advances, toggling balloons or manual traffic does not reshuffle the universe unless you **Reset** or use scenarios that update live demand without requiring those sliders at t=0.
 

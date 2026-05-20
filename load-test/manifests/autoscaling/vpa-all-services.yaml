@@ -1,0 +1,159 @@
+---
+# VPA in advise-only (Off) mode for all OTel demo services.
+# Collects resource usage history and provides right-sizing recommendations
+# without ever modifying running pods (safe to run alongside HPA).
+#
+# After running under load for at least 24h, read recommendations:
+#   oc get vpa -n otel-demo -o yaml | grep -A 20 "containerRecommendations"
+#
+# The advisor's Phase 2 reads these recommendations to detect over/under-provisioned
+# containers (classification question Q1).
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: frontend-vpa
+  namespace: otel-demo
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: otel-demo-frontend
+  updatePolicy:
+    updateMode: "Off"
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: checkout-vpa
+  namespace: otel-demo
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: otel-demo-checkout
+  updatePolicy:
+    updateMode: "Off"
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: cart-vpa
+  namespace: otel-demo
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: otel-demo-cart
+  updatePolicy:
+    updateMode: "Off"
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: product-catalog-vpa
+  namespace: otel-demo
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: otel-demo-product-catalog
+  updatePolicy:
+    updateMode: "Off"
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: recommendation-vpa
+  namespace: otel-demo
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: otel-demo-recommendation
+  updatePolicy:
+    updateMode: "Off"
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: payment-vpa
+  namespace: otel-demo
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: otel-demo-payment
+  updatePolicy:
+    updateMode: "Off"
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: shipping-vpa
+  namespace: otel-demo
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: otel-demo-shipping
+  updatePolicy:
+    updateMode: "Off"
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: currency-vpa
+  namespace: otel-demo
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: otel-demo-currency
+  updatePolicy:
+    updateMode: "Off"
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: ad-vpa
+  namespace: otel-demo
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: otel-demo-ad
+  updatePolicy:
+    updateMode: "Off"
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: email-vpa
+  namespace: otel-demo
+  labels:
+    app.kubernetes.io/part-of: otel-demo
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: otel-demo-email
+  updatePolicy:
+    updateMode: "Off"

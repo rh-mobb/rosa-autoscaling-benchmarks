@@ -10,13 +10,12 @@ provisioning speed against the equivalent x86_64 on-demand run (tests
 03/10/14/15) when that data is available in events.jsonl for the same RUN_ID.
 
 Supported cluster types:
-  classic      — creates a bench-arm64 machine pool via ROSA CLI with
-                 --instance-type m6g.xlarge, then applies
-                 arm64-trigger-classic.yaml.  The pool starts with
-                 min-replicas=0 so scale-up is entirely driven by CAS
-                 responding to FailedScheduling events.
+  classic      — **not supported** by OCM: Graviton (m6g/c6g) worker pools require
+                 ROSA with hosted control planes and multi-arch; the CLI exits early
+                 with a skip checkpoint.
 
-  hcp          — same as classic but via ROSA HCP machine pool CLI.
+  hcp          — creates a bench-arm64 machine pool via ROSA CLI (Graviton) when
+                 the shard supports multi-arch workers.
 
   hcp-autonode — creates the autonode-arm64 NodePool
                  (manifests/autonode/nodepool-arm64.yaml) with
@@ -726,6 +725,30 @@ def main() -> None:
     )
     args = parser.parse_args()
     kubeconfig = resolve_kubeconfig(args)
+
+    # ROSA Classic does not support arm64/graviton machine pools (OCM CLUSTERS-MGMT-400).
+    if args.cluster_type == "classic":
+        skip_reason = (
+            "ROSA Classic does not support arm64 worker machine pools (m6g/c6g); "
+            "requires HCP with multi-arch."
+        )
+        print(f"[16] SKIP: {skip_reason}", file=sys.stderr)
+        if args.run_id:
+            subprocess.run(
+                [
+                    sys.executable,
+                    str(REPO_ROOT / "scripts" / "checkpoint.py"),
+                    "skip",
+                    "--run-id",
+                    args.run_id,
+                    "--test",
+                    TEST_ID,
+                    "--reason",
+                    skip_reason,
+                ],
+                check=True,
+            )
+        sys.exit(0)
 
     result = BenchmarkResult(
         run_id=args.run_id,

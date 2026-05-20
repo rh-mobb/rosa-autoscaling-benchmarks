@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Autoscaling Advisor — classic</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f4f5f7;
+      color: #1a1a2e;
+      line-height: 1.5;
+    }
+    .page { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+    h2 { font-size: 18px; font-weight: 700; margin: 32px 0 12px; color: #1a1a2e; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px; }
+    h3 { font-size: 15px; font-weight: 600; margin: 16px 0 8px; }
+    .card {
+      background: #fff;
+      border: 1px solid #dde;
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin-bottom: 16px;
+      border-left: 4px solid #ccc;
+    }
+    .card.critical { border-left-color: #c0392b; }
+    .card.warning  { border-left-color: #e67e22; }
+    .card.info     { border-left-color: #2980b9; }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .card-title { font-size: 15px; font-weight: 700; font-family: monospace; }
+    .card-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+    .row { display: flex; gap: 8px; margin: 4px 0; flex-wrap: wrap; }
+    .label { font-size: 12px; font-weight: 600; color: #666; min-width: 130px; flex-shrink: 0; }
+    .value { font-size: 13px; color: #333; }
+    pre.yaml {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      padding: 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      overflow-x: auto;
+      margin-top: 10px;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .stats-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    th { background: #f8f8fc; padding: 8px 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dde; }
+    td { padding: 8px 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+    tr:hover td { background: #fafbff; }
+    .tag { display:inline-block;padding:1px 6px;border-radius:4px;font-size:11px;background:#e8eaf6;color:#3949ab;margin:1px; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+<div style="background:#1a1a2e;color:#fff;border-radius:12px;padding:28px 32px;margin-bottom:24px;">
+  <h1 style="font-size:24px;font-weight:800;margin-bottom:8px;">
+    Autoscaling Advisor
+  </h1>
+  <div style="opacity:.8;font-size:14px;">
+    Cluster: <strong>classic</strong> &nbsp;·&nbsp;
+    Autoscaler: <strong>none</strong> &nbsp;·&nbsp;
+    Generated: 2026-05-19 06:46 UTC
+  </div>
+  <div style="margin-top:16px;display:flex;gap:32px;flex-wrap:wrap;">
+    <div>
+      <div style="font-size:11px;opacity:.6;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Performance</div>
+      <div style="font-size:32px;color:#27ae60;font-weight:700;">0</div>
+      <div style="font-size:12px;opacity:.75;margin-top:2px;">
+        <span style="color:#ff6b6b;">0 critical</span> &nbsp;·&nbsp;
+        <span style="color:#ffa94d;">0 warning</span> &nbsp;·&nbsp;
+        <span style="color:#74c0fc;">0 info</span>
+      </div>
+    </div>
+    <div style="width:1px;background:rgba(255,255,255,.15);margin:0 4px;"></div>
+    <div>
+      <div style="font-size:11px;opacity:.6;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Cost Optimization</div>
+      <div style="font-size:32px;font-weight:700;color:#51cf66;">0</div>
+      <div style="font-size:12px;opacity:.75;margin-top:2px;">opportunities</div>
+    </div>
+  </div>
+</div>
+<h2>Infrastructure Summary</h2>
+<div class="stats-row">
+  
+    <div style="background:#fff;border:1px solid #dde;border-radius:8px;
+                padding:16px 20px;min-width:120px;text-align:center;">
+      <div style="font-size:28px;font-weight:700;color:#1a1a2e;">0</div>
+      <div style="font-size:12px;color:#666;margin-top:4px;">Nodes</div>
+      <div style="font-size:11px;color:#999;margin-top:2px;">0 ready</div>
+    </div>
+  
+    <div style="background:#fff;border:1px solid #dde;border-radius:8px;
+                padding:16px 20px;min-width:120px;text-align:center;">
+      <div style="font-size:28px;font-weight:700;color:#1a1a2e;">0</div>
+      <div style="font-size:12px;color:#666;margin-top:4px;">HPAs</div>
+      
+    </div>
+  
+    <div style="background:#fff;border:1px solid #dde;border-radius:8px;
+                padding:16px 20px;min-width:120px;text-align:center;">
+      <div style="font-size:28px;font-weight:700;color:#1a1a2e;">0</div>
+      <div style="font-size:12px;color:#666;margin-top:4px;">VPAs</div>
+      
+    </div>
+  
+    <div style="background:#fff;border:1px solid #dde;border-radius:8px;
+                padding:16px 20px;min-width:120px;text-align:center;">
+      <div style="font-size:28px;font-weight:700;color:#1a1a2e;">0</div>
+      <div style="font-size:12px;color:#666;margin-top:4px;">KEDA</div>
+      
+    </div>
+  
+    <div style="background:#fff;border:1px solid #dde;border-radius:8px;
+                padding:16px 20px;min-width:120px;text-align:center;">
+      <div style="font-size:28px;font-weight:700;color:#1a1a2e;">0</div>
+      <div style="font-size:12px;color:#666;margin-top:4px;">PDBs</div>
+      
+    </div>
+  
+    <div style="background:#fff;border:1px solid #dde;border-radius:8px;
+                padding:16px 20px;min-width:120px;text-align:center;">
+      <div style="font-size:28px;font-weight:700;color:#1a1a2e;">⚠️ None</div>
+      <div style="font-size:12px;color:#666;margin-top:4px;">Autoscaler</div>
+      
+    </div>
+  
+    <div style="background:#fff;border:1px solid #dde;border-radius:8px;
+                padding:16px 20px;min-width:120px;text-align:center;">
+      <div style="font-size:28px;font-weight:700;color:#1a1a2e;">360s</div>
+      <div style="font-size:12px;color:#666;margin-top:4px;">Prov. latency</div>
+      <div style="font-size:11px;color:#999;margin-top:2px;">estimate (classic default)</div>
+    </div>
+</div>
+<h3>Machine Pools / NodePools</h3>
+<table>
+  <tr><th>Name</th><th>Instance type</th><th>Ready/Desired</th></tr>
+  <tr><td colspan='3' style='color:#999'>No MachineSets found</td></tr>
+</table>
+<div style="margin-top:12px;font-size:13px;">
+  Prometheus: <span style="color:#e67e22;">⚠ unavailable — recommendations at lower confidence</span>
+</div>
+<h2>Structural Findings</h2>
+<div style="background:#eafaf1;border:1px solid #a9dfbf;border-radius:8px;padding:14px 18px;color:#1e8449;">
+  ✓ No structural issues detected.
+</div>
+<h2>⚡ Performance Findings</h2>
+<p style="font-size:13px;color:#888;margin-bottom:8px;">Scaling correctness, latency, and reliability — fix these first.</p>
+<div style="background:#eafaf1;border:1px solid #a9dfbf;border-radius:8px;padding:14px 18px;color:#1e8449;">
+  ✓ No performance issues detected.
+</div>
+<h2>💰 Cost Optimization Opportunities</h2>
+<p style="font-size:13px;color:#888;margin-bottom:8px;">Reduce compute spend once performance findings are resolved.</p>
+<div style="background:#f0f7fe;border:1px solid #90caf9;border-radius:8px;padding:14px 18px;color:#1565c0;">
+  No cost recommendations — cost optimization requires confirmed multi-arch images or stateless workload verification.
+</div>
+<h2>Confidence Notes</h2>
+<div style="background:#fef9f0;border:1px solid #f0c040;border-radius:8px;padding:16px 20px;">
+  <ul style="padding-left:20px;font-size:13px;color:#555;">
+    <li style="margin-bottom:8px;">Prometheus was not reachable. Traffic pattern analysis was skipped. All workload recommendations are rated <strong>confidence: low</strong> unless VPA recommendations were available. To enable: ensure the cluster's thanos-querier route is accessible or use <code>oc port-forward</code>.</li><li style="margin-bottom:8px;">No VPA recommendations were found. Run VPA in <code>Off</code> (advise-only) mode for at least 24h to generate right-sizing data: see <code>load-test/manifests/autoscaling/vpa-all-services.yaml</code>.</li>
+  </ul>
+</div>
+</div>
+</body>
+</html>

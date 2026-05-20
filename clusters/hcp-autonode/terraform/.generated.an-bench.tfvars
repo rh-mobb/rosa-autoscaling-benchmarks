@@ -23,6 +23,6 @@ enable_termination_protection      = false
 tags = {
   Terraform    = "true"
   Cluster      = "an-bench"
-  BenchmarkRun = "20260518T225825-hcp-autonode"
+  BenchmarkRun = "20260520T000458-hcp-autonode"
 }
 additional_cluster_properties = { provision_shard_id = "9f11dd2b-98c1-11f0-8fe5-0a580a830a08" }
