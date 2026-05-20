@@ -388,18 +388,19 @@ Production hardening (if asked): in a production cluster you can add belt-and-su
   <template #right>
 
   ### Workload, Balloons, Advanced
-  6. **HPA** (Test **06**)  -  breach → new replicas Ready **~4 s** with spare capacity
-  7. **HPA → autoscaler** (Test **08**)  -  minutes when the cluster is tight
-  8. **Balloon** (Test **09**)  -  headroom + HPA
-  9. **Advanced**  -  Tests **11–13** (VPA advise-only is Test **07** / taxonomy slide **6**  -  no timed slide)
-
+  6. **HPA**  -  breach → new replicas Ready
+  7. **HPA → autoscaler**  -  minutes when the cluster is tight
+  8. **Balloon pods**  -  headroom + HPA burst
+  9. **Advanced**  -  planned surge, sudden spike, parallel node provisioning
   </template>
 </RhTwoColumn>
 
 <!--
-Speaker note: After the taxonomy slides (**3–8**): left column **(1)–(5)** cluster plane; right **(6)–(9)** workload + advanced. Classic CAS progressive waves mirror AutoNode Test **10** where paired. Timed **HPA** is Test **06**; **VPA** only on slide **6** + suite **07**.
+Speaker note: Left column covers the cluster plane (install, pools, scale-up/down, instance fit).
+Right column covers workload scaling - HPA with spare capacity, HPA cascading into the autoscaler
+when capacity is exhausted, balloon pods absorbing a burst, and advanced surge/spike patterns.
+VPA is covered in the autoscaling taxonomy section as an advise-only tool, not a timed benchmark.
 -->
-
 ---
 layout: section
 class: section-header
@@ -416,47 +417,26 @@ Speaker note: From zero to schedulable  -  Classic vs HCP + AutoNode. Skipped in
 
 ---
 
-<!-- SLIDE 14  -  Install timelines side by side -->
+<!-- SLIDE 14  -  Cluster install animation -->
 
-# Cluster Install  -  Milestone Timelines
+# Cluster Install  -  Classic vs HCP
 
-<div class="text-xs font-semibold mb-1" style="color: var(--rh-muted)">ROSA CLASSIC  -  53m</div>
+<ClusterInstallAnimation />
 
-<RhTimeline
-  :milestones="[
-    { date: 'T+0',   label: 'rosa create\ncluster',        color: '#73BCF7' },
-    { date: '+1m',   label: 'OCM API call\ncomplete',       color: '#73BCF7' },
-    { date: '+52m',  label: 'OCM cluster\nReady',           color: '#5BA352' },
-    { date: '+52m',  label: 'oc login OK\nworkers Ready',   color: '#5BA352' },
-    { date: '+53m',  label: 'ClusterOperators\nAvailable',  color: '#EE0000' },
-  ]"
-/>
-<br><br>
-<div class="text-xs font-semibold mt-4 mb-1" style="color: var(--rh-muted)">ROSA HCP + AUTONODE  -  ~15m</div>
+<div class="mt-3 max-w-5xl mx-auto text-sm pl-4 border-l-4" style="border-color: var(--rh-red); color: var(--rh-muted);">
 
-<RhTimeline
-  :milestones="[
-    { date: 'T+0',    label: 'Terraform\ninit',            color: '#73BCF7' },
-    { date: '+7s',    label: 'terraform apply\nstarted',    color: '#73BCF7' },
-    { date: '+13m',  label: 'OCM cluster\nReady',          color: '#5BA352' },
-    { date: '+13m',  label: 'oc login OK\nnodes 2/2',      color: '#5BA352' },
-    { date: '+13m',  label: 'ClusterOperators\nAvailable', color: '#5BA352' },
-    { date: '+15m',  label: 'AutoNode\nenabled + CRDs',    color: '#EE0000' },
-  ]"
-  :legend="[
-    { color: '#73BCF7', label: 'Provisioning / Terraform' },
-    { color: '#5BA352', label: 'Cluster ready' },
-    { color: '#EE0000', label: 'Operators / AutoNode' },
-  ]"
-/>
+<strong style="color: var(--rh-text)">Insight -</strong> HCP's control plane runs in <strong>Red Hat's infrastructure</strong> and is ready in moments - your longest wait is EC2 spinning up worker nodes (~13 min). Classic must provision its entire control plane, infra nodes, <em>and</em> workers in your account, stacking the waits to ~53 min.
+
+</div>
 
 <!--
-Speaker note: Two timelines, same horizontal scale to make the gap obvious.
-Classic spends 51+ minutes waiting for OCM to provision the shared control plane.
-HCP's control plane is pre-provisioned by Red Hat  -  you're only waiting ~13 minutes
-for OCM to register your cluster and your workers to join.
-AutoNode IAM setup and rosa edit add ~2 minutes on top. Total: ~15 min  -  3.5× faster.
+Speaker note: The key visual is the Hosted Control Plane box on the right - it is already lit before
+the animation even starts. Red Hat runs that in their account; you pay nothing for it and wait
+nothing for it. Classic's three-stage provisioning (control plane -> infra -> workers) is the
+bottleneck. The 3.5x speedup matters most for teams iterating on cluster config, running ephemeral
+benchmark clusters, or needing fast disaster recovery.
 -->
+
 
 ---
 
@@ -481,7 +461,7 @@ AutoNode IAM setup and rosa edit add ~2 minutes on top. Total: ~15 min  -  3.5×
 </div>
 
 <!--
-Speaker note: HCP's control plane is already running in Red Hat's account  - 
+Speaker note: HCP's control plane is already running in Red Hat's account  -
 you only wait for your workers to bootstrap (~13 min) and the AutoNode setup (~2 min).
 Classic must provision the entire control plane from scratch, which takes ~52 min.
 The 3.5× speedup matters most for teams that iterate on cluster config, run ephemeral
@@ -571,7 +551,7 @@ for each major autoscaling scenario.
 </div>
 
 <!--
-Speaker note: The key design choice: no HPA. HPA adds its own latency  - 
+Speaker note: The key design choice: no HPA. HPA adds its own latency  -
 metric scrape interval, 15s evaluation cycle  -  which we measure separately
 in the HPA slides later in the deck. Direct replica scaling gives clean autoscaler-only numbers.
 1500m CPU requests ensure every +2 replica wave needs exactly 1 new node
@@ -600,7 +580,7 @@ on both cluster types, making scale-up waves directly comparable.
 
 <!--
 Speaker note: The fork is behavioural, not infra. Same AWS provisioning story once the decision is made;
-AutoNode can rightsize capacity to the pods in flight; CAS grows MachineSet replicas  - 
+AutoNode can rightsize capacity to the pods in flight; CAS grows MachineSet replicas  -
 granularity is the pool, not a single burst workload. Pending → NodeClaim fires in roughly a second on our runs;
 CAS’s loop idle time is where decision latency (e.g. 34 s–2 m) comes from.
 -->

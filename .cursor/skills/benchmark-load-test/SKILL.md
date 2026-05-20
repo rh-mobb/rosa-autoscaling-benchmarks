@@ -139,13 +139,11 @@ The k6 pod memory limit is 1Gi (raised from 512Mi after an OOMKill at 300 RPS on
 
 Scale up from 150 only on clusters with ≥ 4 workers or after confirming k6 pod memory headroom with `oc adm top pod`.
 
-### "pod not found yet" warning
+### Sequential scenario runs
 
-`run-k6` waits 5 seconds then tries to find the pod by label. If the API hasn't registered it yet you'll see a warning — the Job was submitted successfully. Check manually:
+`run-k6` tails the pod log and waits for the Job to complete before returning, so calling it multiple times in a shell chain (`&&`) runs scenarios sequentially. It retries pod discovery for up to 60 s before giving up.
 
-```bash
-oc get pods -n otel-demo -l load-test/scenario=<scenario>
-```
+If you see all scenarios submitting in rapid succession (old behaviour), you are on an outdated `deploy.sh` — pull the latest and re-run.
 
 ## Endpoints tested
 

@@ -357,21 +357,34 @@ cmd_run_k6() {
 
   echo "[k6] Job created: k6-${scenario}-${timestamp}"
   echo "[k6] Waiting for Pod to start..."
-  sleep 5
 
-  local pod
-  pod=$(oc get pods -n "${NAMESPACE}" \
-    -l "load-test/scenario=${scenario},load-test/timestamp=${timestamp}" \
-    -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)
+  local pod deadline=60 elapsed=0
+  while [[ $elapsed -lt $deadline ]]; do
+    pod=$(oc get pods -n "${NAMESPACE}" \
+      -l "load-test/scenario=${scenario},load-test/timestamp=${timestamp}" \
+      -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)
+    [[ -n "${pod}" ]] && break
+    sleep 3
+    elapsed=$((elapsed + 3))
+  done
 
   if [[ -z "${pod}" ]]; then
-    echo "[k6] WARNING: pod not found yet — check: oc get pods -n ${NAMESPACE} -l load-test/scenario=${scenario}"
-    return
+    echo "[k6] ERROR: pod for scenario '${scenario}' did not appear within ${deadline}s"
+    echo "  Check: oc get pods -n ${NAMESPACE} -l load-test/scenario=${scenario}"
+    return 1
   fi
 
-  echo "[k6] Pod: ${pod}"
-  echo "[k6] Tailing logs (Ctrl-C to detach; Job keeps running)..."
+  echo "[k6] Pod: ${pod} — waiting for Running..."
+  oc wait pod/"${pod}" -n "${NAMESPACE}" --for=condition=Ready --timeout=120s 2>/dev/null || true
+
+  echo "[k6] Tailing logs (Ctrl-C to detach; Job keeps running in cluster)..."
   oc logs -n "${NAMESPACE}" -f "${pod}" || true
+
+  echo "[k6] Waiting for Job to complete..."
+  oc wait job/"k6-${scenario}-${timestamp}" -n "${NAMESPACE}" \
+    --for=condition=Complete --timeout=3600s 2>/dev/null || \
+  oc wait job/"k6-${scenario}-${timestamp}" -n "${NAMESPACE}" \
+    --for=condition=Failed --timeout=3600s 2>/dev/null || true
 
   echo ""
   echo "[k6] Fetch results with:"
